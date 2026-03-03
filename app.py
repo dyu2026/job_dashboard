@@ -155,11 +155,6 @@ if search:
 
 st.subheader("📋 All Jobs")
 
-def highlight_new(row):
-    if row["is_new_24h"]:
-        return ["background-color: #1f3d1f"] * len(row)
-    return [""] * len(row)
-
 display_cols = [
     "company",
     "title",
@@ -168,16 +163,25 @@ display_cols = [
     "seniority",
     "function",
     "first_seen_at",
+    "is_new_24h",   # keep for styling
 ]
 
-styled_df = df[display_cols].sort_values(
+table_df = df[display_cols].sort_values(
     "first_seen_at", ascending=False
-).style.apply(highlight_new, axis=1)
+)
+
+def highlight_new(row):
+    if row["is_new_24h"]:
+        return ["background-color: #112b11"] * len(row)
+    return [""] * len(row)
+
+styled_df = table_df.style.apply(highlight_new, axis=1)
 
 st.dataframe(
-    styled_df,
+    styled_df.hide(columns=["is_new_24h"]),  # hide from user
     column_config={
         "url": st.column_config.LinkColumn("Apply", display_text="Open")
     },
     use_container_width=True,
 )
+
