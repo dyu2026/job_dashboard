@@ -19,6 +19,11 @@ japan_only = st.sidebar.checkbox("🇯🇵 Japan Only")
 response = supabase.table("jobs").select("*").execute()
 df = pd.DataFrame(response.data)
 
+# Remove technical columns
+columns_to_hide = ["external_id", "posted_at", "platform"]
+df = df.drop(columns=[col for col in columns_to_hide if col in df.columns])
+df = df.rename(columns={"url": "Job Link"})
+
 # --- Apply Filters ---
 if remote_only:
     df = df[df["is_remote"] == True]
@@ -38,7 +43,16 @@ st.subheader("🔥 New Jobs (Last 24 Hours)")
 last_24 = datetime.utcnow() - timedelta(hours=24)
 new_jobs = df[df["created_at"] >= last_24]
 
-st.dataframe(new_jobs)
+st.dataframe(
+    new_jobs,
+    column_config={
+        "Job Link": st.column_config.LinkColumn(
+            "Apply",
+            display_text="Open"
+        )
+    },
+    use_container_width=True
+)
 
 # --- Search ---
 st.subheader("🔎 Search Jobs")
@@ -53,4 +67,13 @@ if search:
     ]
     st.dataframe(filtered)
 else:
-    st.dataframe(df)
+    st.dataframe(
+        df,
+        column_config={
+            "Job Link": st.column_config.LinkColumn(
+                "Apply",
+                display_text="Open"
+            )
+        },
+        use_container_width=True
+    )
