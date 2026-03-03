@@ -22,7 +22,6 @@ st.title("🧭 Job Intelligence Dashboard")
 st.sidebar.header("Filters")
 
 remote_only = st.sidebar.checkbox("🌍 Remote Only")
-japan_only = st.sidebar.checkbox("🇯🇵 Japan Only")
 focus_roles = st.sidebar.checkbox(
     "🎯 Focus Roles (Product / Web / eCommerce / Localization / Globalization / Experience / Operations)"
 )
@@ -200,6 +199,7 @@ st.dataframe(
     },
     use_container_width=True,
 )
+
 
 
 
