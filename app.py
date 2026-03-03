@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
-import os
 
 # -----------------------------------
 # Supabase Setup
@@ -14,14 +13,19 @@ SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 st.set_page_config(page_title="Job Dashboard", layout="wide")
-st.title("🧭 Job Scraper Dashboard")
+st.title("🧭 Job Intelligence Dashboard")
 
 # -----------------------------------
 # Sidebar Filters
 # -----------------------------------
 
+st.sidebar.header("Filters")
+
 remote_only = st.sidebar.checkbox("🌍 Remote Only")
 japan_only = st.sidebar.checkbox("🇯🇵 Japan Only")
+focus_roles = st.sidebar.checkbox(
+    "🎯 Focus Roles (Product / Web / eCommerce / Localization / Globalization / Experience / Operations)"
+)
 
 # -----------------------------------
 # Fetch Data
@@ -37,98 +41,143 @@ if not data:
 df = pd.DataFrame(data)
 
 # -----------------------------------
-# Column Cleanup
+# Cleanup & Formatting
 # -----------------------------------
 
-columns_to_hide = ["external_id", "platform"]
-df = df.drop(columns=[col for col in columns_to_hide if col in df.columns], errors="ignore")
+df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], errors="coerce")
+df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], errors="coerce")
 
-df = df.rename(columns={"url": "Job Link"})
+now_utc = datetime.now(timezone.utc)
+last_24 = now_utc - timedelta(hours=24)
+today_start = now_utc.replace(hour=0, minute=0, second=0, microsecond=0)
 
-# Convert timestamps safely
-if "first_seen_at" in df.columns:
-    df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], errors="coerce")
-
-if "last_seen_at" in df.columns:
-    df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], errors="coerce")
+df["is_new_24h"] = df["first_seen_at"] >= last_24
+df["is_new_today"] = df["first_seen_at"] >= today_start
 
 # -----------------------------------
-# Apply Sidebar Filters
+# Apply Filters
 # -----------------------------------
 
-if remote_only and "is_remote" in df.columns:
+if remote_only:
     df = df[df["is_remote"] == True]
 
-if japan_only and "is_japan" in df.columns:
+if japan_only:
     df = df[df["is_japan"] == True]
 
+if focus_roles:
+    keywords = [
+        "product",
+        "web",
+        "ecommerce",
+        "localization",
+        "globalization",
+        "experience",
+        "operations",
+    ]
+    pattern = "|".join(keywords)
+    df = df[df["title"].str.contains(pattern, case=False, na=False)]
+
 if df.empty:
-    st.warning("No jobs match the selected filters.")
+    st.warning("No jobs match filters.")
     st.stop()
 
 # -----------------------------------
-# 🔥 New Jobs Section (Last 24 Hours)
+# 🔥 Metrics Row
+# -----------------------------------
+
+col1, col2, col3 = st.columns(3)
+
+col1.metric("Total Jobs", len(df))
+col2.metric("🔥 New (24h)", df["is_new_24h"].sum())
+col3.metric("🆕 New Today (UTC)", df["is_new_today"].sum())
+
+st.divider()
+
+# -----------------------------------
+# 📊 Company Breakdown
+# -----------------------------------
+
+st.subheader("📊 Company Breakdown")
+
+company_stats = (
+    df.groupby("company")
+    .agg(
+        total_jobs=("title", "count"),
+        new_24h=("is_new_24h", "sum"),
+    )
+    .sort_values("total_jobs", ascending=False)
+    .reset_index()
+)
+
+st.dataframe(company_stats, use_container_width=True)
+
+st.divider()
+
+# -----------------------------------
+# 🔥 New Jobs Section
 # -----------------------------------
 
 st.subheader("🔥 New Jobs (Last 24 Hours)")
 
-if "first_seen_at" in df.columns:
-    last_24 = datetime.now(timezone.utc) - timedelta(hours=24)
-    new_jobs = df[df["first_seen_at"] >= last_24]
-else:
-    new_jobs = pd.DataFrame()
+new_jobs = df[df["is_new_24h"]]
 
 if new_jobs.empty:
-    st.info("No new jobs in the last 24 hours.")
+    st.info("No new jobs in last 24 hours.")
 else:
     st.dataframe(
         new_jobs.sort_values("first_seen_at", ascending=False),
         column_config={
-            "Job Link": st.column_config.LinkColumn(
-                "Apply",
-                display_text="Open"
-            )
+            "url": st.column_config.LinkColumn("Apply", display_text="Open")
         },
-        use_container_width=True
+        use_container_width=True,
     )
 
+st.divider()
+
 # -----------------------------------
-# 🔎 Search Section
+# 🔎 Search
 # -----------------------------------
 
 st.subheader("🔎 Search Jobs")
 
-search = st.text_input("Search by title, company, or location")
+search = st.text_input("Search title, company, location")
 
 if search:
-    filtered = df[
-        df["title"].str.contains(search, case=False, na=False) |
-        df["company"].str.contains(search, case=False, na=False) |
-        df["location"].str.contains(search, case=False, na=False)
+    df = df[
+        df["title"].str.contains(search, case=False, na=False)
+        | df["company"].str.contains(search, case=False, na=False)
+        | df["location"].str.contains(search, case=False, na=False)
     ]
 
-    if filtered.empty:
-        st.info("No matching jobs found.")
-    else:
-        st.dataframe(
-            filtered.sort_values("first_seen_at", ascending=False),
-            column_config={
-                "Job Link": st.column_config.LinkColumn(
-                    "Apply",
-                    display_text="Open"
-                )
-            },
-            use_container_width=True
-        )
-else:
-    st.dataframe(
-        df.sort_values("first_seen_at", ascending=False),
-        column_config={
-            "Job Link": st.column_config.LinkColumn(
-                "Apply",
-                display_text="Open"
-            )
-        },
-        use_container_width=True
-    )
+# -----------------------------------
+# 🧠 Main Job Table (With Highlight)
+# -----------------------------------
 
+st.subheader("📋 All Jobs")
+
+def highlight_new(row):
+    if row["is_new_24h"]:
+        return ["background-color: #1f3d1f"] * len(row)
+    return [""] * len(row)
+
+display_cols = [
+    "company",
+    "title",
+    "location",
+    "url",
+    "seniority",
+    "function",
+    "first_seen_at",
+]
+
+styled_df = df[display_cols].sort_values(
+    "first_seen_at", ascending=False
+).style.apply(highlight_new, axis=1)
+
+st.dataframe(
+    styled_df,
+    column_config={
+        "url": st.column_config.LinkColumn("Apply", display_text="Open")
+    },
+    use_container_width=True,
+)
