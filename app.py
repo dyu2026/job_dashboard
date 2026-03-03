@@ -155,7 +155,11 @@ if search:
 
 st.subheader("📋 All Jobs")
 
+# Create badge column
+df["New"] = df["is_new_24h"].apply(lambda x: "🔥 NEW" if x else "")
+
 display_cols = [
+    "New",
     "company",
     "title",
     "location",
@@ -163,22 +167,14 @@ display_cols = [
     "seniority",
     "function",
     "first_seen_at",
-    "is_new_24h",   # keep for styling
 ]
 
 table_df = df[display_cols].sort_values(
     "first_seen_at", ascending=False
 )
 
-def highlight_new(row):
-    if row["is_new_24h"]:
-        return ["background-color: #112b11"] * len(row)
-    return [""] * len(row)
-
-styled_df = table_df.style.apply(highlight_new, axis=1)
-
 st.dataframe(
-    styled_df.hide(columns=["is_new_24h"]),  # hide from user
+    table_df,
     column_config={
         "url": st.column_config.LinkColumn("Apply", display_text="Open")
     },
