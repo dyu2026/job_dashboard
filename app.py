@@ -12,9 +12,19 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 st.title("🧭 Job Scraper Dashboard")
 
+remote_only = st.sidebar.checkbox("🌍 Remote Only")
+japan_only = st.sidebar.checkbox("🇯🇵 Japan Only")
+
 # --- Fetch Data ---
 response = supabase.table("jobs").select("*").execute()
 df = pd.DataFrame(response.data)
+
+# --- Apply Filters ---
+if remote_only:
+    df = df[df["is_remote"] == True]
+
+if japan_only:
+    df = df[df["is_japan"] == True]
 
 if df.empty:
     st.warning("No jobs found.")
