@@ -119,13 +119,29 @@ st.divider()
 
 st.subheader("🔥 New Jobs (Last 24 Hours)")
 
+# Badge column
+df["New"] = df["is_new_24h"].apply(lambda x: "🔥 NEW" if x else "")
+
+display_cols = [
+    "New",
+    "company",
+    "title",
+    "location",
+    "url",
+    "seniority",
+    "function",
+    "first_seen_at",
+]
+
 new_jobs = df[df["is_new_24h"]]
 
 if new_jobs.empty:
     st.info("No new jobs in last 24 hours.")
 else:
     st.dataframe(
-        new_jobs.sort_values("first_seen_at", ascending=False),
+        new_jobs[display_cols].sort_values(
+            "first_seen_at", ascending=False
+        ),
         column_config={
             "url": st.column_config.LinkColumn("Apply", display_text="Open")
         },
@@ -155,26 +171,10 @@ if search:
 
 st.subheader("📋 All Jobs")
 
-# Create badge column
-df["New"] = df["is_new_24h"].apply(lambda x: "🔥 NEW" if x else "")
-
-display_cols = [
-    "New",
-    "company",
-    "title",
-    "location",
-    "url",
-    "seniority",
-    "function",
-    "first_seen_at",
-]
-
-table_df = df[display_cols].sort_values(
-    "first_seen_at", ascending=False
-)
-
 st.dataframe(
-    table_df,
+    df[display_cols].sort_values(
+        "first_seen_at", ascending=False
+    ),
     column_config={
         "url": st.column_config.LinkColumn("Apply", display_text="Open")
     },
