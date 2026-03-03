@@ -36,12 +36,12 @@ if df.empty:
     st.stop()
 
 # Convert created_at
-df["created_at"] = pd.to_datetime(df["created_at"])
+df["first_seen_at"] = pd.to_datetime(df["first_seen_at"])
 
 # --- Filter: Last 24 Hours ---
 st.subheader("🔥 New Jobs (Last 24 Hours)")
 last_24 = datetime.utcnow() - timedelta(hours=24)
-new_jobs = df[df["created_at"] >= last_24]
+new_jobs = df[df["first_seen_at"] >= last_24]
 
 st.dataframe(
     new_jobs,
@@ -77,3 +77,4 @@ else:
         },
         use_container_width=True
     )
+
