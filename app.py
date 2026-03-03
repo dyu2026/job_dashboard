@@ -31,7 +31,10 @@ focus_roles = st.sidebar.checkbox(
 # Fetch Data
 # -----------------------------------
 
-response = supabase.table("jobs").select("*").execute()
+response = supabase.table("jobs") \
+    .select("*") \
+    .eq("is_active", True) \
+    .execute()
 data = response.data
 
 if not data:
@@ -152,6 +155,25 @@ else:
 st.divider()
 
 # -----------------------------------
+# Recently removed
+# -----------------------------------
+
+st.subheader("🗑 Recently Removed Jobs")
+
+removed = supabase.table("jobs") \
+    .select("*") \
+    .eq("is_active", False) \
+    .gte("last_seen_at", last_24.isoformat()) \
+    .execute()
+
+removed_df = pd.DataFrame(removed.data)
+
+if not removed_df.empty:
+    st.dataframe(removed_df)
+
+st.divider()
+
+# -----------------------------------
 # 🔎 Search
 # -----------------------------------
 
@@ -181,5 +203,6 @@ st.dataframe(
     },
     use_container_width=True,
 )
+
 
 
