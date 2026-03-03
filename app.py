@@ -121,6 +121,7 @@ st.subheader("🔥 New Jobs (Last 24 Hours)")
 
 # Badge column
 df["New"] = df["is_new_24h"].apply(lambda x: "🔥 NEW" if x else "")
+df["first_seen_at"] = df["first_seen_at"].dt.strftime("%Y-%m-%d %H:%M")
 
 display_cols = [
     "New",
@@ -180,4 +181,5 @@ st.dataframe(
     },
     use_container_width=True,
 )
+
 
