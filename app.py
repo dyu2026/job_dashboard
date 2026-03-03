@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from supabase import create_client
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 
 # -----------------------------------
@@ -73,7 +73,7 @@ if df.empty:
 st.subheader("🔥 New Jobs (Last 24 Hours)")
 
 if "first_seen_at" in df.columns:
-    last_24 = datetime.utcnow() - timedelta(hours=24)
+    last_24 = datetime.now(timezone.utc) - timedelta(hours=24)
     new_jobs = df[df["first_seen_at"] >= last_24]
 else:
     new_jobs = pd.DataFrame()
@@ -131,3 +131,4 @@ else:
         },
         use_container_width=True
     )
+
