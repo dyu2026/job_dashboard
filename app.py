@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 # -----------------------------------
 
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
-st.title("🧭 Job Intelligence Dashboard")
+st.title("Job Intelligence Dashboard")
 
 # -----------------------------------
 # Supabase Setup
@@ -273,3 +273,4 @@ with tab4:
         st.info("No jobs removed in last 24 hours.")
     else:
         st.dataframe(removed_df, use_container_width=True)
+
