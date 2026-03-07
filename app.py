@@ -112,13 +112,16 @@ target_mode = st.sidebar.checkbox("🎯 Exec Target Mode")
 # Last Updated (JST)
 # -----------------------------------
 
-# Calculate JST Time (UTC+9)
-jst_timezone = timezone(timedelta(hours=9))
-last_updated_jst = datetime.now(jst_timezone).strftime("%Y-%m-%d %H:%M:%S")
+# Get the most recent timestamp from the records
+if not df.empty and "last_seen_at" in df.columns:
+    # Find the max timestamp and convert to JST (UTC+9)
+    latest_utc = df["last_seen_at"].max()
+    jst_timezone = timezone(timedelta(hours=9))
+    last_updated_jst = latest_utc.astimezone(jst_timezone).strftime("%Y-%m-%d %H:%M:%S")
 
-# Display at the bottom of the sidebar
-st.sidebar.markdown("---")
-st.sidebar.caption(f"🕒 Last updated: {last_updated_jst} JST")
+    # Display at the bottom of the sidebar
+    st.sidebar.markdown("---")
+    st.sidebar.caption(f"Last scraper run: {last_updated_jst} JST")
 
 # -----------------------------------
 # Apply Filters
@@ -297,6 +300,7 @@ with tab4:
         st.info("No jobs removed in last 24 hours.")
     else:
         st.dataframe(removed_df, use_container_width=True)
+
 
 
 
