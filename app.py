@@ -6,6 +6,16 @@ from datetime import datetime, timedelta, timezone
 # ... (Rest of your existing Supabase setup and Fetch Data code) ...
 
 # -----------------------------------
+# Sidebar Content
+# -----------------------------------
+# If you already have sidebar filters, place this at the very bottom
+with st.sidebar:
+    st.title("Filters")
+    # ... your existing sidebar widgets ...
+    
+    st.markdown("---") # Visual separator
+
+# -----------------------------------
 # Page Config
 # -----------------------------------
 
@@ -58,7 +68,7 @@ df["is_new_today"] = df["first_seen_at"] >= today_start
 # Sidebar Filters
 # -----------------------------------
 
-st.sidebar.header("Filters")
+# st.sidebar.header("Filters")
 
 # Remote
 remote_only = st.sidebar.checkbox("Remote Only")
@@ -294,6 +304,7 @@ with tab4:
         st.info("No jobs removed in last 24 hours.")
     else:
         st.dataframe(removed_df, use_container_width=True)
+
 
 
 
