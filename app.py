@@ -3,10 +3,6 @@ import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 
-# 1. NEW: Get current time in JST
-jst_timezone = timezone(timedelta(hours=9))
-last_updated = datetime.now(jst_timezone).strftime("%Y-%m-%d %H:%M:%S")
-
 # ... (Rest of your existing Supabase setup and Fetch Data code) ...
 
 # -----------------------------------
@@ -18,7 +14,6 @@ with st.sidebar:
     # ... your existing sidebar widgets ...
     
     st.markdown("---") # Visual separator
-    st.caption(f"🕒 Last updated: {last_updated} JST")
 
 # -----------------------------------
 # Page Config
@@ -112,6 +107,18 @@ search = st.sidebar.text_input("🔎 Search")
 
 # Target Mode
 target_mode = st.sidebar.checkbox("🎯 Exec Target Mode")
+
+# -----------------------------------
+# Last Updated (JST)
+# -----------------------------------
+
+# Calculate JST Time (UTC+9)
+jst_timezone = timezone(timedelta(hours=9))
+last_updated_jst = datetime.now(jst_timezone).strftime("%Y-%m-%d %H:%M:%S")
+
+# Display at the bottom of the sidebar
+st.sidebar.markdown("---")
+st.sidebar.caption(f"🕒 Last updated: {last_updated_jst} JST")
 
 # -----------------------------------
 # Apply Filters
@@ -290,5 +297,6 @@ with tab4:
         st.info("No jobs removed in last 24 hours.")
     else:
         st.dataframe(removed_df, use_container_width=True)
+
 
 
