@@ -71,14 +71,14 @@ df["is_new_today"] = df["first_seen_at"] >= today_start
 st.sidebar.header("Filters")
 
 # Remote
-remote_only = st.sidebar.checkbox("🌍 Remote Only")
+remote_only = st.sidebar.checkbox("Remote Only")
 
 # Japan Only
-japan_only = st.sidebar.checkbox("🇯🇵 Japan Only")
+japan_only = st.sidebar.checkbox("Japan Only")
 
 # Focus Roles
 focus_roles = st.sidebar.checkbox(
-    "🎯 Focus Roles (Product / Web / eCommerce / Localization / Experience / Ops)"
+    "Focus Roles (Product / Web / eCommerce / Localization / Experience / Ops)"
 )
 
 # Seniority
@@ -106,7 +106,7 @@ selected_companies = st.sidebar.multiselect("Company", companies)
 search = st.sidebar.text_input("🔎 Search")
 
 # Target Mode
-target_mode = st.sidebar.checkbox("🎯 Exec Target Mode")
+target_mode = st.sidebar.checkbox("Exec Target Mode")
 
 # -----------------------------------
 # Last Updated (JST)
@@ -125,7 +125,7 @@ if not df.empty and "last_seen_at" in df.columns:
     last_updated_jst = latest_utc.to_pydatetime().astimezone(jst_timezone).strftime("%Y-%m-%d %H:%M:%S")
 
     st.sidebar.markdown("---")
-    st.sidebar.caption(f"🕒 Last scraper run: {last_updated_jst} JST")
+    st.sidebar.caption(f"Last scraper run: {last_updated_jst} JST")
 
 # -----------------------------------
 # Apply Filters
@@ -304,6 +304,7 @@ with tab4:
         st.info("No jobs removed in last 24 hours.")
     else:
         st.dataframe(removed_df, use_container_width=True)
+
 
 
 
