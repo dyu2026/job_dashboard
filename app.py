@@ -311,9 +311,9 @@ with tab4:
 # -----------------------------------
 
 st.divider()
-st.header("🔎 LinkedIn Hiring Signals (Last 14 Days)")
+st.header("🔎 LinkedIn Hiring Signals (Last 7 Days)")
 
-cutoff = (datetime.now(timezone.utc) - timedelta(days=14)).isoformat()
+cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
 
 linkedin_posts = (
     supabase.table("linkedin_posts")
@@ -340,5 +340,6 @@ else:
         },
         use_container_width=True
     )
+
 
 
