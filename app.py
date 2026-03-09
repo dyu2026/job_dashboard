@@ -311,7 +311,7 @@ with tab4:
 # -----------------------------------
 
 st.divider()
-st.header("🔎 LinkedIn Hiring Signals (Last 7 Days)")
+st.header("LinkedIn Hiring Signals (Last 7 Days)")
 
 cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
 
@@ -340,6 +340,7 @@ else:
         },
         use_container_width=True
     )
+
 
 
 
