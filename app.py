@@ -137,18 +137,28 @@ if remote_only:
 if japan_only:
     df = df[df["location"].str.contains("Japan|Tokyo", case=False, na=False)]
 
-if focus_roles:
-    keywords = [
-        "product",
-        "web",
-        "ecommerce",
-        "localization",
-        "globalization",
-        "experience",
-        "operations",
-    ]
-    pattern = "|".join(keywords)
+role_patterns = []
+
+if product_roles:
+    role_patterns.append("product")
+
+if web_roles:
+    role_patterns.append("web")
+
+if ecommerce_roles:
+    role_patterns.append("ecommerce")
+
+if role_patterns:
+    pattern = "|".join(role_patterns)
     df = df[df["title"].str.contains(pattern, case=False, na=False)]
+    
+# Exec Target Mode override
+if target_mode:
+    df = df[
+        df["title"].str.contains(
+            "Director|Head|VP|Principal", case=False, na=False
+        )
+    ]
 
 if selected_seniority:
     pattern = "|".join(selected_seniority)
@@ -364,6 +374,7 @@ else:
         },
         use_container_width=True
     )
+
 
 
 
