@@ -83,6 +83,9 @@ product_roles = st.sidebar.checkbox("Product")
 web_roles = st.sidebar.checkbox("Web")
 ecommerce_roles = st.sidebar.checkbox("Ecommerce")
 
+# Target Mode
+target_mode = st.sidebar.checkbox("Exec Target Mode")
+
 # Seniority
 st.sidebar.subheader("Seniority")
 
@@ -106,9 +109,6 @@ selected_companies = st.sidebar.multiselect("Company", companies)
 
 # Search
 search = st.sidebar.text_input("🔎 Search")
-
-# Target Mode
-target_mode = st.sidebar.checkbox("Exec Target Mode")
 
 # -----------------------------------
 # Last Updated (JST)
@@ -368,5 +368,6 @@ else:
         },
         use_container_width=True
     )
+
 
 
