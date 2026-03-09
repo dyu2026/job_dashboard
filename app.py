@@ -306,9 +306,39 @@ with tab4:
         st.dataframe(removed_df, use_container_width=True)
 
 
+# -----------------------------------
+# LinkedIn Hiring Signals
+# -----------------------------------
 
+st.divider()
+st.header("🔎 LinkedIn Hiring Signals (Last 14 Days)")
 
+cutoff = (datetime.now(timezone.utc) - timedelta(days=14)).isoformat()
 
+linkedin_posts = (
+    supabase.table("linkedin_posts")
+    .select("*")
+    .gte("published_at", cutoff)
+    .order("published_at", desc=True)
+    .execute()
+)
 
+linkedin_df = pd.DataFrame(linkedin_posts.data)
+
+if linkedin_df.empty:
+    st.info("No LinkedIn hiring signals detected.")
+else:
+
+    linkedin_df["published_at"] = pd.to_datetime(
+        linkedin_df["published_at"]
+    ).dt.strftime("%Y-%m-%d %H:%M")
+
+    st.dataframe(
+        linkedin_df[["published_at","title","url"]],
+        column_config={
+            "url": st.column_config.LinkColumn("Open Post", display_text="View")
+        },
+        use_container_width=True
+    )
 
 
