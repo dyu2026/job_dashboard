@@ -77,9 +77,11 @@ remote_only = st.sidebar.checkbox("Remote Only")
 japan_only = st.sidebar.checkbox("Japan Only")
 
 # Focus Roles
-focus_roles = st.sidebar.checkbox(
-    "Focus Roles (Product / Web / eCommerce / Localization / Experience / Ops)"
-)
+st.sidebar.subheader("Focus Roles")
+
+product_roles = st.sidebar.checkbox("Product")
+web_roles = st.sidebar.checkbox("Web")
+ecommerce_roles = st.sidebar.checkbox("Ecommerce")
 
 # Seniority
 st.sidebar.subheader("Seniority")
@@ -151,14 +153,6 @@ if ecommerce_roles:
 if role_patterns:
     pattern = "|".join(role_patterns)
     df = df[df["title"].str.contains(pattern, case=False, na=False)]
-    
-# Exec Target Mode override
-if target_mode:
-    df = df[
-        df["title"].str.contains(
-            "Director|Head|VP|Principal", case=False, na=False
-        )
-    ]
 
 if selected_seniority:
     pattern = "|".join(selected_seniority)
@@ -374,12 +368,5 @@ else:
         },
         use_container_width=True
     )
-
-
-
-
-
-
-
 
 
