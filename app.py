@@ -315,8 +315,15 @@ with tab4:
             "%Y-%m-%d %H:%M"
         )
 
+        # Ensure Priority exists
+        if "Priority" not in removed_df.columns:
+            removed_df["Priority"] = removed_df["title"].apply(tag_priority)
+
+        # Only keep columns that exist
+        safe_cols = [c for c in display_cols if c in removed_df.columns]
+
         st.dataframe(
-            removed_df.sort_values("first_seen_at", ascending=False)[display_cols],
+            removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
                 "url": st.column_config.LinkColumn("Apply", display_text="Open")
             },
@@ -357,6 +364,7 @@ else:
         },
         use_container_width=True
     )
+
 
 
 
