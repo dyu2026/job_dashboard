@@ -199,9 +199,9 @@ total_companies = df["company"].nunique()
 
 col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("Total Jobs", total_jobs)
-col2.metric("🔥 New (24h)", new_24h)
-col3.metric("🆕 New Today (UTC)", new_today)
+col1.metric("Total Jobs", len(df))
+col2.metric("🔥 New (24h)", int(df["is_new_24h"].sum()))
+col3.metric("🆕 New Today (UTC)", int(df["is_new_today"].sum()))
 col4.metric("Companies Tracked", total_companies)
 
 st.divider()
@@ -343,6 +343,7 @@ else:
         },
         use_container_width=True
     )
+
 
 
 
