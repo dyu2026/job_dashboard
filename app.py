@@ -148,7 +148,7 @@ if web_roles:
     role_patterns.append("web")
 
 if ecommerce_roles:
-    role_patterns.append("ecommerce")
+    role_patterns.append("ecommerce|e-commerce|commerce")
 
 if role_patterns:
     pattern = "|".join(role_patterns)
@@ -368,6 +368,7 @@ else:
         },
         use_container_width=True
     )
+
 
 
 
