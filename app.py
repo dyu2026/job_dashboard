@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
+JST = timezone(timedelta(hours=9))
 
 # ... (Rest of your existing Supabase setup and Fetch Data code) ...
 
@@ -54,12 +55,26 @@ df = pd.DataFrame(data)
 # Cleanup & Time Logic
 # -----------------------------------
 
-df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], errors="coerce")
-df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], errors="coerce")
+df["first_seen_at"] = (
+    pd.to_datetime(df["first_seen_at"], errors="coerce")
+    .dt.tz_convert("Asia/Tokyo")
+)
 
-now_utc = datetime.now(timezone.utc)
-last_24 = now_utc - timedelta(hours=24)
-today_start = now_utc.replace(hour=0, minute=0, second=0, microsecond=0)
+df["last_seen_at"] = (
+    pd.to_datetime(df["last_seen_at"], errors="coerce")
+    .dt.tz_convert("Asia/Tokyo")
+)
+
+now_jst = datetime.now(JST)
+
+last_24 = now_jst - timedelta(hours=24)
+
+today_start = now_jst.replace(
+    hour=0,
+    minute=0,
+    second=0,
+    microsecond=0
+)
 
 df["is_new_24h"] = df["first_seen_at"] >= last_24
 df["is_new_today"] = df["first_seen_at"] >= today_start
@@ -85,6 +100,7 @@ ecommerce_roles = st.sidebar.checkbox("Ecommerce")
 
 # Target Mode
 target_mode = st.sidebar.checkbox("Exec Target Mode")
+
 
 # Seniority
 st.sidebar.subheader("Seniority")
@@ -205,7 +221,7 @@ col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Total Jobs", len(df))
 col2.metric("🔥 New (24h)", int(df["is_new_24h"].sum()))
-col3.metric("🆕 New Today (UTC)", int(df["is_new_today"].sum()))
+col3.metric("🆕 New Today (JST)", int(df["is_new_today"].sum()))
 col4.metric("Companies Tracked", total_companies)
 
 st.divider()
@@ -368,9 +384,5 @@ else:
         },
         use_container_width=True
     )
-
-
-
-
 
 
