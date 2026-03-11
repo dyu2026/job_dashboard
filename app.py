@@ -226,7 +226,7 @@ display_cols = [
     "url",
     "seniority",
     "function",
-    "first_seen_jst",
+    "first_seen_at",
 ]
 
 # -----------------------------------
@@ -368,6 +368,7 @@ else:
         },
         use_container_width=True
     )
+
 
 
 
