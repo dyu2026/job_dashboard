@@ -56,12 +56,12 @@ df = pd.DataFrame(data)
 # -----------------------------------
 
 df["first_seen_at"] = (
-    pd.to_datetime(df["first_seen_at"], errors="coerce")
+    pd.to_datetime(df["first_seen_at"], utc=True, errors="coerce")
     .dt.tz_convert("Asia/Tokyo")
 )
 
 df["last_seen_at"] = (
-    pd.to_datetime(df["last_seen_at"], errors="coerce")
+    pd.to_datetime(df["last_seen_at"], utc=True, errors="coerce")
     .dt.tz_convert("Asia/Tokyo")
 )
 
