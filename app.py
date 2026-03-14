@@ -58,8 +58,6 @@ if not data:
     st.stop()
 
 df = pd.DataFrame(data)
-st.write(df[["company", "logo"]].head(20))
-
 # -----------------------------------
 # Company Logos
 # -----------------------------------
