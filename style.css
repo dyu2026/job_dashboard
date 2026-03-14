@@ -2,7 +2,7 @@
    Metric Card Container
    ================================ */
 
-div[data-testid="metric-container"] {
+div[data-testid=".st-emotion-cache-13tbzbm"] {
     background-color: rgb(63, 79, 107);
     padding: 16px;
     border-radius: 10px;
