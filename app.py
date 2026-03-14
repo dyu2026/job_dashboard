@@ -9,7 +9,7 @@ st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
 # -----------------------------------
 st.markdown("""
 <style>
-
+/* Target the metric container */
 [data-testid="metric-container"] {
     background-color: rgb(63,79,107);
     padding: 15px;
@@ -20,22 +20,26 @@ st.markdown("""
 
 [data-testid="metric-container"]:hover {
     transform: translateY(-2px);
-    transition: 0.2s;
+    transition: transform 0.2s;
 }
 
-[data-testid="stMetricLabel"] {
-    justify-content: center;
+/* Center the label */
+[data-testid="metric-container"] label {
+    display: block;
+    text-align: center;
+    width: 100%;
 }
 
-[data-testid="stMetricValue"] {
-    justify-content: center;
+/* Center and size the value */
+[data-testid="metric-container"] [data-testid="stMetricValue"] {
+    display: block;
+    text-align: center;
     font-size: 28px;
 }
 
 div[data-testid="column"] {
     padding: 5px;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -57,7 +61,7 @@ with st.sidebar:
 # Page Config
 # -----------------------------------
 
-st.title("Job Intelligence Dashboard")
+# st.title("Job Intelligence Dashboard")
 
 # -----------------------------------
 # Supabase Setup
