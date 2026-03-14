@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
+import os, base64
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -58,49 +59,19 @@ if not data:
     st.stop()
 
 df = pd.DataFrame(data)
-# -----------------------------------
-# Company Logos
-# -----------------------------------
 
-logo_map = {
-	"American Express": "./logos/americanexpress.webp",
-	"Anthropic": "./logos/anthropic.webp",
-	"Asana": "./logos/asana.webp",
-	"Automattic": "./logos/automattic.webp",
-	"Brave": "./logos/brave.webp",
-	"Braze": "./logos/braze.webp",
-	"Canva": "./logos/canva.webp",
-	"Datadog": "./logos/datadoghq.webp",
-	"DeepL": "./logos/deepl.webp",
-	"Disney": "./logos/disney.webp",
-	"DuckDuckGo": "./logos/duckduckgo.webp",
-	"Figma": "./logos/figma.webp",
-	"GitLab": "./logos/gitlab.webp",
-	"Goodnotes": "./logos/goodnotes.webp",
-	"Hubspot": "./logos/hubspot.webp",
-	"LinkedIn": "./logos/linkedin.webp",
-	"Lilt": "./logos/lilt.webp",
-	"Mastercard": "./logos/mastercard.webp",
-	"monday.com": "./logos/monday.webp",
-	"Nothing": "./logos/nothing.webp",
-	"Notion": "./logos/notion.webp",
-	"NVIDIA": "./logos/nvidia.webp",
-	"Okta": "./logos/okta.webp",
-	"Perplexity": "./logos/perplexity.webp",
-	"Phrase": "./logos/phrase.webp",
-	"Sierra": "./logos/sierra.webp",
-	"Spotify": "./logos/spotify.webp",
-	"Stripe": "./logos/stripe.webp",
-	"Supabase": "./logos/supabase.webp",
-	"Warner Bros": "./logos/wbd.webp",
-	"Wise": "./logos/wise.webp",
-	"Workato": "./logos/workato.webp",
-	"Workday": "./logos/workday.webp",
-	"Zapier": "./logos/zapier.webp",
-	"Zoom": "./logos/zoom.webp",
-}
+# Helper function to convert local images to Base64
+def get_base64_logo(company_name):
+    # Standardize name for file path: logos/apple.webp
+    file_path = f"logos/{company_name.lower()}.webp"
+    if os.path.exists(file_path):
+        with open(file_path, "rb") as f:
+            data = base64.b64encode(f.read()).decode()
+            return f"data:image/webp;base64,{data}"
+    return None
 
-df["logo"] = df["company"].map(logo_map)
+# Apply the logo mapping to the main dataframe
+df["logo"] = df["company"].apply(get_base64_logo)
 
 # -----------------------------------
 # Cleanup & Time Logic
@@ -315,7 +286,7 @@ with tab1:
         st.dataframe(
             new_jobs.sort_values("first_seen_at", ascending=False)[display_cols],
             column_config={
-                "logo": st.column_config.ImageColumn(""),
+                "logo": st.column_config.ImageColumn("Logo", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open")
             },
             use_container_width=True,
@@ -336,7 +307,7 @@ with tab2:
     st.dataframe(
         df_display.sort_values("first_seen_at", ascending=False)[display_cols],
         column_config={
-            "logo": st.column_config.ImageColumn(""),
+            "logo": st.column_config.ImageColumn("Logo", width="small"),
             "url": st.column_config.LinkColumn("Apply", display_text="Open")
         },
         use_container_width=True,
@@ -399,7 +370,7 @@ with tab4:
         st.dataframe(
             removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
-                "logo": st.column_config.ImageColumn(""),
+                "logo": st.column_config.ImageColumn("Logo", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open")
             },
             use_container_width=True,
