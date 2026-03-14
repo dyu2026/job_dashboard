@@ -74,7 +74,7 @@ logo_map = {
 	"Datadog": "logos/datadoghq.webp",
 	"DeepL": "logos/deepl.webp",
 	"Disney": "logos/disney.webp",
-	"DuckDuckGo": "./logos/duckduckgo.webp",
+	"DuckDuckGo": "logos/duckduckgo.webp",
 	"Figma": "logos/figma.webp",
 	"GitLab": "logos/gitlab.webp",
 	"Goodnotes": "logos/goodnotes.webp",
