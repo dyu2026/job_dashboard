@@ -351,29 +351,30 @@ with tab4:
     if removed_df.empty:
         st.info("No jobs removed in last 24 hours.")
     else:
-
+        # 1. Date Cleanup
         removed_df["first_seen_at"] = pd.to_datetime(
             removed_df["first_seen_at"], errors="coerce"
-        )
+        ).dt.strftime("%Y-%m-%d %H:%M")
 
-        removed_df["first_seen_at"] = removed_df["first_seen_at"].dt.strftime(
-            "%Y-%m-%d %H:%M"
-        )
-
-        # Ensure Priority exists
+        # 2. Add Priority & Logo Columns (These aren't in the raw DB response)
         if "Priority" not in removed_df.columns:
             removed_df["Priority"] = removed_df["title"].apply(tag_priority)
+            
+        # This uses your existing get_base64_logo function
+        removed_df["logo"] = removed_df["company"].apply(get_base64_logo)
 
-        # Only keep columns that exist
+        # 3. Filter for existing columns
+        # We ensure 'logo' and 'Priority' are included in the filter check
         safe_cols = [c for c in display_cols if c in removed_df.columns]
 
         st.dataframe(
             removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
-                "logo": st.column_config.ImageColumn("Logo", width="small"),
+                "logo": st.column_config.ImageColumn("Logo", width="small"), # Renders the image
                 "url": st.column_config.LinkColumn("Apply", display_text="Open")
             },
             use_container_width=True,
+            hide_index=True
         )
 
 # -----------------------------------
