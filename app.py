@@ -263,7 +263,6 @@ display_cols = [
     "title",
     "location",
     "url",
-    "seniority",
     "function",
     "first_seen_at",
 ]
@@ -287,7 +286,8 @@ with tab1:
             new_jobs.sort_values("first_seen_at", ascending=False)[display_cols],
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
-                "url": st.column_config.LinkColumn("Apply", display_text="Open")
+                "url": st.column_config.LinkColumn("Apply", display_text="Open"),
+                "first_seen_at": "first seen"
             },
             use_container_width=True,
         )
