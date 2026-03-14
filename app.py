@@ -3,42 +3,14 @@ import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 
+# Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
 # -----------------------------------
 # CSS
 # -----------------------------------
-st.markdown("""
-<style>
-
-[data-testid="metric-container"] {
-    background-color: rgb(63,79,107);
-    padding: 15px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-[data-testid="metric-container"]:hover {
-    transform: translateY(-2px);
-    transition: 0.2s;
-}
-
-[data-testid="stMetricLabel"] {
-    justify-content: center;
-}
-
-[data-testid="stMetricValue"] {
-    justify-content: center;
-    font-size: 28px;
-}
-
-div[data-testid="column"] {
-    padding: 5px;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
+with open('style.css') as f:
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    
 JST = timezone(timedelta(hours=9))
 
 # ... (Rest of your existing Supabase setup and Fetch Data code) ...
