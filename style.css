@@ -1,21 +1,3 @@
-Yes — using a separate style.css file is actually a cleaner approach for a larger Streamlit app like yours.
-
-Your Python loader is correct:
-
-with open("style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-Below is a clean CSS file based on what we discussed. It styles:
-
-metric cards
-
-centered KPI text
-
-spacing between columns
-
-subtle hover + shadow for a more professional dashboard look
-
-style.css
 /* =========================
    Metric Cards
    ========================= */
