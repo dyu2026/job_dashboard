@@ -38,3 +38,6 @@ div[data-testid="column"] {
 [data-testid="stSidebarContent"] {
     color: white;
 }
+[data-testid="stSidebar"] div.stCheckbox input[type="checkbox"] {
+        accent-color: #ffffff;
+}
