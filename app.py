@@ -421,7 +421,9 @@ else:
     st.dataframe(
         linkedin_df[["published_at","title","url"]],
         column_config={
-            "url": st.column_config.LinkColumn("Open Post", display_text="View")
+            "url": st.column_config.LinkColumn("Open Post", display_text="View"),
+            "title": "Title",
+            "published_at": "Published"
         },
         use_container_width=True
     )
