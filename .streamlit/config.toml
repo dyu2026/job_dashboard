@@ -5,6 +5,6 @@ base="light"
 textColor = "#1c1919"
 primaryColor = "#00d492"
 backgroundColor = "#fafafa"
-secondaryBackgroundColor = "#ffffff"
+secondaryBackgroundColor = "#e8e8e8"
 
 font="sans serif"
