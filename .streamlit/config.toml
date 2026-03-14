@@ -2,9 +2,9 @@
 base="light"
 
 # General color setup
-textColor = "#1c1919"
+textColor = "#33394c"
 primaryColor = "#ff4d6b"
-backgroundColor = "#fafafa"
-secondaryBackgroundColor = "#b2b6b0"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f7fb"
 
 font="sans serif"
