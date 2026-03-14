@@ -1,25 +1,16 @@
 /* ================================
-   Metric Card Container
+   KPI Metric Cards
    ================================ */
 
 div[data-testid="metric-container"] {
-    background-color: rgb(63, 79, 107);
-    padding: 16px;
+    background: rgb(63, 79, 107) !important;
+    padding: 18px !important;
     border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.05);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
 }
 
-/* Hover effect */
-
-div[data-testid="metric-container"]:hover {
-    transform: translateY(-2px);
-    transition: 0.2s ease;
-}
-
-/* ================================
-   Center Metric Content
-   ================================ */
+/* Ensure parent flex container does not override */
 
 div[data-testid="metric-container"] > div {
     display: flex;
@@ -27,7 +18,7 @@ div[data-testid="metric-container"] > div {
     align-items: center;
 }
 
-/* Label */
+/* Metric label */
 
 [data-testid="stMetricLabel"] {
     display: flex;
@@ -35,27 +26,24 @@ div[data-testid="metric-container"] > div {
     font-weight: 500;
 }
 
-/* Value */
+/* Metric value */
 
 [data-testid="stMetricValue"] {
     display: flex;
     justify-content: center;
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 700;
 }
 
-/* ================================
-   Column spacing
-   ================================ */
+/* Space between metric cards */
 
 div[data-testid="column"] {
     padding: 6px;
 }
 
-/* ================================
-   Sidebar styling
-   ================================ */
+/* Hover animation */
 
-section[data-testid="stSidebar"] {
-    border-right: 1px solid rgba(255,255,255,0.08);
+div[data-testid="metric-container"]:hover {
+    transform: translateY(-2px);
+    transition: 0.2s ease;
 }
