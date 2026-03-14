@@ -4,8 +4,6 @@ from supabase import create_client
 from datetime import datetime, timedelta, timezone
 
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
-JST = timezone(timedelta(hours=9))
-
 # -----------------------------------
 # CSS
 # -----------------------------------
@@ -40,6 +38,8 @@ div[data-testid="column"] {
 
 </style>
 """, unsafe_allow_html=True)
+
+JST = timezone(timedelta(hours=9))
 
 # ... (Rest of your existing Supabase setup and Fetch Data code) ...
 
