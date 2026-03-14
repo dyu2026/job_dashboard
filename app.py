@@ -60,6 +60,50 @@ if not data:
 df = pd.DataFrame(data)
 
 # -----------------------------------
+# Company Logos
+# -----------------------------------
+
+logo_map = {
+	"American Express": "logos/americanexpress.webp",
+	"Anthropic": "logos/anthropic.webp",
+	"Asana": "logos/asana.webp",
+	"Automattic": "logos/automattic.webp",
+	"Brave": "logos/brave.webp",
+	"Braze": "logos/braze.webp",
+	"Canva": "logos/canva.webp",
+	"Datadog": "logos/datadoghq.webp",
+	"DeepL": "logos/deepl.webp",
+	"Disney": "logos/disney.webp",
+	"DuckDuckGo": "logos/duckduckgo.webp",
+	"Figma": "logos/figma.webp",
+	"GitLab": "logos/gitlab.webp",
+	"Goodnotes": "logos/goodnotes.webp",
+	"Hubspot": "logos/hubspot.webp",
+	"LinkedIn": "logos/linkedin.webp",
+	"Lilt": "logos/lilt.webp",
+	"Mastercard": "logos/mastercard.webp",
+	"monday.com": "logos/monday.webp",
+	"Nothing": "logos/nothing.webp",
+	"Notion": "logos/notion.webp",
+	"NVIDIA": "logos/nvidia.webp",
+	"Okta": "logos/okta.webp",
+	"Perplexity": "logos/perplexity.webp",
+	"Phrase": "logos/phrase.webp",
+	"Sierra": "logos/sierra.webp",
+	"Spotify": "logos/spotify.webp",
+	"Stripe": "logos/stripe.webp",
+	"Supabase": "logos/supabase.webp",
+	"Warner Bros": "logos/wbd.webp",
+	"Wise": "logos/wise.webp",
+	"Workato": "logos/workato.webp",
+	"Workday": "logos/workday.webp",
+	"Zapier": "logos/zapier.webp",
+	"Zoom": "logos/zoom.webp",
+}
+
+df["logo"] = df["company"].map(logo_map)
+
+# -----------------------------------
 # Cleanup & Time Logic
 # -----------------------------------
 
@@ -243,6 +287,7 @@ tab1, tab2, tab3, tab4 = st.tabs(
 )
 
 display_cols = [
+    "logo",
     "Priority",
     "company",
     "title",
@@ -271,6 +316,7 @@ with tab1:
         st.dataframe(
             new_jobs.sort_values("first_seen_at", ascending=False)[display_cols],
             column_config={
+                "logo": st.column_config.ImageColumn(""),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open")
             },
             use_container_width=True,
@@ -291,6 +337,7 @@ with tab2:
     st.dataframe(
         df_display.sort_values("first_seen_at", ascending=False)[display_cols],
         column_config={
+            "logo": st.column_config.ImageColumn(""),
             "url": st.column_config.LinkColumn("Apply", display_text="Open")
         },
         use_container_width=True,
@@ -353,6 +400,7 @@ with tab4:
         st.dataframe(
             removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
+                "logo": st.column_config.ImageColumn(""),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open")
             },
             use_container_width=True,
