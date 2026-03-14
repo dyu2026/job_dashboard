@@ -1,1 +1,84 @@
+Yes — using a separate style.css file is actually a cleaner approach for a larger Streamlit app like yours.
 
+Your Python loader is correct:
+
+with open("style.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+Below is a clean CSS file based on what we discussed. It styles:
+
+metric cards
+
+centered KPI text
+
+spacing between columns
+
+subtle hover + shadow for a more professional dashboard look
+
+style.css
+/* =========================
+   Metric Cards
+   ========================= */
+
+[data-testid="metric-container"] {
+    background-color: rgb(63, 79, 107);
+    padding: 16px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Hover effect */
+
+[data-testid="metric-container"]:hover {
+    transform: translateY(-2px);
+    transition: 0.2s ease;
+}
+
+/* =========================
+   Metric Text Alignment
+   ========================= */
+
+[data-testid="stMetricLabel"] {
+    justify-content: center;
+    font-weight: 500;
+}
+
+[data-testid="stMetricValue"] {
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+/* =========================
+   Column Spacing
+   ========================= */
+
+div[data-testid="column"] {
+    padding: 6px;
+}
+
+/* =========================
+   Sidebar Improvements
+   ========================= */
+
+section[data-testid="stSidebar"] {
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+/* =========================
+   Dataframe Improvements
+   ========================= */
+
+[data-testid="stDataFrame"] {
+    border-radius: 8px;
+}
+
+/* =========================
+   Tab Styling
+   ========================= */
+
+button[data-baseweb="tab"] {
+    font-weight: 500;
+}
