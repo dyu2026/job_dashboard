@@ -4,35 +4,6 @@ from supabase import create_client
 from datetime import datetime, timedelta, timezone
 JST = timezone(timedelta(hours=9))
 
-# -----------------------------------
-# CSS
-# -----------------------------------
-st.markdown("""
-<style>
-
-/* Metric container styling */
-[data-testid="metric-container"] {
-    background-color: rgb(63, 79, 107);
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-/* Metric label */
-[data-testid="stMetricLabel"] {
-    justify-content: center;
-}
-
-/* Metric value */
-[data-testid="stMetricValue"] {
-    justify-content: center;
-    font-size: 28px;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-
 # ... (Rest of your existing Supabase setup and Fetch Data code) ...
 
 # -----------------------------------
