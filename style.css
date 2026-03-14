@@ -34,10 +34,22 @@ div[data-testid="column"] {
     padding: 6px;
 }
 
-/* sidebar styling */
-[data-testid="stSidebarContent"] {
+/* Target all text within the sidebar */
+[data-testid="stSidebar"] {
     color: white;
 }
-[data-testid="stSidebar"] div.stCheckbox input[type="checkbox"] {
-        accent-color: #ffffff;
+
+/* Target checkbox labels specifically */
+[data-testid="stSidebar"] .stCheckbox p {
+    color: white !important;
+}
+
+/* Target subheaders in the sidebar */
+[data-testid="stSidebar"] h3 {
+    color: white !important;
+}
+
+/* Target small caption text and labels for inputs */
+[data-testid="stSidebar"] label {
+    color: white !important;
 }
