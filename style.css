@@ -1,66 +1,61 @@
-/* =========================
-   Metric Cards
-   ========================= */
+/* ================================
+   Metric Card Container
+   ================================ */
 
-[data-testid="metric-container"] {
+div[data-testid="metric-container"] {
     background-color: rgb(63, 79, 107);
     padding: 16px;
     border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
     border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
 }
 
 /* Hover effect */
 
-[data-testid="metric-container"]:hover {
+div[data-testid="metric-container"]:hover {
     transform: translateY(-2px);
     transition: 0.2s ease;
 }
 
-/* =========================
-   Metric Text Alignment
-   ========================= */
+/* ================================
+   Center Metric Content
+   ================================ */
+
+div[data-testid="metric-container"] > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Label */
 
 [data-testid="stMetricLabel"] {
+    display: flex;
     justify-content: center;
     font-weight: 500;
 }
 
+/* Value */
+
 [data-testid="stMetricValue"] {
+    display: flex;
     justify-content: center;
     font-size: 28px;
     font-weight: 700;
 }
 
-/* =========================
-   Column Spacing
-   ========================= */
+/* ================================
+   Column spacing
+   ================================ */
 
 div[data-testid="column"] {
     padding: 6px;
 }
 
-/* =========================
-   Sidebar Improvements
-   ========================= */
+/* ================================
+   Sidebar styling
+   ================================ */
 
 section[data-testid="stSidebar"] {
     border-right: 1px solid rgba(255,255,255,0.08);
-}
-
-/* =========================
-   Dataframe Improvements
-   ========================= */
-
-[data-testid="stDataFrame"] {
-    border-radius: 8px;
-}
-
-/* =========================
-   Tab Styling
-   ========================= */
-
-button[data-baseweb="tab"] {
-    font-weight: 500;
 }
