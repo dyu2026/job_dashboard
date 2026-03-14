@@ -287,7 +287,11 @@ with tab1:
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
-                "first_seen_at": "first seen"
+                "first_seen_at": "First Seen",
+                "company": "Company",
+                "title": "Title",
+                "location": "Location",
+                "function": "Function"
             },
             use_container_width=True,
         )
@@ -308,7 +312,12 @@ with tab2:
         df_display.sort_values("first_seen_at", ascending=False)[display_cols],
         column_config={
             "logo": st.column_config.ImageColumn("Logo", width="small"),
-            "url": st.column_config.LinkColumn("Apply", display_text="Open")
+            "url": st.column_config.LinkColumn("Apply", display_text="Open"),
+            "first_seen_at": "First Seen",
+            "company": "Company",
+            "title": "Title",
+            "location": "Location",
+            "function": "Function"
         },
         use_container_width=True,
     )
@@ -371,7 +380,12 @@ with tab4:
             removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"), # Renders the image
-                "url": st.column_config.LinkColumn("Apply", display_text="Open")
+                "url": st.column_config.LinkColumn("Apply", display_text="Open"),
+                "first_seen_at": "First Seen",
+                "company": "Company",
+                "title": "Title",
+                "location": "Location",
+                "function": "Function"
             },
             use_container_width=True,
             hide_index=True
