@@ -54,25 +54,30 @@ div[data-testid="column"] {
     color: white !important;
 }
 
-/* 1. Make the checkbox borders white by default */
+/* Make the checkbox borders white by default */
 [data-testid="stSidebar"] .stCheckbox div[data-testid="stMarkdownContainer"] - div {
     border-color: white !important;
 }
 
-/* 2. Target the actual SVG/Square of the checkbox */
+/* Target the actual SVG/Square of the checkbox */
 [data-testid="stSidebar"] [data-baseweb="checkbox"] > div:first-child {
     border-color: white !important;
     border-width: 2px;
     background-color: rgba(255, 255, 255, 0.5); /* Adds a 10% white tint inside the box */
 }
 
-/* 3. Ensure the checkmark itself (when clicked) is visible */
+/* Ensure the checkmark itself (when clicked) is visible */
 [data-testid="stSidebar"] [data-baseweb="checkbox"] svg {
     fill: white !important;
 }
 
-/* 4. Make all sidebar labels white so they match the boxes */
+/* Make all sidebar labels white so they match the boxes */
 [data-testid="stSidebar"] .stCheckbox p {
     color: white !important;
     font-weight: 500;
+}
+
+/* Sidebar collapse button */
+[data-testid="stSidebarCollapseButton"] {
+    color: white !important;
 }
