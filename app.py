@@ -338,7 +338,7 @@ with tab3:
         .sort_values("total_jobs", ascending=False)
     )
 
-    st.bar_chart(company_stats["total_jobs"])
+    st.bar_chart(company_stats["total_jobs"], color="#ff4d6b")
 
 # -----------------------------------
 # 🗑 Removed Jobs Tab
