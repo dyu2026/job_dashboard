@@ -243,7 +243,7 @@ col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Total Jobs", len(df))
 col2.metric("🔥 New (24h)", int(df["is_new_24h"].sum()))
-col3.metric("🆕 New Today (JST)", int(df["is_new_today"].sum()))
+col3.metric("✨ New Today (JST)", int(df["is_new_today"].sum()))
 col4.metric("Companies Tracked", total_companies)
 
 st.divider()
