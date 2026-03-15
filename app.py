@@ -345,7 +345,7 @@ with tab3:
 # -----------------------------------
 
 with tab4:
-    st.subheader("🗑 Recently Removed (Last 24h)")
+    st.subheader("🚫 Recently Removed (Last 24h)")
 
     removed = (
         supabase.table("jobs")
