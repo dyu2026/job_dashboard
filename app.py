@@ -253,7 +253,7 @@ st.divider()
 # -----------------------------------
 
 tab1, tab2, tab3, tab4 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "📊 Companies", "🗑 Removed"]
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🗑 Removed"]
 )
 
 display_cols = [
@@ -285,7 +285,7 @@ with tab1:
         st.dataframe(
             new_jobs.sort_values("first_seen_at", ascending=False)[display_cols],
             column_config={
-                "logo": st.column_config.ImageColumn("Logo", width=35),
+                "logo": st.column_config.ImageColumn("Logo", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
                 "first_seen_at": "First Seen",
                 "company": "Company",
@@ -311,7 +311,7 @@ with tab2:
     st.dataframe(
         df_display.sort_values("first_seen_at", ascending=False)[display_cols],
         column_config={
-            "logo": st.column_config.ImageColumn("Logo", width=35),
+            "logo": st.column_config.ImageColumn("Logo", width="small"),
             "url": st.column_config.LinkColumn("Apply", display_text="Open"),
             "first_seen_at": "First Seen",
             "company": "Company",
@@ -327,7 +327,7 @@ with tab2:
 # -----------------------------------
 
 with tab3:
-    st.subheader("📊 Company Breakdown")
+    st.subheader("🚀 Company Breakdown")
 
     company_stats = (
         df.groupby("company")
@@ -379,7 +379,7 @@ with tab4:
         st.dataframe(
             removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
-                "logo": st.column_config.ImageColumn("Logo", width=35),
+                "logo": st.column_config.ImageColumn("Logo", width="small"), # Renders the image
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
                 "first_seen_at": "First Seen",
                 "company": "Company",
@@ -427,4 +427,3 @@ else:
         },
         use_container_width=True
     )
-
