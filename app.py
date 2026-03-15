@@ -146,7 +146,7 @@ companies = sorted(df["company"].dropna().unique())
 selected_companies = st.sidebar.multiselect("Company", companies)
 
 # Search
-search = st.sidebar.text_input("🔎 Search")
+search = st.sidebar.text_input("🍭 Search")
 
 # -----------------------------------
 # Last Updated (JST)
