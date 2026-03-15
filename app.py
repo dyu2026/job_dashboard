@@ -253,7 +253,7 @@ st.divider()
 # -----------------------------------
 
 tab1, tab2, tab3, tab4 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🗑 Removed"]
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed"]
 )
 
 display_cols = [
