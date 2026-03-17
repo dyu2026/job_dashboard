@@ -5,9 +5,12 @@ from supabase import create_client
 from datetime import datetime, timedelta, timezone
 import os, base64
 
-# Initialize session state for the company filter if it doesn't exist
+# Initialize session state for filtering and tab navigation
 if "selected_company_from_chart" not in st.session_state:
     st.session_state.selected_company_from_chart = None
+
+if "active_tab" not in st.session_state:
+    st.session_state.active_tab = 0 # Default to the first tab (New Jobs)
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -151,11 +154,22 @@ selected_seniority = st.sidebar.multiselect(
 companies = sorted(df["company"].dropna().unique())
 
 # Use the session state for the default value as we discussed for the click-to-filter feature
+# Sync the sidebar with the chart selection
+default_selection = []
+if st.session_state.selected_company_from_chart:
+    default_selection = [st.session_state.selected_company_from_chart]
+
 selected_companies = st.sidebar.multiselect(
     "Company", 
     companies,
-    default=[st.session_state.selected_company_from_chart] if st.session_state.selected_company_from_chart else []
+    default=default_selection
 )
+
+# Company Filter reset
+if st.session_state.selected_company_from_chart:
+    if st.sidebar.button("Clear Company Filter"):
+        st.session_state.selected_company_from_chart = None
+        st.rerun()
 
 # Search
 search = st.sidebar.text_input("🍭 Search")
@@ -349,8 +363,6 @@ with tab2:
 
 with tab3:
     st.subheader("🚀 Company Breakdown")
-    
-    # Now company_stats is guaranteed to exist
     chart_data = company_stats.reset_index()
 
     click_selection = alt.selection_point(fields=['company'])
@@ -362,14 +374,19 @@ with tab3:
         tooltip=['company', 'total_jobs']
     ).add_params(click_selection).properties(height=400)
 
+    # on_select="rerun" is critical here
     event = st.altair_chart(chart, use_container_width=True, on_select="rerun")
 
-    # If a bar is clicked, update session state
+    # If a bar is clicked: 
+    # 1. Update the filter 
+    # 2. Update the tab index to "1" (All Jobs)
     if event and event.selection and "company" in event.selection:
         selected = event.selection["company"]
         if selected:
             st.session_state.selected_company_from_chart = selected[0]
-            st.success(f"Filtering for {st.session_state.selected_company_from_chart}. Switch to 'All Jobs' tab.")
+            # Since Streamlit tabs don't have a programmatic "jump" yet, 
+            # we use a query parameter or a rerun to force the UI update.
+            st.rerun()
 
 # -----------------------------------
 # 🗑 Removed Jobs Tab
