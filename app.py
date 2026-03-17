@@ -149,14 +149,13 @@ selected_seniority = st.sidebar.multiselect(
 
 # Company Filter
 companies = sorted(df["company"].dropna().unique())
-# Update your multiselect to use the session state
+
+# Use the session state for the default value as we discussed for the click-to-filter feature
 selected_companies = st.sidebar.multiselect(
     "Company", 
     companies,
     default=[st.session_state.selected_company_from_chart] if st.session_state.selected_company_from_chart else []
-)selected_companies = st.sidebar.multiselect("Company", companies)
-
-
+)
 
 # Search
 search = st.sidebar.text_input("🍭 Search")
