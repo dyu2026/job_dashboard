@@ -1,11 +1,17 @@
 import streamlit as st
 import pandas as pd
+import altair as alt
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 import os, base64
 
+# Initialize session state for the company filter if it doesn't exist
+if "selected_company_from_chart" not in st.session_state:
+    st.session_state.selected_company_from_chart = None
+
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
+
 # -----------------------------------
 # CSS
 # -----------------------------------
@@ -143,7 +149,14 @@ selected_seniority = st.sidebar.multiselect(
 
 # Company Filter
 companies = sorted(df["company"].dropna().unique())
-selected_companies = st.sidebar.multiselect("Company", companies)
+# Update your multiselect to use the session state
+selected_companies = st.sidebar.multiselect(
+    "Company", 
+    companies,
+    default=[st.session_state.selected_company_from_chart] if st.session_state.selected_company_from_chart else []
+)selected_companies = st.sidebar.multiselect("Company", companies)
+
+
 
 # Search
 search = st.sidebar.text_input("🍭 Search")
@@ -329,16 +342,31 @@ with tab2:
 with tab3:
     st.subheader("🚀 Company Breakdown")
 
-    company_stats = (
-        df.groupby("company")
-        .agg(
-            total_jobs=("title", "count"),
-            new_24h=("is_new_24h", "sum"),
-        )
-        .sort_values("total_jobs", ascending=False)
-    )
+    # Prepare data for Altair
+    chart_data = company_stats.reset_index()
 
-    st.bar_chart(company_stats["total_jobs"], color="#ff4d6b")
+    # Create a selection that triggers on click
+    click_selection = alt.selection_point(fields=['company'])
+
+    chart = alt.Chart(chart_data).mark_bar(color="#ff4d6b").encode(
+        x=alt.X('company:N', sort='-y', title='Company'),
+        y=alt.Y('total_jobs:Q', title='Number of Jobs'),
+        # Highlight bar on selection
+        opacity=alt.condition(click_selection, alt.value(1), alt.value(0.5)),
+        tooltip=['company', 'total_jobs']
+    ).add_params(
+        click_selection
+    ).properties(height=400)
+
+    # Use on_select to catch the click event
+    event = st.altair_chart(chart, use_container_width=True, on_select="rerun")
+
+    # If a bar is clicked, update session state
+    if event and event.selection and "company" in event.selection:
+        selected = event.selection["company"]
+        if selected:
+            st.session_state.selected_company_from_chart = selected[0]
+            st.success(f"Filtering for {st.session_state.selected_company_from_chart}. Switch to 'All Jobs' tab.")
 
 # -----------------------------------
 # 🗑 Removed Jobs Tab
