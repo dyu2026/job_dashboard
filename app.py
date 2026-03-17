@@ -1,20 +1,11 @@
 import streamlit as st
 import pandas as pd
-import altair as alt
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 import os, base64
 
-# Initialize session state for filtering and tab navigation
-if "selected_company_from_chart" not in st.session_state:
-    st.session_state.selected_company_from_chart = None
-
-if "active_tab" not in st.session_state:
-    st.session_state.active_tab = 0 # Default to the first tab (New Jobs)
-
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
-
 # -----------------------------------
 # CSS
 # -----------------------------------
@@ -152,24 +143,7 @@ selected_seniority = st.sidebar.multiselect(
 
 # Company Filter
 companies = sorted(df["company"].dropna().unique())
-
-# Use the session state for the default value as we discussed for the click-to-filter feature
-# Sync the sidebar with the chart selection
-default_selection = []
-if st.session_state.selected_company_from_chart:
-    default_selection = [st.session_state.selected_company_from_chart]
-
-selected_companies = st.sidebar.multiselect(
-    "Company", 
-    companies,
-    default=default_selection
-)
-
-# Company Filter reset
-if st.session_state.selected_company_from_chart:
-    if st.sidebar.button("Clear Company Filter"):
-        st.session_state.selected_company_from_chart = None
-        st.rerun()
+selected_companies = st.sidebar.multiselect("Company", companies)
 
 # Search
 search = st.sidebar.text_input("🍭 Search")
@@ -274,15 +248,6 @@ col4.metric("Companies Tracked", total_companies)
 
 st.divider()
 
-company_stats = (
-    df.groupby("company")
-    .agg(
-        total_jobs=("title", "count"),
-        new_24h=("is_new_24h", "sum"),
-    )
-    .sort_values("total_jobs", ascending=False)
-)
-
 # -----------------------------------
 # Tabs Layout
 # -----------------------------------
@@ -363,30 +328,17 @@ with tab2:
 
 with tab3:
     st.subheader("🚀 Company Breakdown")
-    chart_data = company_stats.reset_index()
 
-    click_selection = alt.selection_point(fields=['company'])
+    company_stats = (
+        df.groupby("company")
+        .agg(
+            total_jobs=("title", "count"),
+            new_24h=("is_new_24h", "sum"),
+        )
+        .sort_values("total_jobs", ascending=False)
+    )
 
-    chart = alt.Chart(chart_data).mark_bar(color="#ff4d6b").encode(
-        x=alt.X('company:N', sort='-y', title='Company'),
-        y=alt.Y('total_jobs:Q', title='Number of Jobs'),
-        opacity=alt.condition(click_selection, alt.value(1), alt.value(0.5)),
-        tooltip=['company', 'total_jobs']
-    ).add_params(click_selection).properties(height=400)
-
-    # on_select="rerun" is critical here
-    event = st.altair_chart(chart, use_container_width=True, on_select="rerun")
-
-    # If a bar is clicked: 
-    # 1. Update the filter 
-    # 2. Update the tab index to "1" (All Jobs)
-    if event and event.selection and "company" in event.selection:
-        selected = event.selection["company"]
-        if selected:
-            st.session_state.selected_company_from_chart = selected[0]
-            # Since Streamlit tabs don't have a programmatic "jump" yet, 
-            # we use a query parameter or a rerun to force the UI update.
-            st.rerun()
+    st.bar_chart(company_stats["total_jobs"], color="#ff4d6b")
 
 # -----------------------------------
 # 🗑 Removed Jobs Tab
