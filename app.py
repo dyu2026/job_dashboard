@@ -260,6 +260,15 @@ col4.metric("Companies Tracked", total_companies)
 
 st.divider()
 
+company_stats = (
+    df.groupby("company")
+    .agg(
+        total_jobs=("title", "count"),
+        new_24h=("is_new_24h", "sum"),
+    )
+    .sort_values("total_jobs", ascending=False)
+)
+
 # -----------------------------------
 # Tabs Layout
 # -----------------------------------
@@ -340,24 +349,19 @@ with tab2:
 
 with tab3:
     st.subheader("🚀 Company Breakdown")
-
-    # Prepare data for Altair
+    
+    # Now company_stats is guaranteed to exist
     chart_data = company_stats.reset_index()
 
-    # Create a selection that triggers on click
     click_selection = alt.selection_point(fields=['company'])
 
     chart = alt.Chart(chart_data).mark_bar(color="#ff4d6b").encode(
         x=alt.X('company:N', sort='-y', title='Company'),
         y=alt.Y('total_jobs:Q', title='Number of Jobs'),
-        # Highlight bar on selection
         opacity=alt.condition(click_selection, alt.value(1), alt.value(0.5)),
         tooltip=['company', 'total_jobs']
-    ).add_params(
-        click_selection
-    ).properties(height=400)
+    ).add_params(click_selection).properties(height=400)
 
-    # Use on_select to catch the click event
     event = st.altair_chart(chart, use_container_width=True, on_select="rerun")
 
     # If a bar is clicked, update session state
