@@ -41,7 +41,7 @@ div[data-testid="column"] {
 }
 
 /* Reset button base style */
-section[data-testid="stSidebar"] .reset-btn button {
+div[data-testid="stButton"] > button {
     background-color: #ff4d6b;
     height: 28px !important;
     width: 28px !important;
@@ -56,12 +56,12 @@ section[data-testid="stSidebar"] .reset-btn button {
 }
 
 /* ✅ Hover state (must match specificity + !important) */
-section[data-testid="stSidebar"] .reset-btn button:hover {
+div[data-testid="stButton"] > button {hover {
     background-color: #e04360 !important;
     color: white !important;
 }
 
 /* Optional: remove focus outline */
-section[data-testid="stSidebar"] .reset-btn button:focus {
+div[data-testid="stButton"] > button {:focus {
     box-shadow: none !important;
 }
