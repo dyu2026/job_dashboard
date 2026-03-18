@@ -1,5 +1,6 @@
-[data-testid="h1]{
-   margin-top: 45px;
+/* Adjust sidebar H1 */
+section[data-testid="stSidebar"] h1 {
+    margin-top: 45px !important;
 }
 
 /* ================================
@@ -43,6 +44,10 @@ div[data-testid="metric-container"] > div {
 div[data-testid="column"] {
     padding: 6px;
 }
+
+/* ================================
+   Search box
+   ================================ */
 
 /* Custom button color */
 div[data-testid="stButton"] > button {
