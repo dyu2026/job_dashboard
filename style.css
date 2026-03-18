@@ -42,6 +42,7 @@ div[data-testid="column"] {
 
 /* Reset button base style */
 section[data-testid="stSidebar"] .reset-btn button {
+    background-color: #ff4d6b;
     height: 28px !important;
     width: 28px !important;
     min-height: 28px !important;
