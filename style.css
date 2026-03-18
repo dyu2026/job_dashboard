@@ -43,25 +43,25 @@ div[data-testid="column"] {
 /* Reset button base style */
 div[data-testid="stButton"] > button {
     background-color: #ff4d6b;
-    height: 28px !important;
-    width: 28px !important;
-    min-height: 28px !important;
-    padding: 0 !important;
-    font-size: 14px !important;
-    border-radius: 6px !important;
-    background-color: #ff4d6b !important;
-    color: white !important;
-    border: none !important;
-    margin-top: 3px !important;
+    height: 28px;
+    width: 28px;
+    min-height: 28px;
+    padding: 0;
+    font-size: 14px;
+    border-radius: 6px;
+    background-color: #ff4d6b;
+    color: white;
+    border: none;
+    margin-top: 3px;
 }
 
 /* ✅ Hover state (must match specificity + !important) */
 div[data-testid="stButton"] > button {hover {
-    background-color: #e04360 !important;
-    color: white !important;
+    background-color: #e04360;
+    color: white;
 }
 
-/* Optional: remove focus outline */
+/*remove focus outline */
 div[data-testid="stButton"] > button {:focus {
-    box-shadow: none !important;
+    box-shadow: none;
 }
