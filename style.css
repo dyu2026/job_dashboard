@@ -39,3 +39,21 @@ div[data-testid="metric-container"] > div {
 div[data-testid="column"] {
     padding: 6px;
 }
+
+/* Custom button color */
+div[data-testid="stButton"] > button {
+    background-color: #ff4d6b;
+    color: white;
+    border: none;
+}
+
+/* Hover effect */
+div[data-testid="stButton"] > button:hover {
+    background-color: #e04360;
+    color: white;
+}
+
+/* Optional: remove blue outline on click */
+div[data-testid="stButton"] > button:focus {
+    box-shadow: none;
+}
