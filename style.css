@@ -40,27 +40,20 @@ div[data-testid="column"] {
     padding: 6px;
 }
 
-/* Reset button base style */
+/* Custom button color */
 div[data-testid="stButton"] > button {
     background-color: #ff4d6b;
-    height: 28px;
-    width: 28px;
-    min-height: 28px;
-    padding: 0;
-    font-size: 14px;
-    border-radius: 6px;
     color: white;
     border: none;
-    margin-top: 3px;
 }
 
-/* Hover state */
-div[data-testid="stButton"] > button {hover {
-    background-color: #e04360 !important;
+/* Hover effect */
+div[data-testid="stButton"] > button:hover {
+    background-color: #e04360;
     color: white;
 }
 
-/*remove focus outline */
-div[data-testid="stButton"] > button {:focus {
+/* Remove blue outline on click */
+div[data-testid="stButton"] > button:focus {
     box-shadow: none;
 }
