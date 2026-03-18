@@ -41,7 +41,7 @@ div[data-testid="column"] {
 }
 
 /* Custom button color */
-section[data-testid="stSidebar"] div[data-testid="stButton"] button {
+section[data-testid="stSidebar"] .reset-btn button {
     background-color: #ff4d6b;
     color: white;
     border: none;
