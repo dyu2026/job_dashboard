@@ -40,26 +40,27 @@ div[data-testid="column"] {
     padding: 6px;
 }
 
-/* Custom button color */
+/* Base button style */
 section[data-testid="stSidebar"] .reset-btn button {
-    background-color: #ff4d6b;
-    color: white;
-    border: none;
     height: 28px !important;
+    width: 28px !important;
     min-height: 28px !important;
-    padding: 0 6px !important;
-    font-size: 12px !important;
-    line-height: 1 !important;
+    padding: 0 !important;
+    font-size: 14px !important;
+    border-radius: 6px !important;
     margin-top: 3px !important;
+
+    background-color: #ff4d6b !important;
+    color: white !important;
+    border: none !important;
+
+    transition: background-color 0.15s ease !important;
 }
 
-/* Hover effect */
-section[data-testid="stSidebar"] .reset-btn button:hover {
+/* 🔥 Force hover (override Streamlit/BaseWeb) */
+section[data-testid="stSidebar"] .reset-btn button:hover,
+section[data-testid="stSidebar"] .reset-btn button:active,
+section[data-testid="stSidebar"] .reset-btn button[data-hover="true"] {
     background-color: #e04360 !important;
     color: white !important;
-}
-
-/*remove focus outline */
-section[data-testid="stSidebar"] .reset-btn button:focus {
-    box-shadow: none !important;
 }
