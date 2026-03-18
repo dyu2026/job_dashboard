@@ -41,11 +41,15 @@ div[data-testid="column"] {
 }
 
 /* Custom button color */
-div[data-testid="stButton"] > button {
+section[data-testid="stSidebar"] div[data-testid="stButton"] button {
     background-color: #ff4d6b;
     color: white;
     border: none;
-    margin-top: -3px;
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 6px !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
 }
 
 /* Hover effect */
