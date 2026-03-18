@@ -54,12 +54,12 @@ section[data-testid="stSidebar"] div[data-testid="stButton"] button {
 }
 
 /* Hover effect */
-div[data-testid="stButton"] > button:hover {
-    background-color: #e04360;
-    color: white;
+section[data-testid="stSidebar"] .reset-btn button:hover {
+    background-color: #e04360 !important;
+    color: white !important;
 }
 
-/* Optional: remove blue outline on click */
-div[data-testid="stButton"] > button:focus {
-    box-shadow: none;
+/*remove focus outline */
+section[data-testid="stSidebar"] .reset-btn button:focus {
+    box-shadow: none !important;
 }
