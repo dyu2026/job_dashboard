@@ -6,6 +6,8 @@ import os, base64
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
+if "search_query" not in st.session_state:
+    st.session_state.search_query = ""
 # -----------------------------------
 # CSS
 # -----------------------------------
@@ -146,7 +148,31 @@ companies = sorted(df["company"].dropna().unique())
 selected_companies = st.sidebar.multiselect("Company", companies)
 
 # Search
-search = st.sidebar.text_input("🍭 Search")
+#search = st.sidebar.text_input("🍭 Search")
+
+# Create a columns layout in the sidebar for the label and the "x"
+search_col, clear_col = st.sidebar.columns([0.8, 0.2])
+
+with search_col:
+    st.subheader("Search")
+
+with clear_col:
+    # Small "x" button to clear search
+    if st.button(":material/close:", help="Clear search"):
+        st.session_state.search_query = ""
+        st.rerun()
+
+# The search input now uses the session state as its value
+search = st.sidebar.text_input(
+    "🍭 Search",
+    value=st.session_state.search_query,
+    key="search_input_widget", # Internal widget key
+    placeholder="e.g. Designer",
+    label_visibility="collapsed" # Hides the redundant label
+)
+
+# Update the session state so it stays synced when typing
+st.session_state.search_query = search
 
 # -----------------------------------
 # Last Updated (JST)
