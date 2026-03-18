@@ -45,6 +45,7 @@ div[data-testid="stButton"] > button {
     background-color: #ff4d6b;
     color: white;
     border: none;
+    margin-top: -3px;
 }
 
 /* Hover effect */
