@@ -49,15 +49,14 @@ div[data-testid="stButton"] > button {
     padding: 0;
     font-size: 14px;
     border-radius: 6px;
-    background-color: #ff4d6b;
     color: white;
     border: none;
     margin-top: 3px;
 }
 
-/* ✅ Hover state (must match specificity + !important) */
+/* Hover state */
 div[data-testid="stButton"] > button {hover {
-    background-color: #e04360;
+    background-color: #e04360 !important;
     color: white;
 }
 
