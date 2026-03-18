@@ -146,15 +146,20 @@ selected_seniority = st.sidebar.multiselect(
 companies = sorted(df["company"].dropna().unique())
 selected_companies = st.sidebar.multiselect("Company", companies)
 
-# Search
+# -----------------------------------
+# Search + Reset
+# -----------------------------------
+
+def clear_search():
+    st.session_state.search = ""
+
 col1, col2 = st.sidebar.columns([3, 1])
 
 with col1:
     st.text_input("🍭 Search", key="search")
 
 with col2:
-    if st.button("❌"):
-        st.session_state.search = ""
+    st.button("❌", on_click=clear_search)
 
 # -----------------------------------
 # Last Updated (JST)
