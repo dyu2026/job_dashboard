@@ -153,20 +153,18 @@ selected_companies = st.sidebar.multiselect("Company", companies)
 def clear_search():
     st.session_state.search = ""
 
-st.sidebar.markdown("""
-<div class="search-container">
-    <input id="search-box" placeholder="🍭 Search" />
-    <button onclick="clearSearch()">✕</button>
-</div>
+st.sidebar.markdown('<div class="search-row">', unsafe_allow_html=True)
 
-<script>
-function clearSearch() {
-    const input = document.getElementById("search-box");
-    input.value = "";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-}
-</script>
-""", unsafe_allow_html=True)
+col1, col2 = st.sidebar.columns([4, 1])
+
+with col1:
+    st.text_input("🍭 Search", key="search")
+
+with col2:
+    st.button("✕", on_click=clear_search)
+
+st.sidebar.markdown('</div>', unsafe_allow_html=True)
+
 # -----------------------------------
 # Last Updated (JST)
 # -----------------------------------
