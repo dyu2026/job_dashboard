@@ -54,7 +54,7 @@ div[data-testid="stButton"] > button {
     background-color: #ff4d6b;
     color: white;
     border: none;
-    margin-top: 27px;
+/*    margin-top: 27px; */
 }
 
 /* Hover effect */
@@ -68,10 +68,10 @@ div[data-testid="stButton"] > button:focus {
     box-shadow: none;
 }
 
-/* Force search + button inline even on mobile */
+/* Make the search row align properly */
 section[data-testid="stSidebar"] .search-row {
     display: flex;
-    align-items: center;
+    align-items: flex-end;  /* 👈 key change */
     gap: 6px;
 }
 
@@ -82,8 +82,5 @@ section[data-testid="stSidebar"] .search-row > div:first-child {
 
 /* Prevent button from wrapping */
 section[data-testid="stSidebar"] .search-row button {
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    padding: 0;
+    margin-top: 0 !important;
 }
