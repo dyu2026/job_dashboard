@@ -67,3 +67,23 @@ div[data-testid="stButton"] > button:hover {
 div[data-testid="stButton"] > button:focus {
     box-shadow: none;
 }
+
+/* Force search + button inline even on mobile */
+section[data-testid="stSidebar"] .search-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Make input take remaining space */
+section[data-testid="stSidebar"] .search-row > div:first-child {
+    flex: 1;
+}
+
+/* Prevent button from wrapping */
+section[data-testid="stSidebar"] .search-row button {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
