@@ -54,7 +54,6 @@ div[data-testid="stButton"] > button {
     background-color: #ff4d6b;
     color: white;
     border: none;
-/*    margin-top: 27px; */
 }
 
 /* Hover effect */
@@ -71,7 +70,7 @@ div[data-testid="stButton"] > button:focus {
 /* Make the search row align properly */
 section[data-testid="stSidebar"] .search-row {
     display: flex;
-    align-items: flex-end;  /* 👈 key change */
+    align-items: center;   /* ✅ center now works (no label) */
     gap: 6px;
 }
 
@@ -83,4 +82,15 @@ section[data-testid="stSidebar"] .search-row > div:first-child {
 /* Prevent button from wrapping */
 section[data-testid="stSidebar"] .search-row button {
     margin-top: 0 !important;
+}
+
+/* Normalize input + button height */
+section[data-testid="stSidebar"] input {
+    height: 36px;
+}
+
+section[data-testid="stSidebar"] .search-row button {
+    height: 36px;
+    width: 32px;
+    padding: 0;
 }
