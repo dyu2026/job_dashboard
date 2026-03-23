@@ -94,3 +94,13 @@ section[data-testid="stSidebar"] .search-row button {
     width: 32px;
     padding: 0;
 }
+
+/* Remove hidden label spacing from text input */
+section[data-testid="stSidebar"] div[data-testid="stTextInput"] label {
+    display: none;
+}
+
+/* Remove extra spacing wrapper */
+section[data-testid="stSidebar"] div[data-testid="stTextInput"] > div {
+    margin-top: 0 !important;
+}
