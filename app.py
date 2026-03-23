@@ -158,7 +158,7 @@ st.sidebar.markdown('<div class="search-row">', unsafe_allow_html=True)
 col1, col2 = st.sidebar.columns([4, 1])
 
 with col1:
-    st.text_input("", key="search", placeholder="🍭 Search")
+    st.text_input("", key="search", placeholder="🍭 Search", label_visibility="collapsed")
 
 with col2:
     st.button("✕", on_click=clear_search)
