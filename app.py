@@ -92,6 +92,19 @@ now_jst = datetime.now(JST)
 
 last_24 = now_jst - timedelta(hours=24)
 
+# Days since posted
+def format_days_ago(days):
+    if days == 0:
+        return "Today"
+    elif days == 1:
+        return "1d ago"
+    else:
+        return f"{days}d ago"
+
+df["days_since_posted"] = (
+    (now_jst - df["first_seen_at"]).dt.days
+).apply(format_days_ago)
+
 today_start = now_jst.replace(
     hour=0,
     minute=0,
@@ -145,6 +158,24 @@ selected_seniority = st.sidebar.multiselect(
 # Company Filter
 companies = sorted(df["company"].dropna().unique())
 selected_companies = st.sidebar.multiselect("Company", companies)
+
+
+# Recency Filter
+
+st.sidebar.subheader("Posted")
+
+TIME_FILTERS = {
+    "Last 3 days": 3,
+    "Last 1 week": 7,
+    "Last 2 weeks": 14,
+    "Last 1 month": 30
+}
+
+selected_recency = st.sidebar.selectbox(
+    "Show jobs from",
+    ["All"] + list(TIME_FILTERS.keys())
+)
+
 
 # -----------------------------------
 # Search + Reset
@@ -231,6 +262,13 @@ if target_mode:
         )
     ]
 
+# Apply Recency Filter
+
+if selected_recency != "All":
+    days = TIME_FILTERS[selected_recency]
+    cutoff = now_jst - timedelta(days=days)
+    df = df[df["first_seen_at"] >= cutoff]
+
 if df.empty:
     st.warning("No jobs match filters.")
     st.stop()
@@ -280,6 +318,7 @@ display_cols = [
     "title",
     "location",
     "url",
+    "days_since_posted",
     "function",
     "first_seen_at",
 ]
@@ -305,6 +344,7 @@ with tab1:
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
                 "first_seen_at": "First Seen",
+                "days_since_posted": "Days Ago",
                 "company": "Company",
                 "title": "Title",
                 "location": "Location",
@@ -331,6 +371,7 @@ with tab2:
             "logo": st.column_config.ImageColumn("Logo", width="small"),
             "url": st.column_config.LinkColumn("Apply", display_text="Open"),
             "first_seen_at": "First Seen",
+            "days_since_posted": "Days Ago",
             "company": "Company",
             "title": "Title",
             "location": "Location",
