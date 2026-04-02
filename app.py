@@ -94,6 +94,11 @@ last_24 = now_jst - timedelta(hours=24)
 
 # Days since posted
 def format_days_ago(days):
+    if pd.isna(days):
+        return ""
+    
+    days = int(days)  # 👈 KEY FIX
+    
     if days == 0:
         return "Today"
     elif days == 1:
