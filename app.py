@@ -539,14 +539,26 @@ with tab5:
         # Heatmap
         heatmap_data["hour_label"] = heatmap_data["hour"].apply(lambda x: f"{x}:00")
         heatmap = alt.Chart(heatmap_data).mark_rect().encode(
-            x=alt.X("hour_label:O", title="Hour (JST)"),
-            y=alt.Y("day_of_week:O", sort=day_order, title="Day of Week"),
+            x=alt.X(
+                "hour:O",
+                sort=list(range(24)),  # 👈 forces 0–23 order
+                title="Hour of Day (JST)"
+            ),
+            y=alt.Y(
+                "day_of_week:O",
+                sort=day_order,
+                title="Day of Week"
+            ),
             color=alt.Color(
                 "count:Q",
-                scale=alt.Scale(scheme="reds"),  # 👈 matches your theme
+                scale=alt.Scale(scheme="reds"),
                 title="Jobs"
             ),
-            tooltip=["day_of_week", "hour", "count"]
+            tooltip=[
+                "day_of_week",
+                alt.Tooltip("hour:Q", title="Hour"),
+                "count"
+            ]
         )
 
         st.altair_chart(heatmap, use_container_width=True)
