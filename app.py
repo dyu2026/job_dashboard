@@ -97,7 +97,7 @@ def format_days_ago(days):
     if pd.isna(days):
         return ""
     
-    days = int(days)  # 👈 KEY FIX
+    days = int(days)
     
     if days == 0:
         return "Today"
@@ -367,7 +367,7 @@ day_counts = (
 # -----------------------------------
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed", "📈 Posting Trends"]
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed", "📆 Posting Trends"]
 )
 
 display_cols = [
@@ -509,11 +509,11 @@ with tab4:
         )
 
 # -----------------------------------
-# 📈 Posting Trends Tab
+# 📆 Posting Trends Tab
 # -----------------------------------
 
 with tab5:
-    st.subheader("📈 Job Posting Trends (JST)")
+    st.subheader("📆 Job Posting Trends (JST)")
 
     st.caption("Excludes first 3 days of each company to remove initial data spikes.")
 
