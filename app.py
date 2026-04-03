@@ -471,6 +471,8 @@ with tab3:
         .set_index("company")
     )
 
+    st.write(sorted(df["company"].unique()))
+
     st.bar_chart(company_stats["total_jobs"], color="#ff4d6b")
 
 # -----------------------------------
