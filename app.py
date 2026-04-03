@@ -309,11 +309,51 @@ col4.metric("Companies Tracked", total_companies)
 st.divider()
 
 # -----------------------------------
+# Posting Trend Dataset
+# -----------------------------------
+
+trend_df = df.copy()
+
+# 1. Get company first seen (earliest job per company)
+company_first_seen = (
+    trend_df.groupby("company")["first_seen_at"]
+    .min()
+    .reset_index()
+    .rename(columns={"first_seen_at": "company_first_seen"})
+)
+
+trend_df = trend_df.merge(company_first_seen, on="company", how="left")
+
+# 2. Remove initial ingestion spike (first X days)
+INGESTION_WINDOW_DAYS = 3
+
+trend_df["days_from_company_start"] = (
+    trend_df["first_seen_at"] - trend_df["company_first_seen"]
+).dt.days
+
+trend_df = trend_df[
+    trend_df["days_from_company_start"] > INGESTION_WINDOW_DAYS
+]
+
+trend_df["day_of_week"] = trend_df["first_seen_at"].dt.day_name()
+
+# Optional: enforce correct order
+day_order = [
+    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+]
+
+day_counts = (
+    trend_df["day_of_week"]
+    .value_counts()
+    .reindex(day_order)
+)
+
+# -----------------------------------
 # Tabs Layout
 # -----------------------------------
 
-tab1, tab2, tab3, tab4 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed"]
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed", "📈 Posting Trends"]
 )
 
 display_cols = [
@@ -453,6 +493,20 @@ with tab4:
             use_container_width=True,
             hide_index=True
         )
+
+# -----------------------------------
+# 📈 Posting Trends Tab
+# -----------------------------------
+
+with tab5:
+    st.subheader("📈 Job Posting Trends (JST)")
+
+    st.caption("Excludes first 3 days of each company to remove initial data spikes.")
+
+    if trend_df.empty:
+        st.info("Not enough data to show trends.")
+    else:
+        st.bar_chart(day_counts)
 
 # -----------------------------------
 # LinkedIn Hiring Signals
