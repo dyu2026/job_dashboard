@@ -477,7 +477,6 @@ with tab3:
         x=alt.X(
             "company:N",
             sort=sorted_companies,
-            axis=alt.Axis(labelAngle=-45),
             title="Company"
         ),
         y=alt.Y("total_jobs:Q", title="Total Jobs"),
