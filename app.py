@@ -38,7 +38,8 @@ if query_params.get("internal") == st.secrets["INTERNAL_TOKEN"]:
 
 user_type = cookies.get("user_type", "external")
 
-st.sidebar.write("User type:", user_type)
+# debug cookie working for user type
+# st.sidebar.write("User type:", user_type)
 
 # -----------------------------------
 # set timezone
