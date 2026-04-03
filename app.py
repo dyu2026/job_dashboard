@@ -3,6 +3,7 @@ import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 import os, base64
+import altair as alt
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -362,6 +363,17 @@ day_counts = (
     .fillna(0)
 )
 
+# Heatmap of postings
+
+# Hour of day (JST)
+trend_df["hour"] = trend_df["first_seen_at"].dt.hour
+
+heatmap_data = (
+    trend_df.groupby(["day_of_week", "hour"])
+    .size()
+    .reset_index(name="count")
+)
+
 # -----------------------------------
 # Tabs Layout
 # -----------------------------------
@@ -514,13 +526,26 @@ with tab4:
 
 with tab5:
     st.subheader("📆 Job Posting Trends (JST)")
-
     st.caption("Excludes first day of each company to remove initial data spikes.")
 
     if trend_df.empty:
         st.info("Not enough data to show trends.")
     else:
         st.bar_chart(day_counts, color="#ff4d6b")
+        
+    if trend_df.empty:
+        st.info("Not enough data to show trends.")
+    else:
+        # Heatmap
+        heatmap = alt.Chart(heatmap_data).mark_rect().encode(
+            x=alt.X("hour:O", title="Hour of Day (JST)"),
+            y=alt.Y("day_of_week:O", sort=day_order, title="Day of Week"),
+            color=alt.Color(
+                "count:Q",
+                scale=alt.Scale(scheme="reds"),  # 👈 matches your theme
+                title="Jobs"
+            ),
+            tooltip=["day_of_week", "hour", "count"]
 
 # -----------------------------------
 # LinkedIn Hiring Signals
