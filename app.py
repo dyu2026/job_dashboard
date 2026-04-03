@@ -62,7 +62,7 @@ if "page_logged" not in st.session_state:
         st.session_state["page_logged"] = True
 
     except Exception as e:
-        print("Tracking error:", e)
+        st.error(f"Tracking error: {e}")
 
 
 # -----------------------------------
