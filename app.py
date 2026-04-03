@@ -459,9 +459,8 @@ with tab2:
 
 with tab3:
     st.subheader("🚀 Company Breakdown")
-
+    df["company"] = df["company"].str.strip()
     company_stats = (
-        df["company"] = df["company"].str.strip()
         df.groupby("company")
         .agg(
             total_jobs=("title", "count"),
