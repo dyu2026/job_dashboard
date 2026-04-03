@@ -10,8 +10,6 @@ import uuid
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
 
-st.sidebar.write("User type:", user_type)
-
 # -----------------------------------
 # CSS
 # -----------------------------------
@@ -39,6 +37,8 @@ if query_params.get("internal") == st.secrets["INTERNAL_TOKEN"]:
     st.query_params.clear()
 
 user_type = cookies.get("user_type", "external")
+
+st.sidebar.write("User type:", user_type)
 
 # -----------------------------------
 # set timezone
