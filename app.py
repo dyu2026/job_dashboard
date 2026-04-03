@@ -309,12 +309,17 @@ col4.metric("Companies Tracked", total_companies)
 st.divider()
 
 # -----------------------------------
-# Posting Trend Dataset
+# Posting Trend Dataset (FIXED)
 # -----------------------------------
 
-trend_df = df.copy()
+trend_df = pd.DataFrame(data)
 
-# 1. Get company first seen (earliest job per company)
+trend_df["first_seen_at"] = (
+    pd.to_datetime(trend_df["first_seen_at"], utc=True, errors="coerce")
+    .dt.tz_convert("Asia/Tokyo")
+)
+
+# 1. Company first seen
 company_first_seen = (
     trend_df.groupby("company")["first_seen_at"]
     .min()
@@ -324,8 +329,8 @@ company_first_seen = (
 
 trend_df = trend_df.merge(company_first_seen, on="company", how="left")
 
-# 2. Remove initial ingestion spike (first X days)
-INGESTION_WINDOW_DAYS = 3
+# 2. Remove ingestion spike
+INGESTION_WINDOW_DAYS >= 1
 
 trend_df["days_from_company_start"] = (
     trend_df["first_seen_at"] - trend_df["company_first_seen"]
@@ -335,17 +340,20 @@ trend_df = trend_df[
     trend_df["days_from_company_start"] > INGESTION_WINDOW_DAYS
 ]
 
+# 3. Day of week
 trend_df["day_of_week"] = trend_df["first_seen_at"].dt.day_name()
 
-# Optional: enforce correct order
+# 4. Order
 day_order = [
-    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+    "Sunday", "Monday", "Tuesday", "Wednesday",
+    "Thursday", "Friday", "Saturday"
 ]
 
 day_counts = (
     trend_df["day_of_week"]
     .value_counts()
     .reindex(day_order)
+    .fillna(0)
 )
 
 # -----------------------------------
