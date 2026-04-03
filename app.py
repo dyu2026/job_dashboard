@@ -467,7 +467,7 @@ with tab3:
             new_24h=("is_new_24h", "sum"),
         )
         .reset_index()
-        .sort_values(["total_jobs", "company"], ascending=[False, True])
+        .sort_values("company", ascending=True)
         .set_index("company")
     )
 
