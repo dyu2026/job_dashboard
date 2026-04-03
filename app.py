@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
+from streamlit_cookies_manager import EncryptedCookieManager
 import os, base64
 import altair as alt
 import uuid
@@ -14,19 +15,42 @@ st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
 # -----------------------------------
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    
-JST = timezone(timedelta(hours=9))
 
-# ... (Rest of your existing Supabase setup and Fetch Data code) ...
+# -----------------------------------
+# cookie to exclude my traffic
+# -----------------------------------
+    
+cookies = EncryptedCookieManager(
+    prefix="job_dashboard",
+    password=st.secrets["COOKIE_SECRET"]
+)
+
+if not cookies.ready():
+    st.stop()
+    
+query_params = st.query_params
+
+if query_params.get("internal") == st.secrets["INTERNAL_TOKEN"]:
+    cookies["user_type"] = "internal"
+    cookies.save()
+    
+    st.query_params.clear()
+
+user_type = cookies.get("user_type", "external")
+
+# -----------------------------------
+# set timezone
+# -----------------------------------
+
+JST = timezone(timedelta(hours=9))
 
 # -----------------------------------
 # Sidebar Content
 # -----------------------------------
-# If you already have sidebar filters, place this at the very bottom
+
 with st.sidebar:
     st.title("Filters")
-    # ... your existing sidebar widgets ...
-    
+   
     st.markdown("---") # Visual separator
 
 # -----------------------------------
@@ -54,9 +78,10 @@ if "session_id" not in st.session_state:
 
 if "page_logged" not in st.session_state:
     try:
-        result = supabase.table("page_views").insert({
+        supabase.table("page_views").insert({
             "session_id": st.session_state["session_id"],
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "user_type": user_type
         }).execute()
 
         st.session_state["page_logged"] = True
@@ -146,8 +171,6 @@ df["is_new_today"] = df["first_seen_at"] >= today_start
 # -----------------------------------
 # Sidebar Filters
 # -----------------------------------
-
-# st.sidebar.header("Filters")
 
 # Remote
 remote_only = st.sidebar.checkbox("Remote Only")
