@@ -538,10 +538,11 @@ with tab5:
     else:
         # Heatmap
         heatmap_data["hour_label"] = heatmap_data["hour"].apply(lambda x: f"{x}:00")
+        hour_order = [f"{i}:00" for i in range(24)]
         heatmap = alt.Chart(heatmap_data).mark_rect().encode(
             x=alt.X(
-                "hour:O",
-                sort=list(range(24)),  # 👈 forces 0–23 order
+                "hour_label:O",
+                sort=hour_order,
                 title="Hour of Day (JST)"
             ),
             y=alt.Y(
@@ -556,7 +557,7 @@ with tab5:
             ),
             tooltip=[
                 "day_of_week",
-                alt.Tooltip("hour:Q", title="Hour"),
+                "hour_label",
                 "count"
             ]
         )
