@@ -466,7 +466,9 @@ with tab3:
             total_jobs=("title", "count"),
             new_24h=("is_new_24h", "sum"),
         )
-        .sort_index()
+        .reset_index()
+        .sort_values(["total_jobs", "company"], ascending=[False, True])
+        .set_index("company")
     )
 
     st.bar_chart(company_stats["total_jobs"], color="#ff4d6b")
