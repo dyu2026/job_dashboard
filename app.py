@@ -469,13 +469,15 @@ with tab3:
             new_24h=("is_new_24h", "sum"),
         )
         .reset_index()
-        .sort_values("company", ascending=True)
     )
+
+    sorted_companies = sorted(company_stats["company"], key=lambda x: x.lower())
 
     chart = alt.Chart(company_stats).mark_bar().encode(
         x=alt.X(
             "company:N",
-            sort=sorted(company_stats["company"], key=lambda x: x.lower())
+            sort=sorted_companies,
+            axis=alt.Axis(labelAngle=-45),
             title="Company"
         ),
         y=alt.Y("total_jobs:Q", title="Total Jobs"),
