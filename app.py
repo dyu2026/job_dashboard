@@ -531,14 +531,23 @@ with tab5:
     if trend_df.empty:
         st.info("Not enough data to show trends.")
     else:
+        # -----------------------------------
+        # Day-of-week bar chart
+        # -----------------------------------
         st.bar_chart(day_counts, color="#ff4d6b")
-        
-    if trend_df.empty:
-        st.info("Not enough data to show trends.")
-    else:
-        # Heatmap
+
+        # -----------------------------------
+        # Heatmap (Day x Hour)
+        # -----------------------------------
+
+        # Format hour labels (1:00, 2:00, etc.)
         heatmap_data["hour_label"] = heatmap_data["hour"].apply(lambda x: f"{x}:00")
+
+        # Ensure correct hour order
         hour_order = [f"{i}:00" for i in range(24)]
+
+        import altair as alt
+
         heatmap = alt.Chart(heatmap_data).mark_rect().encode(
             x=alt.X(
                 "hour_label:O",
@@ -556,9 +565,9 @@ with tab5:
                 title="Jobs"
             ),
             tooltip=[
-                "day_of_week",
-                "hour_label",
-                "count"
+                alt.Tooltip("day_of_week", title="Day"),
+                alt.Tooltip("hour_label", title="Hour"),
+                alt.Tooltip("count", title="Jobs")
             ]
         )
 
