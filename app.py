@@ -515,7 +515,7 @@ with tab4:
 with tab5:
     st.subheader("📆 Job Posting Trends (JST)")
 
-    st.caption("Excludes first 3 days of each company to remove initial data spikes.")
+    st.caption("Excludes first day of each company to remove initial data spikes.")
 
     if trend_df.empty:
         st.info("Not enough data to show trends.")
