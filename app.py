@@ -520,7 +520,7 @@ with tab5:
     if trend_df.empty:
         st.info("Not enough data to show trends.")
     else:
-        st.bar_chart(day_counts)
+        st.bar_chart(day_counts, color="#ff4d6b")
 
 # -----------------------------------
 # LinkedIn Hiring Signals
