@@ -459,7 +459,9 @@ with tab2:
 
 with tab3:
     st.subheader("🚀 Company Breakdown")
+
     df["company"] = df["company"].str.strip()
+
     company_stats = (
         df.groupby("company")
         .agg(
@@ -468,12 +470,20 @@ with tab3:
         )
         .reset_index()
         .sort_values("company", ascending=True)
-        .set_index("company")
     )
 
-    st.write(sorted(df["company"].unique()))
+    chart = alt.Chart(company_stats).mark_bar().encode(
+        x=alt.X(
+            "company:N",
+            sort=list(company_stats["company"]),  # 👈 FORCE ORDER
+            title="Company"
+        ),
+        y=alt.Y("total_jobs:Q", title="Total Jobs"),
+        color=alt.value("#ff4d6b"),
+        tooltip=["company", "total_jobs"]
+    )
 
-    st.bar_chart(company_stats["total_jobs"], color="#ff4d6b")
+    st.altair_chart(chart, use_container_width=True)
 
 # -----------------------------------
 # 🗑 Removed Jobs Tab
