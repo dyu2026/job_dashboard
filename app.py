@@ -582,11 +582,13 @@ with tab5:
 
             st.markdown("### 🔥 Peak Posting Times")
 
-            for row in top_slots.itertuples():
+            medals = ["🥇", "🥈", "🥉"]
+
+            for i, row in enumerate(top_slots.itertuples()):
                 label = f"{row.day_of_week} at {int(row.hour)}:00 JST"
                 count = int(row.count)
 
-                st.markdown(f"- {label} ({count} jobs)")
+                st.markdown(f"{medals[i]} {label} ({count} jobs)")
 
 # -----------------------------------
 # LinkedIn Hiring Signals
