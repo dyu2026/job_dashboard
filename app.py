@@ -10,26 +10,6 @@ import uuid
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
 
 # -----------------------------------
-# Page View Tracking
-# -----------------------------------
-
-# Create session ID (persist across page interactions)
-if "session_id" not in st.session_state:
-    st.session_state.session_id = str(uuid.uuid4())
-
-# Log only once per session
-if "page_logged" not in st.session_state:
-    try:
-        supabase.table("page_views").insert({
-            "session_id": st.session_state.session_id,
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }).execute()
-        
-        st.session_state.page_logged = True
-    except Exception as e:
-        print("Tracking error:", e)
-
-# -----------------------------------
 # CSS
 # -----------------------------------
 with open('style.css') as f:
@@ -63,6 +43,27 @@ SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# -----------------------------------
+# Page View Tracking
+# -----------------------------------
+
+# Create session ID (persist across page interactions)
+if "session_id" not in st.session_state:
+    st.session_state["session_id"] = str(uuid.uuid4())
+
+if "page_logged" not in st.session_state:
+    try:
+        result = supabase.table("page_views").insert({
+            "session_id": st.session_state["session_id"],
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }).execute()
+
+        st.session_state["page_logged"] = True
+
+    except Exception as e:
+        print("Tracking error:", e)
+
 
 # -----------------------------------
 # Fetch Data
