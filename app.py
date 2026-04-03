@@ -330,7 +330,7 @@ company_first_seen = (
 trend_df = trend_df.merge(company_first_seen, on="company", how="left")
 
 # 2. Remove ingestion spike
-INGESTION_WINDOW_DAYS >= 1
+INGESTION_WINDOW_DAYS = 1
 
 trend_df["days_from_company_start"] = (
     trend_df["first_seen_at"] - trend_df["company_first_seen"]
