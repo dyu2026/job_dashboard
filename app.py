@@ -309,7 +309,7 @@ col4.metric("Companies Tracked", total_companies)
 st.divider()
 
 # -----------------------------------
-# Posting Trend Dataset (FIXED)
+# Posting Trend Dataset
 # -----------------------------------
 
 trend_df = pd.DataFrame(data)
@@ -349,10 +349,16 @@ day_order = [
     "Thursday", "Friday", "Saturday"
 ]
 
+trend_df["day_of_week"] = pd.Categorical(
+    trend_df["first_seen_at"].dt.day_name(),
+    categories=day_order,
+    ordered=True
+)
+
 day_counts = (
     trend_df["day_of_week"]
     .value_counts()
-    .reindex(day_order)
+    .sort_index()
     .fillna(0)
 )
 
