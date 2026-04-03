@@ -10,6 +10,8 @@ import uuid
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
 
+st.sidebar.write("User type:", user_type)
+
 # -----------------------------------
 # CSS
 # -----------------------------------
