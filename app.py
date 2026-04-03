@@ -546,6 +546,9 @@ with tab5:
                 title="Jobs"
             ),
             tooltip=["day_of_week", "hour", "count"]
+        )
+
+        st.altair_chart(heatmap, use_container_width=True)
 
 # -----------------------------------
 # LinkedIn Hiring Signals
