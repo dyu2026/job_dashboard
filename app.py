@@ -4,6 +4,7 @@ from supabase import create_client
 from datetime import datetime, timedelta, timezone
 import os, base64
 import altair as alt
+import uuid
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
