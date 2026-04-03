@@ -537,8 +537,9 @@ with tab5:
         st.info("Not enough data to show trends.")
     else:
         # Heatmap
+        heatmap_data["hour_label"] = heatmap_data["hour"].apply(lambda x: f"{x}:00")
         heatmap = alt.Chart(heatmap_data).mark_rect().encode(
-            x=alt.X("hour:O", title="Hour of Day (JST)"),
+            x=alt.X("hour_label:O", title="Hour (JST)"),
             y=alt.Y("day_of_week:O", sort=day_order, title="Day of Week"),
             color=alt.Color(
                 "count:Q",
