@@ -475,7 +475,7 @@ with tab3:
     chart = alt.Chart(company_stats).mark_bar().encode(
         x=alt.X(
             "company:N",
-            sort=list(company_stats["company"]),  # 👈 FORCE ORDER
+            sort=sorted(company_stats["company"], key=lambda x: x.lower())
             title="Company"
         ),
         y=alt.Y("total_jobs:Q", title="Total Jobs"),
