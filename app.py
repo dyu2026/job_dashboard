@@ -573,6 +573,22 @@ with tab5:
 
         st.altair_chart(heatmap, use_container_width=True)
 
+        if not heatmap_data.empty:
+            top_slots = heatmap_data.sort_values("count", ascending=False).head(3)
+
+            st.markdown("### 🔥 Peak Posting Times")
+
+            for i, row in enumerate(top_slots.itertuples(), 1):
+                label = f"{row.day_of_week} at {int(row.hour)}:00 JST"
+                count = int(row.count)
+
+                if i == 1:
+                    st.success(f"🥇 {label} ({count} jobs)")
+                elif i == 2:
+                    st.info(f"🥈 {label} ({count} jobs)")
+                else:
+                    st.write(f"🥉 {label} ({count} jobs)")
+
 # -----------------------------------
 # LinkedIn Hiring Signals
 # -----------------------------------
