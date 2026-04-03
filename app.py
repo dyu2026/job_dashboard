@@ -270,6 +270,8 @@ if target_mode:
 
 # Apply Recency Filter
 
+df_for_trends = df.copy()
+
 if selected_recency != "All":
     days = TIME_FILTERS[selected_recency]
     cutoff = now_jst - timedelta(days=days)
@@ -313,7 +315,7 @@ st.divider()
 # Posting Trend Dataset
 # -----------------------------------
 
-trend_df = pd.DataFrame(data)
+trend_df = df_for_trends.copy()
 
 trend_df["first_seen_at"] = (
     pd.to_datetime(trend_df["first_seen_at"], utc=True, errors="coerce")
@@ -572,7 +574,7 @@ with tab5:
         )
 
         st.altair_chart(heatmap, use_container_width=True)
-
+        
         # -----------------------------------
         # 🔥 Auto Insight: Top Posting Times 
         # -----------------------------------
