@@ -1,6 +1,6 @@
 /* Adjust main content */
 
-[data-testid="stMarkdown"] {
+[data-testid="stMarkdown"] hr {
     margin-top: -20px !important;
 }
 
