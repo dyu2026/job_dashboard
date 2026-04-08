@@ -678,8 +678,6 @@ with tab5:
         # Ensure correct hour order
         hour_order = [f"{i}:00" for i in range(24)]
 
-        import altair as alt
-
         heatmap = alt.Chart(heatmap_data).mark_rect().encode(
             x=alt.X(
                 "hour_label:O",
