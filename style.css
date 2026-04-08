@@ -1,5 +1,5 @@
 /* Adjust sidebar H1 */
-section[data-testid="stSidebar"] h1 {
+section[data-testid="stSidebar"] {
     margin-top: 45px !important;
 }
 
