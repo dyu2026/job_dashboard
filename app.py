@@ -525,16 +525,18 @@ with tab1:
         st.info("No LinkedIn hiring signals detected.")
     else:
 
-        linkedin_df["published_at"] = pd.to_datetime(
-            linkedin_df["published_at"]
-        ).dt.strftime("%Y-%m-%d %H:%M")
+        linkedin_df["published_at"] = (
+            pd.to_datetime(linkedin_df["published_at"], utc=True, errors="coerce")
+            .dt.tz_convert("Asia/Tokyo")
+            .dt.strftime("%Y-%m-%d %H:%M")
+        )
 
         st.dataframe(
             linkedin_df[["published_at","title","url"]],
             column_config={
                 "url": st.column_config.LinkColumn("Open Post", display_text="View"),
                 "title": "Title",
-                "published_at": "Published"
+                "published_at": "Published (JST)",
             },
             use_container_width=True,
             hide_index=True,
@@ -719,4 +721,3 @@ with tab5:
                 count = int(row.count)
 
                 st.markdown(f"{medals[i]} {label} ({count} jobs)")
-
