@@ -83,7 +83,7 @@ with st.sidebar:
 #st.title("Job Intelligence Dashboard")
 st.markdown("""
 <h1 style="margin-bottom: 0;">Job Intelligence Dashboard</h1>
-<p style="color: gray; margin-bottom: 30px;">
+<p style="color: gray; margin-bottom: 40px;">
 Track Japan & remote tech jobs with real-time hiring insights
 </p>
 """, unsafe_allow_html=True)
