@@ -268,6 +268,7 @@ if not df.empty and "last_seen_at" in df.columns:
 
     st.sidebar.markdown("---")
     st.sidebar.caption(f"Last scraper run: {last_updated_jst} JST")
+    st.sidebar.caption("Made in :streamlit: by [Derek Yu](https://www.linkedin.com/in/derekhyyu/)")
 
 # -----------------------------------
 # Apply Filters
