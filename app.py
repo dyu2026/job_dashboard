@@ -8,15 +8,7 @@ import altair as alt
 import uuid
 
 # Page setting
-#st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
-#st.caption("Track Japan & remote tech jobs with real-time hiring insights")
-
-st.markdown("""
-<h1 style="margin-bottom: 0;">Job Intelligence Dashboard</h1>
-<p style="color: gray; margin-top: 4px;">
-Track Japan & remote tech jobs with real-time hiring insights
-</p>
-""", unsafe_allow_html=True)
+st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
 
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
@@ -88,7 +80,13 @@ with st.sidebar:
 # Page Config
 # -----------------------------------
 
-st.title("Job Intelligence Dashboard")
+#st.title("Job Intelligence Dashboard")
+st.markdown("""
+<h1 style="margin-bottom: 0;">Job Intelligence Dashboard</h1>
+<p style="color: gray; margin-top: 4px;">
+Track Japan & remote tech jobs with real-time hiring insights
+</p>
+""", unsafe_allow_html=True)
 
 # -----------------------------------
 # Supabase Setup
