@@ -10,6 +10,10 @@ import uuid
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
 
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+""", unsafe_allow_html=True)
+
 # -----------------------------------
 # CSS
 # -----------------------------------
@@ -52,7 +56,23 @@ JST = timezone(timedelta(hours=9))
 # -----------------------------------
 
 with st.sidebar:
-    st.title("Filters")
+    st.markdown("""
+    <style>
+    .sidebar-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    </style>
+
+    <div class="sidebar-title">
+        <span class="material-symbols-rounded">filter_alt</span>
+        <span>Filters</span>
+    </div>
+    """, unsafe_allow_html=True)
    
     st.markdown("---") # Visual separator
 
