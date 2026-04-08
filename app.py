@@ -9,6 +9,7 @@ import uuid
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
+st.caption("Track Japan & remote tech jobs with real-time hiring insights")
 
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
