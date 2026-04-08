@@ -499,6 +499,7 @@ with tab1:
                 "function": "Function"
             },
             use_container_width=True,
+            hide_index=True,
         )
     
     # -----------------------------------
@@ -535,7 +536,8 @@ with tab1:
                 "title": "Title",
                 "published_at": "Published"
             },
-            use_container_width=True
+            use_container_width=True,
+            hide_index=True,
         )
 
 # -----------------------------------
@@ -563,6 +565,7 @@ with tab2:
             "function": "Function"
         },
         use_container_width=True,
+        hide_index=True,
     )
 
 # -----------------------------------
