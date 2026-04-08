@@ -3,7 +3,7 @@ section[data-testid="stSidebar"] {
     margin-top: 45px !important;
 }
 
-section[data-testid="stMarkdown"] {
+[data-testid="stMarkdown"] {
     margin-top: -20px !important;
 }
 
