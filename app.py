@@ -8,8 +8,15 @@ import altair as alt
 import uuid
 
 # Page setting
-st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
-st.caption("Track Japan & remote tech jobs with real-time hiring insights")
+#st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
+#st.caption("Track Japan & remote tech jobs with real-time hiring insights")
+
+st.markdown("""
+<h1 style="margin-bottom: 0;">Job Intelligence Dashboard</h1>
+<p style="color: gray; margin-top: 4px;">
+Track Japan & remote tech jobs with real-time hiring insights
+</p>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
