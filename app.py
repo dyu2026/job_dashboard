@@ -309,16 +309,17 @@ if japan_only:
 role_patterns = []
 
 if product_roles:
-    role_patterns.append("product")
-    
+    role_patterns.append(r"\bproduct\b")
+
 if web_roles:
-    role_patterns.append("web")
+    role_patterns.append(r"\bweb\b|\bfrontend\b|\bfront-end\b")
 
 if ecommerce_roles:
-    role_patterns.append("ecommerce|e-commerce|commerce")
+    role_patterns.append(r"ecommerce|e-commerce|commerce")
 
 if role_patterns:
-    df = df[df["role"].str.lower().isin([r.lower() for r in role_patterns])]
+    pattern = "|".join(role_patterns)
+    df = df[df["title"].str.contains(pattern, case=False, na=False, regex=True)]
 
 if selected_seniority:
     df = df[df["seniority"].isin(selected_seniority)]
