@@ -310,7 +310,7 @@ role_patterns = []
 
 if product_roles:
     role_patterns.append("product")
-
+    
 if web_roles:
     role_patterns.append("web")
 
@@ -318,12 +318,10 @@ if ecommerce_roles:
     role_patterns.append("ecommerce|e-commerce|commerce")
 
 if role_patterns:
-    pattern = "|".join(role_patterns)
-    df = df[df["title"].str.contains(pattern, case=False, na=False)]
+    df = df[df["role"].str.lower().isin([r.lower() for r in role_patterns])]
 
 if selected_seniority:
-    pattern = "|".join(selected_seniority)
-    df = df[df["title"].str.contains(pattern, case=False, na=False)]
+    df = df[df["seniority"].isin(selected_seniority)]
 
 if selected_companies:
     df = df[df["company"].isin(selected_companies)]
@@ -337,11 +335,7 @@ if st.session_state.search:
 
 # Exec Target Mode override
 if target_mode:
-    df = df[
-        df["title"].str.contains(
-            "Director|Head|VP|Principal", case=False, na=False
-        )
-    ]
+    df = df[df["seniority"].isin(["Director", "Head", "VP", "Principal"])]
 
 # Apply Recency Filter
 
@@ -467,7 +461,7 @@ display_cols = [
     "location",
     "url",
     "days_since_posted",
-    "function",
+    "role",
     "first_seen_at",
 ]
 
@@ -496,7 +490,7 @@ with tab1:
                 "company": "Company",
                 "title": "Title",
                 "location": "Location",
-                "function": "Function"
+                "role": "Role"
             },
             use_container_width=True,
             hide_index=True,
@@ -564,7 +558,7 @@ with tab2:
             "company": "Company",
             "title": "Title",
             "location": "Location",
-            "function": "Function"
+            "role": "Role"
         },
         use_container_width=True,
         hide_index=True,
@@ -648,7 +642,7 @@ with tab4:
                 "company": "Company",
                 "title": "Title",
                 "location": "Location",
-                "function": "Function"
+                "role": "Role"
             },
             use_container_width=True,
             hide_index=True
