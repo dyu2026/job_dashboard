@@ -336,7 +336,11 @@ if st.session_state.search:
 
 # Exec Target Mode override
 if target_mode:
-    df = df[df["seniority"].isin(["Director", "Head", "VP", "Principal"])]
+    df = df[
+        df["title"].str.contains(
+            "Director|Head|VP|Principal", case=False, na=False
+        )
+    ]
 
 # Apply Recency Filter
 
