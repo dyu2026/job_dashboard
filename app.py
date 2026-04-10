@@ -837,4 +837,4 @@ with tab6:
     <div style="font-family: sans-serif;">
     {html}
     </div>
-    """, height=600, scrolling=True)
+    """, height=650, scrolling=True)
