@@ -747,14 +747,45 @@ with tab5:
 # -----------------------------------
 # Role Insights Tab
 # -----------------------------------
-  
+
+ROLE_LABEL_MAP = {
+    "product management": "Product",
+    "engineering": "Engineering",
+    "design": "Design",
+    "data and analytics": "Data",
+    "marketing": "Marketing",
+    "sales": "Sales",
+    "business development": "Biz Dev",
+    "customer success and experience": "Customer Success",
+    "hr and recruiting": "HR",
+    "finance and accounting": "Finance",
+    "operations and support": "Operations",
+    "program and project management": "Program Mgmt",
+    "information technology": "IT",
+    "security": "Security",
+    "legal": "Legal",
+    "research and development": "R&D",
+    "supply chain and procurement": "Supply Chain",
+    "customer solution": "Customer Solutions",
+    "communications and pr": "Comms",
+    "solutions architect and engineer": "Solutions",
+    "other": "Other"
+}
+
 with tab6:
     
     st.subheader("🏆 Role Distribution")
 
     # ✅ STEP 1: Create role_df
+    df["role_short"] = (
+        df["role"]
+        .str.lower()
+        .map(ROLE_LABEL_MAP)
+        .fillna("Other")
+    )
+    
     role_df = (
-        df.groupby("role")
+        df.groupby("role_short")
         .size()
         .reset_index(name="count")
     )
@@ -771,7 +802,7 @@ with tab6:
     html = ""
     
     for i, row in role_df.iterrows():
-        role = row["role"]
+        role = row["role_short"]
         count = int(row["count"])
         pct = (count / total_jobs) * 100
     
