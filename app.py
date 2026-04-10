@@ -361,7 +361,7 @@ if df.empty:
 
 def tag_priority(title):
     title = str(title).lower()
-    if any(x in title for x in ["director", "head", "vp"]):
+    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president"]):
         return "👑 Exec"
     elif "senior" in title:
         return "😎 Senior"
