@@ -805,13 +805,18 @@ with tab6:
             x=alt.X("count:Q", title="Jobs"),
             y=alt.Y("role_short:N", sort="-x", title="Role"),
             color=alt.value("#ff4d6b"),
-            tooltip=["role", "count"]
+            tooltip=["role", "count", "percent"]
         )
         st.altair_chart(chart, use_container_width=True)
 
     with col2:
+        role_df_display = role_df.rename(columns={
+            "count": "Jobs",
+            "percent_str": "%"
+        })
+
         st.dataframe(
-            role_df[["role", "count", "percent_str"]],
+            role_df_display[["role", "Jobs", "%"]],
             hide_index=True,
             use_container_width=True
         )
