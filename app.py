@@ -811,7 +811,6 @@ with tab6:
 
     with col2:
         role_df_display = role_df.rename(columns={
-            "role": "Role",
             "count": "Jobs",
             "percent_str": "%"
         })
