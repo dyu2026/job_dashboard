@@ -462,7 +462,7 @@ heatmap_data = (
 # -----------------------------------
 
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed", "📆 Posting Trends", "😏 Roles"]
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed", "📆 Posting Trends", "❄️ Roles"]
 )
 
 display_cols = [
@@ -734,7 +734,7 @@ with tab5:
                 st.markdown(f"{medals[i]} {label} ({count} jobs)")
 
 # -----------------------------------
-# 😏 Role Insights Tab
+# ❄️ Role Insights Tab
 # -----------------------------------
 
 ROLE_LABEL_MAP = {
@@ -762,7 +762,7 @@ ROLE_LABEL_MAP = {
 }
 
 with tab6:
-    st.subheader("😏 Role Distribution")
+    st.subheader("❄️ Role Distribution")
 
     # -----------------------------------
     # 1. Active jobs only
