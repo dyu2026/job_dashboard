@@ -243,7 +243,7 @@ seniority_options = [
     "VP",
     "Principal",
     "Lead",
-    "Manager",st.dataframe(
+    "Manager",
 ]
 
 selected_seniority = st.sidebar.multiselect(
