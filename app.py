@@ -824,7 +824,7 @@ with tab6:
             <div style="flex-grow: 1; background-color: rgba(0,0,0,0.05); height: 10px; border-radius: 5px; margin: 0 10px;">
                 <div style="
                     width: {bar_width}%;
-                    background: linear-gradient(90deg, #ff7a8f, #ff4d6b);
+                    background-color: #ff4d6b;
                     height: 100%;
                     border-radius: 5px;
                 "></div>
