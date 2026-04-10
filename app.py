@@ -461,8 +461,8 @@ heatmap_data = (
 # Tabs Layout
 # -----------------------------------
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed", "📆 Posting Trends", "❄️ Roles"]
+tab1, tab2, tab3, tab5, tab6, tab4 = st.tabs(
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "📆 Posting Trends", "❄️ Roles", "🚫 Removed"]
 )
 
 display_cols = [
