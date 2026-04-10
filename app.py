@@ -152,6 +152,22 @@ def get_base64_logo(company_name):
 df["logo"] = df["company"].apply(get_base64_logo)
 
 # -----------------------------------
+# Priority Tagging
+# -----------------------------------
+
+def tag_priority(title):
+    title = str(title).lower()
+    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president"]):
+        return "👑 Exec"
+    elif "senior" in title:
+        return "😎 Senior"
+    else:
+        return ""
+
+df["Priority"] = df["title"].apply(tag_priority)
+
+
+# -----------------------------------
 # Cleanup & Time Logic
 # -----------------------------------
 
@@ -361,20 +377,6 @@ if df.empty:
     st.warning("No jobs match filters.")
     st.stop()
 
-# -----------------------------------
-# Priority Tagging
-# -----------------------------------
-
-def tag_priority(title):
-    title = str(title).lower()
-    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president"]):
-        return "👑 Exec"
-    elif "senior" in title:
-        return "😎 Senior"
-    else:
-        return ""
-
-df["Priority"] = df["title"].apply(tag_priority)
 
 # -----------------------------------
 # Metrics Row
@@ -492,7 +494,8 @@ with tab1:
         st.info("No new jobs in last 24 hours.")
     else:
         st.dataframe(
-            new_jobs.sort_values("first_seen_at", ascending=False)[display_cols],
+            safe_cols = [c for c in display_cols if c in new_jobs.columns]
+            new_jobs.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
