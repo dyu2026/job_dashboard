@@ -791,6 +791,11 @@ with tab6:
     # -----------------------------------
     # 3. Display layout
     # -----------------------------------
+    
+    total_jobs = role_df["count"].sum()
+
+    role_df["percent"] = (role_df["count"] / total_jobs * 100).round(1)
+    role_df["percent_str"] = role_df["percent"].astype(str) + "%"
     col1, col2 = st.columns([2, 1])
 
     with col1:
@@ -805,7 +810,11 @@ with tab6:
         st.altair_chart(chart, use_container_width=True)
 
     with col2:
-        st.dataframe(role_df[["role", "count"]], hide_index=True)
+        st.dataframe(
+            role_df[["role", "count", "percent_str"]],
+            hide_index=True,
+            use_container_width=True
+        )
 
     # -----------------------------------
     # 4. Total count
