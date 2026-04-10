@@ -796,7 +796,13 @@ with tab6:
     with col1:
         chart_data = role_df.set_index("role_short")["count"]
 
-        st.bar_chart(chart_data)
+        chart = alt.Chart(role_df).mark_bar().encode(
+            x=alt.X("count:Q", title="Jobs"),
+            y=alt.Y("role_short:N", sort="-x", title="Role"),
+            color=alt.value("#ff4d6b"),
+            tooltip=["role", "count"]
+        )
+        st.altair_chart(chart, use_container_width=True)
 
     with col2:
         st.dataframe(role_df[["role", "count"]], hide_index=True)
