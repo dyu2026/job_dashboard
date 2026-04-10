@@ -167,6 +167,30 @@ def tag_priority(title):
 
 df["Priority"] = df["title"].apply(tag_priority)
 
+ROLE_LABEL_MAP = {
+    "product management": "Product",
+    "engineering": "Engineering",
+    "design": "Design",
+    "data and analytics": "Data",
+    "marketing": "Marketing",
+    "sales": "Sales",
+    "business development": "Biz Dev",
+    "customer success and experience": "Customer Success",
+    "hr and recruiting": "HR",
+    "finance and accounting": "Finance",
+    "operations and support": "Operations",
+    "program and project management": "Program Mgmt",
+    "information technology": "IT",
+    "security": "Security",
+    "legal": "Legal",
+    "research and development": "R&D",
+    "supply chain and procurement": "Supply Chain",
+    "customer solution": "Customer Solutions",
+    "communications and pr": "Comms",
+    "solutions architect and engineer": "Solutions",
+    "other": "Other"
+}
+
 df["role_short"] = (
     df["role"]
     .str.lower()
@@ -755,30 +779,6 @@ with tab5:
 # -----------------------------------
 # Role Insights Tab
 # -----------------------------------
-
-ROLE_LABEL_MAP = {
-    "product management": "Product",
-    "engineering": "Engineering",
-    "design": "Design",
-    "data and analytics": "Data",
-    "marketing": "Marketing",
-    "sales": "Sales",
-    "business development": "Biz Dev",
-    "customer success and experience": "Customer Success",
-    "hr and recruiting": "HR",
-    "finance and accounting": "Finance",
-    "operations and support": "Operations",
-    "program and project management": "Program Mgmt",
-    "information technology": "IT",
-    "security": "Security",
-    "legal": "Legal",
-    "research and development": "R&D",
-    "supply chain and procurement": "Supply Chain",
-    "customer solution": "Customer Solutions",
-    "communications and pr": "Comms",
-    "solutions architect and engineer": "Solutions",
-    "other": "Other"
-}
 
 with tab6:
     
