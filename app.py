@@ -782,7 +782,7 @@ with tab6:
         st.bar_chart(role_counts)
 
     with col2:
-        st.dataframe(role_df, use_container_width=True)
+        st.dataframe(role_df, use_container_width=True, hide_index=True)
 
     # -----------------------------------
     # 5. Total count
