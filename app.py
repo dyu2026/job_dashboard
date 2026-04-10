@@ -770,6 +770,9 @@ with tab6:
         .sort_values(ascending=False)
     )
 
+    # ✅ FIXED dataframe
+    role_df = role_counts.rename_axis("role").reset_index(name="count")
+
     # -----------------------------------
     # 4. Display layout
     # -----------------------------------
@@ -779,12 +782,7 @@ with tab6:
         st.bar_chart(role_counts)
 
     with col2:
-        st.dataframe(
-            role_counts.reset_index().rename(
-                columns={"index": "role", "role": "count"}
-            ),
-            use_container_width=True
-        )
+        st.dataframe(role_df, use_container_width=True)
 
     # -----------------------------------
     # 5. Total count
