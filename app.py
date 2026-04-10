@@ -737,6 +737,30 @@ with tab5:
 # 😏 Role Insights Tab
 # -----------------------------------
 
+ROLE_LABEL_MAP = {
+    "product management": "Product",
+    "engineering": "Engineering",
+    "design": "Design",
+    "data and analytics": "Data",
+    "marketing": "Marketing",
+    "sales": "Sales",
+    "business development": "Biz Dev",
+    "customer success and experience": "Customer Success",
+    "HR and recruiting": "HR",
+    "finance and accounting": "Finance",
+    "operations and support": "Operations",
+    "program and project management": "PgM/PjM",
+    "Information Technology": "IT",
+    "security": "Security",
+    "legal": "Legal",
+    "research and development": "R&D",
+    "supply chain and procurement": "Supply Chain",
+    "customer solution": "Customer Solutions",
+    "Communications and PR": "Comms / PR",
+    "solutions architect and engineer": "Solutions Arch",
+    "other": "Other"
+}
+
 with tab6:
     st.subheader("😏 Role Distribution")
 
@@ -762,6 +786,7 @@ with tab6:
     )
 
     role_df = role_counts.rename_axis("role").reset_index(name="count")
+    role_df["role_short"] = role_df["role"].map(ROLE_LABEL_MAP).fillna(role_df["role"])
 
     # -----------------------------------
     # 3. Display layout
@@ -769,7 +794,9 @@ with tab6:
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.bar_chart(role_counts)
+        chart_data = role_df.set_index("role_short")["count"]
+
+        st.bar_chart(chart_data)
 
     with col2:
         st.dataframe(role_df, use_container_width=True, hide_index=True)
