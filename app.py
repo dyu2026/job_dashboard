@@ -799,7 +799,7 @@ with tab6:
         st.bar_chart(chart_data)
 
     with col2:
-        st.dataframe(role_df, use_container_width=True, hide_index=True)
+        st.dataframe(role_df[["role", "count"]], hide_index=True)
 
     # -----------------------------------
     # 4. Total count
