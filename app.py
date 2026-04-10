@@ -773,9 +773,18 @@ ROLE_LABEL_MAP = {
 
 with tab6:
     
+with tab6:
+    
     st.subheader("🏆 Role Distribution")
 
-    # Sort data
+    # ✅ STEP 1: Create role_df
+    role_df = (
+        df.groupby("role")
+        .size()
+        .reset_index(name="count")
+    )
+
+    # ✅ STEP 2: Sort
     role_df = role_df.sort_values("count", ascending=False).reset_index(drop=True)
     
     total_jobs = role_df["count"].sum()
@@ -811,10 +820,11 @@ with tab6:
                 "></div>
             </div>
             
-            <div style="width: 60px; text-align: left;">{count}</div>
-            <div style="width: 60px; text-align: left;">{pct:.1f}%</div>
+            <div style="width: 60px;">{count}</div>
+            <div style="width: 60px;">{pct:.1f}%</div>
             
         </div>
         """
     
+    # ✅ STEP 3: Render HTML
     st.markdown(html, unsafe_allow_html=True)
