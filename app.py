@@ -3,6 +3,7 @@ import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 from streamlit_cookies_manager import EncryptedCookieManager
+import streamlit.components.v1 as components
 import os, base64
 import altair as alt
 import uuid
@@ -765,7 +766,7 @@ with tab6:
     max_count = role_df["count"].max()
     
     medals = ["🥇", "🥈", "🥉"]
-    
+
     # Build HTML
     html = ""
     
@@ -801,4 +802,8 @@ with tab6:
         """
     
     # ✅ STEP 3: Render HTML
-    st.markdown(f"<div>{html}</div>", unsafe_allow_html=True)
+    components.html(f"""
+    <div style="font-family: sans-serif;">
+    {html}
+    </div>
+    """, height=500, scrolling=True)
