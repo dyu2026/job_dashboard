@@ -746,33 +746,7 @@ with tab5:
 # -----------------------------------
 # Role Insights Tab
 # -----------------------------------
-
-ROLE_LABEL_MAP = {
-    "product management": "Product",
-    "engineering": "Engineering",
-    "design": "Design",
-    "data and analytics": "Data",
-    "marketing": "Marketing",
-    "sales": "Sales",
-    "business development": "Biz Dev",
-    "customer success and experience": "Customer Success",
-    "HR and recruiting": "HR",
-    "finance and accounting": "Finance",
-    "operations and support": "Operations",
-    "program and project management": "PgM/PjM",
-    "Information Technology": "IT",
-    "security": "Security",
-    "legal": "Legal",
-    "research and development": "R&D",
-    "supply chain and procurement": "Supply Chain",
-    "customer solution": "Customer Solutions",
-    "Communications and PR": "Comms / PR",
-    "solutions architect and engineer": "Solutions Arch",
-    "other": "Other"
-}
-
-with tab6:
-    
+  
 with tab6:
     
     st.subheader("🏆 Role Distribution")
