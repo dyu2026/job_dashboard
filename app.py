@@ -841,3 +841,59 @@ with tab6:
     # 4. Total count
     # -----------------------------------
     st.caption(f"Total active jobs: {len(df_roles)}")
+
+    # -----------------------------------
+    # 🏆 Role Leaderboard
+    # -----------------------------------
+    
+    st.subheader("🏆 Role Distribution")
+    
+    # Prepare data
+    role_df = role_df.sort_values("count", ascending=False).reset_index(drop=True)
+    
+    total_jobs = role_df["count"].sum()
+    
+    # Normalize bar width
+    max_count = role_df["count"].max()
+    
+    def render_bar(count, max_count, width=20):
+        filled = int((count / max_count) * width)
+        return "█" * filled + " " * (width - filled)
+    
+    # Build leaderboard rows
+    leaderboard_rows = []
+    
+    medals = ["🥇", "🥈", "🥉"]
+    
+    for i, row in role_df.iterrows():
+        role = row["role"]
+        count = int(row["count"])
+        pct = (count / total_jobs) * 100
+    
+        bar = render_bar(count, max_count)
+    
+        rank = medals[i] if i < 3 else f"{i+1}."
+    
+        leaderboard_rows.append({
+            "Rank": rank,
+            "Role": role,
+            " ": bar,
+            "Jobs": count,
+            "%": f"{pct:.1f}%"
+        })
+    
+    leaderboard_df = pd.DataFrame(leaderboard_rows)
+    
+    # Display
+    st.dataframe(
+        leaderboard_df,
+        hide_index=True,
+        use_container_width=True,
+        column_config={
+            "Rank": st.column_config.TextColumn(width="small"),
+            "Role": st.column_config.TextColumn(width="medium"),
+            " ": st.column_config.TextColumn("Distribution", width="large"),
+            "Jobs": st.column_config.TextColumn(width="small"),
+            "%": st.column_config.TextColumn(width="small"),
+        }
+    )
