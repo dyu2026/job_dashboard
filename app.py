@@ -769,7 +769,6 @@ with tab6:
         .value_counts()
         .sort_values(ascending=False)
     )
-    role_counts = role_counts.sort_values()
 
     # ✅ FIXED dataframe
     role_df = role_counts.rename_axis("role").reset_index(name="count")
