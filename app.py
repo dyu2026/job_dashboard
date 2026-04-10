@@ -776,6 +776,8 @@ with tab6:
     
     st.subheader("🏆 Role Distribution")
 
+    st.caption(f"Showing: {selected_recency}")
+
     # ✅ STEP 1: Create role_df
     df["role_short"] = (
         df["role"]
@@ -785,7 +787,7 @@ with tab6:
     )
     
     role_df = (
-        df.groupby("role_short")
+        df_filtered.groupby("role_short")
         .size()
         .reset_index(name="count")
     )
