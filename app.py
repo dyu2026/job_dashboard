@@ -454,8 +454,8 @@ heatmap_data = (
 # Tabs Layout
 # -----------------------------------
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed", "📆 Posting Trends"]
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "🚫 Removed", "📆 Posting Trends", "😏 Roles"]
 )
 
 display_cols = [
@@ -720,3 +720,73 @@ with tab5:
                 count = int(row.count)
 
                 st.markdown(f"{medals[i]} {label} ({count} jobs)")
+
+# -----------------------------------
+# 😏 Role Insights Tab
+# -----------------------------------
+
+with tab6:
+    st.subheader("😏 Role Distribution")
+
+    # -----------------------------------
+    # 1. Active jobs only
+    # -----------------------------------
+    df_roles = df[df["is_active"] == True].copy()
+
+    # -----------------------------------
+    # 2. Time filter
+    # -----------------------------------
+    time_filter = st.selectbox(
+        "Select time range",
+        ["All time", "Past 1 week", "Past 2 weeks", "Past 1 month"]
+    )
+
+    # Ensure datetime format
+    df_roles["first_seen_at"] = pd.to_datetime(
+        df_roles["first_seen_at"], errors="coerce"
+    )
+
+    now = pd.Timestamp.utcnow()
+
+    if time_filter == "Past 1 week":
+        cutoff = now - pd.Timedelta(days=7)
+        df_roles = df_roles[df_roles["first_seen_at"] >= cutoff]
+
+    elif time_filter == "Past 2 weeks":
+        cutoff = now - pd.Timedelta(days=14)
+        df_roles = df_roles[df_roles["first_seen_at"] >= cutoff]
+
+    elif time_filter == "Past 1 month":
+        cutoff = now - pd.Timedelta(days=30)
+        df_roles = df_roles[df_roles["first_seen_at"] >= cutoff]
+
+    # -----------------------------------
+    # 3. Role counts
+    # -----------------------------------
+    role_counts = (
+        df_roles["role"]
+        .fillna("other")
+        .value_counts()
+        .sort_values(ascending=False)
+    )
+
+    # -----------------------------------
+    # 4. Display layout
+    # -----------------------------------
+    col1, col2 = st.columns([2, 1])
+
+    with col1:
+        st.bar_chart(role_counts)
+
+    with col2:
+        st.dataframe(
+            role_counts.reset_index().rename(
+                columns={"index": "role", "role": "count"}
+            ),
+            use_container_width=True
+        )
+
+    # -----------------------------------
+    # 5. Total count
+    # -----------------------------------
+    st.caption(f"Total active jobs: {len(df_roles)}")
