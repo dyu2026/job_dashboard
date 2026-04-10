@@ -829,7 +829,7 @@ with tab6:
         st.dataframe(
             role_df_display[["Role", "Jobs", "%"]],
             hide_index=True,
-            use_container_width=True
+            use_container_width=True,
             column_config={
                 "Role": st.column_config.TextColumn(),
                 "Jobs": st.column_config.TextColumn(),
