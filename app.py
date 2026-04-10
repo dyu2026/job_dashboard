@@ -372,7 +372,7 @@ if selected_recency != "All":
 
     df_filtered = df_filtered[df_filtered["first_seen_at"] >= cutoff]
 
-if df_filtered..empty:
+if df_filtered.empty:
     st.warning("No jobs match filters.")
     st.stop()
 
