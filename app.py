@@ -166,13 +166,15 @@ def tag_priority(title):
         return ""
 
 df["Priority"] = df["title"].apply(tag_priority)
-df_for_trends = df.copy()  # keep full dataset for trends if needed
+
 df["role_short"] = (
     df["role"]
     .str.lower()
     .map(ROLE_LABEL_MAP)
     .fillna("Other")
 )
+
+df_for_trends = df.copy()  # keep full dataset for trends if needed
 
 # -----------------------------------
 # Cleanup & Time Logic
