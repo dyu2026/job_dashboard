@@ -821,10 +821,10 @@ with tab6:
             
             <div style="width: 180px;">{role}</div>
             
-            <div style="flex-grow: 1; background-color: #eee; height: 10px; border-radius: 5px; margin: 0 10px;">
+            <div style="flex-grow: 1; background-color: rgba(0,0,0,0.05); height: 10px; border-radius: 5px; margin: 0 10px;">
                 <div style="
                     width: {bar_width}%;
-                    background-color: #ff4d6b;
+                    background: linear-gradient(90deg, #ff4d6b, #ff7a8f);
                     height: 100%;
                     border-radius: 5px;
                 "></div>
