@@ -152,22 +152,6 @@ def get_base64_logo(company_name):
 df["logo"] = df["company"].apply(get_base64_logo)
 
 # -----------------------------------
-# Priority Tagging
-# -----------------------------------
-
-def tag_priority(title):
-    title = str(title).lower()
-    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president"]):
-        return "👑 Exec"
-    elif "senior" in title:
-        return "😎 Senior"
-    else:
-        return ""
-
-df["Priority"] = df["title"].apply(tag_priority)
-
-
-# -----------------------------------
 # Cleanup & Time Logic
 # -----------------------------------
 
@@ -358,25 +342,33 @@ if target_mode:
         )
     ]
 
-# Apply Recency Filter (GLOBAL)
+# Apply Recency Filter
 
-df_filtered = df.copy()
-df_for_trends = df.copy()  # keep full dataset for trends if needed
+df_for_trends = df.copy()
 
 if selected_recency != "All":
     days = TIME_FILTERS[selected_recency]
     cutoff = now_jst - timedelta(days=days)
-
-    df_filtered["first_seen_at"] = pd.to_datetime(
-        df_filtered["first_seen_at"], errors="coerce"
-    )
-
-    df_filtered = df_filtered[df_filtered["first_seen_at"] >= cutoff]
+    df = df[df["first_seen_at"] >= cutoff]
 
 if df.empty:
     st.warning("No jobs match filters.")
     st.stop()
 
+# -----------------------------------
+# Priority Tagging
+# -----------------------------------
+
+def tag_priority(title):
+    title = str(title).lower()
+    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president"]):
+        return "👑 Exec"
+    elif "senior" in title:
+        return "😎 Senior"
+    else:
+        return ""
+
+df["Priority"] = df["title"].apply(tag_priority)
 
 # -----------------------------------
 # Metrics Row
@@ -485,7 +477,7 @@ display_cols = [
 with tab1:
     st.subheader("🔥 New Jobs (Last 24 Hours)")
 
-    new_jobs = df_filtered[df_filtered["is_new_24h"]].copy()
+    new_jobs = df[df["is_new_24h"]].copy()
     new_jobs["first_seen_at"] = new_jobs["first_seen_at"].dt.strftime(
         "%Y-%m-%d %H:%M"
     )
@@ -494,8 +486,7 @@ with tab1:
         st.info("No new jobs in last 24 hours.")
     else:
         st.dataframe(
-            safe_cols = [c for c in display_cols if c in new_jobs.columns]
-            new_jobs.sort_values("first_seen_at", ascending=False)[safe_cols],
+            new_jobs.sort_values("first_seen_at", ascending=False)[display_cols],
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
@@ -557,7 +548,7 @@ with tab1:
 with tab2:
     st.subheader("📋 All Active Jobs")
 
-    df_display = df_filtered.copy()
+    df_display = df.copy()
     df_display["first_seen_at"] = df_display["first_seen_at"].dt.strftime(
         "%Y-%m-%d %H:%M"
     )
@@ -585,10 +576,10 @@ with tab2:
 with tab3:
     st.subheader("🚀 Company Breakdown")
 
-    df_filtered["company"] = df_filtered["company"].str.strip()
+    df["company"] = df["company"].str.strip()
 
     company_stats = (
-        df_filtered.groupby("company")
+        df.groupby("company")
         .agg(
             total_jobs=("title", "count"),
             new_24h=("is_new_24h", "sum"),
@@ -740,8 +731,15 @@ with tab6:
     # -----------------------------------
     # 1. Active jobs only
     # -----------------------------------
-    df_roles = df_filtered[df_filtered["is_active"] == True].copy()
+    df_roles = df[df["is_active"] == True].copy()
 
+    # -----------------------------------
+    # 2. Time filter
+    # -----------------------------------
+    time_filter = st.selectbox(
+        "Select time range",
+        ["All time", "Past 1 week", "Past 2 weeks", "Past 1 month"]
+    )
 
     # Ensure datetime format
     df_roles["first_seen_at"] = pd.to_datetime(
@@ -763,7 +761,7 @@ with tab6:
         df_roles = df_roles[df_roles["first_seen_at"] >= cutoff]
 
     # -----------------------------------
-    # 2. Role counts
+    # 3. Role counts
     # -----------------------------------
     role_counts = (
         df_roles["role"]
@@ -772,10 +770,11 @@ with tab6:
         .sort_values(ascending=False)
     )
 
+    # ✅ FIXED dataframe
     role_df = role_counts.rename_axis("role").reset_index(name="count")
 
     # -----------------------------------
-    # 3. Display layout
+    # 4. Display layout
     # -----------------------------------
     col1, col2 = st.columns([2, 1])
 
@@ -786,6 +785,6 @@ with tab6:
         st.dataframe(role_df, use_container_width=True, hide_index=True)
 
     # -----------------------------------
-    # 4. Total count
+    # 5. Total count
     # -----------------------------------
     st.caption(f"Total active jobs: {len(df_roles)}")
