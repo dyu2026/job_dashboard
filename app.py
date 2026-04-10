@@ -801,4 +801,4 @@ with tab6:
         """
     
     # ✅ STEP 3: Render HTML
-    st.markdown(html, unsafe_allow_html=True)
+    st.markdown(f"<div>{html}</div>", unsafe_allow_html=True)
