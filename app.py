@@ -167,6 +167,12 @@ def tag_priority(title):
 
 df["Priority"] = df["title"].apply(tag_priority)
 df_for_trends = df.copy()  # keep full dataset for trends if needed
+df["role_short"] = (
+    df["role"]
+    .str.lower()
+    .map(ROLE_LABEL_MAP)
+    .fillna("Other")
+)
 
 # -----------------------------------
 # Cleanup & Time Logic
@@ -779,12 +785,6 @@ with tab6:
     st.caption(f"Showing: {selected_recency}")
 
     # ✅ STEP 1: Create role_df
-    df["role_short"] = (
-        df["role"]
-        .str.lower()
-        .map(ROLE_LABEL_MAP)
-        .fillna("Other")
-    )
     
     role_df = (
         df_filtered.groupby("role_short")
