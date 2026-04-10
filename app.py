@@ -847,53 +847,47 @@ with tab6:
     # -----------------------------------
     
     st.subheader("🏆 Role Distribution")
-    
-    # Prepare data
+
+    # Sort data
     role_df = role_df.sort_values("count", ascending=False).reset_index(drop=True)
     
     total_jobs = role_df["count"].sum()
-    
-    # Normalize bar width
     max_count = role_df["count"].max()
     
-    def render_bar(count, max_count, width=20):
-        filled = int((count / max_count) * width)
-        return "█" * filled + " " * (width - filled)
-    
-    # Build leaderboard rows
-    leaderboard_rows = []
-    
     medals = ["🥇", "🥈", "🥉"]
+    
+    # Build HTML
+    html = ""
     
     for i, row in role_df.iterrows():
         role = row["role"]
         count = int(row["count"])
         pct = (count / total_jobs) * 100
     
-        bar = render_bar(count, max_count)
+        rank = medals[i] if i < 3 else f"{i+1}"
     
-        rank = medals[i] if i < 3 else f"{i+1}."
+        bar_width = int((count / max_count) * 100)
     
-        leaderboard_rows.append({
-            "Rank": rank,
-            "Role": role,
-            " ": bar,
-            "Jobs": count,
-            "%": f"{pct:.1f}%"
-        })
+        html += f"""
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            
+            <div style="width: 40px;">{rank}</div>
+            
+            <div style="width: 180px;">{role}</div>
+            
+            <div style="flex-grow: 1; background-color: #eee; height: 10px; border-radius: 5px; margin: 0 10px;">
+                <div style="
+                    width: {bar_width}%;
+                    background-color: #ff4d6b;
+                    height: 100%;
+                    border-radius: 5px;
+                "></div>
+            </div>
+            
+            <div style="width: 60px; text-align: left;">{count}</div>
+            <div style="width: 60px; text-align: left;">{pct:.1f}%</div>
+            
+        </div>
+        """
     
-    leaderboard_df = pd.DataFrame(leaderboard_rows)
-    
-    # Display
-    st.dataframe(
-        leaderboard_df,
-        hide_index=True,
-        use_container_width=True,
-        column_config={
-            "Rank": st.column_config.TextColumn(width="small"),
-            "Role": st.column_config.TextColumn(width="medium"),
-            " ": st.column_config.TextColumn("Distribution", width="large"),
-            "Jobs": st.column_config.TextColumn(width="small"),
-            "%": st.column_config.TextColumn(width="small"),
-        }
-    )
+    st.markdown(html, unsafe_allow_html=True)
