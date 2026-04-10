@@ -199,9 +199,19 @@ def format_days_ago(days):
     else:
         return f"{days}d ago"
 
+# Ensure timezone is correct
+df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], utc=True)
+df["first_seen_at_jst"] = df["first_seen_at"].dt.tz_convert("Asia/Tokyo")
+
+now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
+
+# ✅ Calendar day difference
 df["days_since_posted"] = (
-    (now_jst - df["first_seen_at"]).dt.days
-).apply(format_days_ago)
+    now_jst.date() - df["first_seen_at_jst"].dt.date
+).dt.days
+
+# Apply your formatter
+df["days_since_posted"] = df["days_since_posted"].apply(format_days_ago)
 
 today_start = now_jst.replace(
     hour=0,
