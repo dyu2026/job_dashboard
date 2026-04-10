@@ -472,7 +472,7 @@ heatmap_data = (
 # -----------------------------------
 
 tab1, tab2, tab3, tab5, tab6, tab4 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "📆 Posting Trends", "❄️ Roles", "🚫 Removed"]
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "📮 Posting Trends", "❄️ Roles", "🚫 Removed"]
 )
 
 display_cols = [
@@ -488,7 +488,7 @@ display_cols = [
 ]
 
 # -----------------------------------
-# 🔥 New Jobs Tab
+# New Jobs Tab
 # -----------------------------------
 
 with tab1:
@@ -562,7 +562,7 @@ with tab1:
         )
 
 # -----------------------------------
-# 📋 All Jobs Tab
+# All Jobs Tab
 # -----------------------------------
 
 with tab2:
@@ -591,7 +591,7 @@ with tab2:
     )
 
 # -----------------------------------
-# 📊 Company Tab
+# Company Tab
 # -----------------------------------
 
 with tab3:
@@ -676,11 +676,11 @@ with tab4:
         )
 
 # -----------------------------------
-# 📆 Posting Trends Tab
+# Posting Trends Tab
 # -----------------------------------
 
 with tab5:
-    st.subheader("📆 Job Posting Trends (JST)")
+    st.subheader("📮 Job Posting Trends (JST)")
     st.caption("Excludes first day of each company to remove initial data spikes.")
 
     if trend_df.empty:
@@ -744,7 +744,7 @@ with tab5:
                 st.markdown(f"{medals[i]} {label} ({count} jobs)")
 
 # -----------------------------------
-# ❄️ Role Insights Tab
+# Role Insights Tab
 # -----------------------------------
 
 ROLE_LABEL_MAP = {
