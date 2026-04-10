@@ -342,14 +342,20 @@ if target_mode:
         )
     ]
 
-# Apply Recency Filter
+# Apply Recency Filter (GLOBAL)
 
-df_for_trends = df.copy()
+df_filtered = df.copy()
+df_for_trends = df.copy()  # keep full dataset for trends if needed
 
 if selected_recency != "All":
     days = TIME_FILTERS[selected_recency]
     cutoff = now_jst - timedelta(days=days)
-    df = df[df["first_seen_at"] >= cutoff]
+
+    df_filtered["first_seen_at"] = pd.to_datetime(
+        df_filtered["first_seen_at"], errors="coerce"
+    )
+
+    df_filtered = df_filtered[df_filtered["first_seen_at"] >= cutoff]
 
 if df.empty:
     st.warning("No jobs match filters.")
@@ -477,7 +483,7 @@ display_cols = [
 with tab1:
     st.subheader("🔥 New Jobs (Last 24 Hours)")
 
-    new_jobs = df[df["is_new_24h"]].copy()
+    new_jobs = df_filtered[df_filtered["is_new_24h"]].copy()
     new_jobs["first_seen_at"] = new_jobs["first_seen_at"].dt.strftime(
         "%Y-%m-%d %H:%M"
     )
@@ -548,7 +554,7 @@ with tab1:
 with tab2:
     st.subheader("📋 All Active Jobs")
 
-    df_display = df.copy()
+    df_display = df_filtered.copy()
     df_display["first_seen_at"] = df_display["first_seen_at"].dt.strftime(
         "%Y-%m-%d %H:%M"
     )
@@ -576,10 +582,10 @@ with tab2:
 with tab3:
     st.subheader("🚀 Company Breakdown")
 
-    df["company"] = df["company"].str.strip()
+    df_filtered["company"] = df_filtered["company"].str.strip()
 
     company_stats = (
-        df.groupby("company")
+        df_filtered.groupby("company")
         .agg(
             total_jobs=("title", "count"),
             new_24h=("is_new_24h", "sum"),
@@ -731,15 +737,8 @@ with tab6:
     # -----------------------------------
     # 1. Active jobs only
     # -----------------------------------
-    df_roles = df[df["is_active"] == True].copy()
+    df_roles = df_filtered[df_filtered["is_active"] == True].copy()
 
-    # -----------------------------------
-    # 2. Time filter
-    # -----------------------------------
-    time_filter = st.selectbox(
-        "Select time range",
-        ["All time", "Past 1 week", "Past 2 weeks", "Past 1 month"]
-    )
 
     # Ensure datetime format
     df_roles["first_seen_at"] = pd.to_datetime(
@@ -761,7 +760,7 @@ with tab6:
         df_roles = df_roles[df_roles["first_seen_at"] >= cutoff]
 
     # -----------------------------------
-    # 3. Role counts
+    # 2. Role counts
     # -----------------------------------
     role_counts = (
         df_roles["role"]
@@ -770,11 +769,10 @@ with tab6:
         .sort_values(ascending=False)
     )
 
-    # ✅ FIXED dataframe
     role_df = role_counts.rename_axis("role").reset_index(name="count")
 
     # -----------------------------------
-    # 4. Display layout
+    # 3. Display layout
     # -----------------------------------
     col1, col2 = st.columns([2, 1])
 
@@ -785,6 +783,6 @@ with tab6:
         st.dataframe(role_df, use_container_width=True, hide_index=True)
 
     # -----------------------------------
-    # 5. Total count
+    # 4. Total count
     # -----------------------------------
     st.caption(f"Total active jobs: {len(df_roles)}")
