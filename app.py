@@ -526,6 +526,12 @@ display_cols = [
 
 with tab1:
     st.subheader("🔥 New Jobs (Last 24 Hours)")
+    
+    st.markdown("""
+    <p style="color: gray; margin-top: -5px; margin-bottom: 40px;">
+    Includes newly tracked companies and recently discovered roles
+    </p>
+    """, unsafe_allow_html=True)
 
     new_jobs = df_filtered[df_filtered["is_new_24h"]].copy()
     new_jobs["first_seen_at"] = new_jobs["first_seen_at"].dt.strftime(
