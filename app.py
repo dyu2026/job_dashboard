@@ -551,8 +551,9 @@ with tab1:
     st.subheader("🔥 New Jobs (Last 24 Hours)")
     
     st.markdown("""
-    <p style="color: gray; margin-top: -5px; margin-bottom: 40px;">
-    Includes newly tracked companies and recently discovered roles
+    <p style="color: gray; margin-top: -5px; margin-bottom: 40px; font-size: 13px;">
+    Includes newly tracked companies and recently discovered roles<br>
+    🌟 New company added to tracking
     </p>
     """, unsafe_allow_html=True)
 
@@ -632,7 +633,8 @@ with tab2:
     
     st.markdown("""
     <p style="color: gray; margin-top: -5px; margin-bottom: 40px;">
-    All roles currently tracked across companies and regions
+    All roles currently tracked across companies and regions<br>
+    🌟 New company added to tracking
     </p>
     """, unsafe_allow_html=True)
 
