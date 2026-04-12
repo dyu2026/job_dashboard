@@ -576,7 +576,7 @@ with tab1:
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
                 "first_seen_at_jst": "First Seen (JST)",
                 "days_since_posted": "Days Ago",
-                "company_display": st.column_config.TextColumn("Company", width="medium"),
+                "company_display": st.column_config.TextColumn("Company", width="small"),
                 "title": "Title",
                 "location": "Location",
                 "role": "Role"
@@ -654,7 +654,7 @@ with tab2:
             "url": st.column_config.LinkColumn("Apply", display_text="Open"),
             "first_seen_at_jst": "First Seen (JST)",
             "days_since_posted": "Days Ago",
-            "company_display": st.column_config.TextColumn("Company", width="medium"),
+            "company_display": st.column_config.TextColumn("Company", width="small"),
             "title": "Title",
             "location": "Location",
             "role": "Role"
