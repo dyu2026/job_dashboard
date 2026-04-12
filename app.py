@@ -205,15 +205,19 @@ df_for_trends = df.copy()  # keep full dataset for trends if needed
 # -----------------------------------
 
 df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], utc=True, errors="coerce")
+df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], utc=True, errors="coerce")
+
+# --- Convert to JST for display ---
 df["first_seen_at_jst"] = df["first_seen_at"].dt.tz_convert("Asia/Tokyo")
+df["last_seen_at_jst"] = df["last_seen_at"].dt.tz_convert("Asia/Tokyo")
+df["is_new_24h"] = df["first_seen_at"] >= last_24_utc
+df["is_new_today"] = df["first_seen_at_jst"] >= today_start
 
-df["last_seen_at"] = (
-    pd.to_datetime(df["last_seen_at"], utc=True, errors="coerce")
-    .dt.tz_convert("Asia/Tokyo")
-)
-
+# --- Time references ---
 now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
-last_24 = now_jst - pd.Timedelta(hours=24)
+now_utc = pd.Timestamp.now(tz="UTC")
+
+last_24_utc = now_utc - pd.Timedelta(hours=24)
 
 # Days since posted
 def format_days_ago(days):
@@ -245,11 +249,6 @@ today_start = now_jst.replace(
     microsecond=0
 )
 
-now_utc = pd.Timestamp.now(tz="UTC")
-last_24_utc = now_utc - pd.Timedelta(hours=24)
-
-df["is_new_24h"] = df["first_seen_at"] >= last_24_utc
-df["is_new_today"] = df["first_seen_at_jst"] >= today_start
 
 # -----------------------------------
 # Sidebar Filters
@@ -557,25 +556,22 @@ with tab1:
     """, unsafe_allow_html=True)
 
     new_jobs = df_filtered[df_filtered["is_new_24h"]].copy()
-    new_jobs["first_seen_at"] = new_jobs["first_seen_at"].dt.strftime(
-        "%Y-%m-%d %H:%M"
-    )
+    new_jobs["first_seen_at_jst"] = new_jobs["first_seen_at_jst"].dt.strftime("%Y-%m-%d %H:%M")
 
     if new_jobs.empty:
         st.info("No new jobs in last 24 hours.")
     else:
         
         safe_cols = [c for c in display_cols if c in new_jobs.columns]
-
-        # replace company with company_display
         safe_cols = ["company_display" if c == "company" else c for c in safe_cols]
+        safe_cols = ["first_seen_at_jst" if c == "first_seen_at" else c for c in safe_cols]
         
         st.dataframe(
             new_jobs.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
-                "first_seen_at": "First Seen",
+                "first_seen_at_jst": "First Seen (JST)",
                 "days_since_posted": "Days Ago",
                 "company_display": "Company",
                 "title": "Title",
@@ -640,18 +636,18 @@ with tab2:
     """, unsafe_allow_html=True)
 
     df_display = df_filtered.copy()
-    df_display["first_seen_at"] = df_display["first_seen_at"].dt.strftime(
-        "%Y-%m-%d %H:%M"
-    )
+    df_display["first_seen_at_jst"] = df_display["first_seen_at_jst"].dt.strftime("%Y-%m-%d %H:%M")
 
     safe_cols = [c for c in display_cols if c in df_display.columns]
     safe_cols = ["company_display" if c == "company" else c for c in safe_cols]
+    safe_cols = ["first_seen_at_jst" if c == "first_seen_at" else c for c in safe_cols]
+    
     st.dataframe(
         df_display.sort_values("first_seen_at", ascending=False)[safe_cols],
         column_config={
             "logo": st.column_config.ImageColumn("Logo", width="small"),
             "url": st.column_config.LinkColumn("Apply", display_text="Open"),
-            "first_seen_at": "First Seen",
+            "first_seen_at_jst": "First Seen (JST)",
             "days_since_posted": "Days Ago",
             "company_display": "Company",
             "title": "Title",
@@ -731,13 +727,14 @@ with tab4:
         # 3. Filter for existing columns
         # We ensure 'logo' and 'Priority' are included in the filter check
         safe_cols = [c for c in display_cols if c in removed_df.columns]
+        safe_cols = ["first_seen_at_jst" if c == "first_seen_at" else c for c in safe_cols]
 
         st.dataframe(
             removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"), # Renders the image
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
-                "first_seen_at": "First Seen",
+                "first_seen_at_jst": "First Seen (JST)",
                 "company": "Company",
                 "title": "Title",
                 "location": "Location",
