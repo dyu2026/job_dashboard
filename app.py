@@ -743,8 +743,8 @@ with tab4:
         # --- Safe columns ---
         removed_display_cols = [
             "logo",
-            "Priority",
             "company",
+            "Priority",
             "title",
             "location",
             "role",
@@ -760,7 +760,7 @@ with tab4:
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
                 "Priority": st.column_config.TextColumn("Priority", width="small"),
-                "company": st.column_config.TextColumn("Company", width="medium"),
+                "company": st.column_config.TextColumn("Company", width="small"),
                 "title": "Title",
                 "location": "Location",
                 "role": "Role",
