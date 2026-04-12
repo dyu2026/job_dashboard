@@ -515,7 +515,7 @@ df_filtered["company_first_seen_at_jst"] = (
 )
 
 df_filtered["is_new_company"] = (
-    (now_utc - df_filtered["company_first_seen_at"])
+    (now_jst - df_filtered["company_first_seen_at_jst"])
     <= pd.Timedelta(hours=24)
 )
 
