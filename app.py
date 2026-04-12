@@ -704,7 +704,7 @@ with tab4:
         supabase.table("jobs")
         .select("*")
         .eq("is_active", False)
-        .gte("last_seen_at", last_24.isoformat())
+        .gte("last_seen_at", last_24_utc.isoformat())
         .execute()
     )
 
