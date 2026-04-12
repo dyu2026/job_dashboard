@@ -533,8 +533,8 @@ tab1, tab2, tab3, tab5, tab6, tab4 = st.tabs(
 
 display_cols = [
     "logo",
-    "Priority",
     "company",
+    "Priority",
     "title",
     "location",
     "url",
