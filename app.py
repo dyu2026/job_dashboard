@@ -759,8 +759,8 @@ with tab4:
             removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
-                "Priority": "Priority",
-                "company": "Company",
+                "Priority": st.column_config.TextColumn("Priority", width="small"),
+                "company": st.column_config.TextColumn("Company", width="medium"),
                 "title": "Title",
                 "location": "Location",
                 "role": "Role",
