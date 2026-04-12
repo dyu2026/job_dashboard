@@ -179,7 +179,7 @@ ROLE_LABEL_MAP = {
     "hr and recruiting": "HR",
     "finance and accounting": "Finance",
     "operations and support": "Operations",
-    "program and project management": "Program Mgmt",
+    "program and project management": "Program/Proj Mgmt",
     "information technology": "IT",
     "security": "Security",
     "legal": "Legal",
@@ -187,7 +187,7 @@ ROLE_LABEL_MAP = {
     "supply chain and procurement": "Supply Chain",
     "customer solution": "Customer Solutions",
     "communications and pr": "Comms",
-    "solutions architect and engineer": "Solutions",
+    "solutions architect and engineer": "Solutions SA/SE",
     "other": "Other"
 }
 
