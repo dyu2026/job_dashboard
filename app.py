@@ -903,7 +903,7 @@ with tab6:
             
             <div style="width: 180px;">{role}</div>
             
-            <div style="flex-grow: 1; background-color: rgba(0,0,0,0.05); height: 10px; border-radius: 5px; margin: 0 10px;">
+            <div style="flex-grow: 1; background-color: rgba(0,0,0,0.05); height: 16px; border-radius: 5px; margin: 0 10px;">
                 <div style="
                     width: {bar_width}%;
                     background-color: #ff4d6b;
