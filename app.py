@@ -606,6 +606,12 @@ with tab1:
 
 with tab2:
     st.subheader("📋 All Active Jobs")
+    
+    st.markdown("""
+    <p style="color: gray; margin-top: -5px; margin-bottom: 40px;">
+    All roles currently tracked across companies and regions
+    </p>
+    """, unsafe_allow_html=True)
 
     df_display = df_filtered.copy()
     df_display["first_seen_at"] = df_display["first_seen_at"].dt.strftime(
