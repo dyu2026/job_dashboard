@@ -210,8 +210,7 @@ df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], utc=True, errors="coerce
 # --- Convert to JST for display ---
 df["first_seen_at_jst"] = df["first_seen_at"].dt.tz_convert("Asia/Tokyo")
 df["last_seen_at_jst"] = df["last_seen_at"].dt.tz_convert("Asia/Tokyo")
-df["is_new_24h"] = df["first_seen_at"] >= last_24_utc
-df["is_new_today"] = df["first_seen_at_jst"] >= today_start
+
 
 # --- Time references ---
 now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
@@ -233,6 +232,8 @@ def format_days_ago(days):
     else:
         return f"{days}d ago"
 
+df["is_new_24h"] = df["first_seen_at"] >= last_24_utc
+df["is_new_today"] = df["first_seen_at_jst"] >= today_start
 
 # ✅ Normalize to midnight (keeps datetime dtype!)
 df["days_since_posted"] = (
