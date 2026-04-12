@@ -572,10 +572,11 @@ with tab1:
             new_jobs.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
+                "Priority": st.column_config.TextColumn("Priority", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
                 "first_seen_at_jst": "First Seen (JST)",
                 "days_since_posted": "Days Ago",
-                "company_display": "Company",
+                "company": st.column_config.TextColumn("Company", width="medium"),
                 "title": "Title",
                 "location": "Location",
                 "role": "Role"
