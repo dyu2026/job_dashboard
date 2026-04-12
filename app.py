@@ -735,7 +735,7 @@ with tab4:
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"), # Renders the image
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
-                "first_seen_at_jst": "First Seen (JST)",
+                "first_seen_at": "First Seen",
                 "company": "Company",
                 "title": "Title",
                 "location": "Location",
