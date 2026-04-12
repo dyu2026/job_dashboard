@@ -500,7 +500,7 @@ heatmap_data = (
 # -----------------------------------
 
 df_filtered["is_new_company"] = (
-    (now_jst - df_filtered["company_first_seen_at_jst"])
+    (now_utc - df_filtered["company_first_seen_at"])
     <= pd.Timedelta(hours=24)
 )
 
