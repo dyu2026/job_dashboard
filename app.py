@@ -204,19 +204,16 @@ df_for_trends = df.copy()  # keep full dataset for trends if needed
 # Cleanup & Time Logic
 # -----------------------------------
 
-df["first_seen_at"] = (
-    pd.to_datetime(df["first_seen_at"], utc=True, errors="coerce")
-    .dt.tz_convert("Asia/Tokyo")
-)
+df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], utc=True, errors="coerce")
+df["first_seen_at_jst"] = df["first_seen_at"].dt.tz_convert("Asia/Tokyo")
 
 df["last_seen_at"] = (
     pd.to_datetime(df["last_seen_at"], utc=True, errors="coerce")
     .dt.tz_convert("Asia/Tokyo")
 )
 
-now_jst = datetime.now(JST)
-
-last_24 = now_jst - timedelta(hours=24)
+now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
+last_24 = now_jst - pd.Timedelta(hours=24)
 
 # Days since posted
 def format_days_ago(days):
@@ -232,11 +229,6 @@ def format_days_ago(days):
     else:
         return f"{days}d ago"
 
-# Ensure datetime + timezone
-df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], utc=True)
-df["first_seen_at_jst"] = df["first_seen_at"].dt.tz_convert("Asia/Tokyo")
-
-now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
 
 # ✅ Normalize to midnight (keeps datetime dtype!)
 df["days_since_posted"] = (
@@ -253,8 +245,11 @@ today_start = now_jst.replace(
     microsecond=0
 )
 
-df["is_new_24h"] = df["first_seen_at"] >= last_24
-df["is_new_today"] = df["first_seen_at"] >= today_start
+now_utc = pd.Timestamp.now(tz="UTC")
+last_24_utc = now_utc - pd.Timedelta(hours=24)
+
+df["is_new_24h"] = df["first_seen_at"] >= last_24_utc
+df["is_new_today"] = df["first_seen_at_jst"] >= today_start
 
 # -----------------------------------
 # Sidebar Filters
@@ -501,6 +496,19 @@ heatmap_data = (
 )
 
 # -----------------------------------
+# Tabs prep
+# -----------------------------------
+
+df_filtered["is_new_company"] = (
+    (now_jst - df_filtered["company_first_seen_at_jst"])
+    <= pd.Timedelta(hours=24)
+)
+
+df_filtered["company_display"] = df_filtered["company"]
+df_filtered.loc[df_filtered["is_new_company"], "company_display"] += " 🆕"
+
+
+# -----------------------------------
 # Tabs Layout
 # -----------------------------------
 
@@ -543,6 +551,9 @@ with tab1:
     else:
         
         safe_cols = [c for c in display_cols if c in new_jobs.columns]
+
+        # replace company with company_display
+        safe_cols = ["company_display" if c == "company" else c for c in safe_cols]
         
         st.dataframe(
             new_jobs.sort_values("first_seen_at", ascending=False)[safe_cols],
@@ -551,7 +562,7 @@ with tab1:
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
                 "first_seen_at": "First Seen",
                 "days_since_posted": "Days Ago",
-                "company": "Company",
+                "company_display": "Company",
                 "title": "Title",
                 "location": "Location",
                 "role": "Role"
@@ -619,14 +630,15 @@ with tab2:
     )
 
     safe_cols = [c for c in display_cols if c in df_display.columns]
+    safe_cols = ["company_display" if c == "company" else c for c in safe_cols]
     st.dataframe(
-        df_display.sort_values("first_seen_at", ascending=False)[display_cols],
+        df_display.sort_values("first_seen_at", ascending=False)[safe_cols],
         column_config={
             "logo": st.column_config.ImageColumn("Logo", width="small"),
             "url": st.column_config.LinkColumn("Apply", display_text="Open"),
             "first_seen_at": "First Seen",
             "days_since_posted": "Days Ago",
-            "company": "Company",
+            "company_display": "Company",
             "title": "Title",
             "location": "Location",
             "role": "Role"
