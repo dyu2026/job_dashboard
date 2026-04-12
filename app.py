@@ -737,7 +737,17 @@ with tab4:
             removed_df["role"] = ""
 
         # --- Safe columns ---
-        safe_cols = [c for c in display_cols if c in removed_df.columns]
+        removed_display_cols = [
+            "logo",
+            "Priority",
+            "company",
+            "title",
+            "location",
+            "role",
+            "first_seen_at_jst",
+        ]
+
+        safe_cols = [c for c in removed_display_cols if c in removed_df.columns]
         safe_cols = ["first_seen_at_jst" if c == "first_seen_at" else c for c in safe_cols]
 
         # --- Render ---
@@ -745,12 +755,12 @@ with tab4:
             removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
             column_config={
                 "logo": st.column_config.ImageColumn("Logo", width="small"),
-                "url": st.column_config.LinkColumn("Apply", display_text="Open"),
-                "first_seen_at_jst": "First Seen (JST)",
+                "Priority": "Priority",
                 "company": "Company",
                 "title": "Title",
                 "location": "Location",
-                "role": "Role"
+                "role": "Role",
+                "first_seen_at_jst": "First Seen (JST)",
             },
             use_container_width=True,
             hide_index=True
