@@ -499,6 +499,21 @@ heatmap_data = (
 # Tabs prep
 # -----------------------------------
 
+company_first_seen = (
+    df.groupby("company")["first_seen_at"]
+    .min()
+    .reset_index()
+    .rename(columns={"first_seen_at": "company_first_seen_at"})
+)
+
+df_filtered = df_filtered.merge(company_first_seen, on="company", how="left")
+
+# Convert to JST
+df_filtered["company_first_seen_at_jst"] = (
+    df_filtered["company_first_seen_at"]
+    .dt.tz_convert("Asia/Tokyo")
+)
+
 df_filtered["is_new_company"] = (
     (now_utc - df_filtered["company_first_seen_at"])
     <= pd.Timedelta(hours=24)
