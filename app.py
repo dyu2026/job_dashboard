@@ -139,6 +139,61 @@ if not data:
 
 df = pd.DataFrame(data)
 
+def prepare_jobs_dataframe(df):
+    now_utc = pd.Timestamp.now(tz="UTC")
+    now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
+
+    # --- Ensure datetime ---
+    if "first_seen_at" in df.columns:
+        df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], utc=True, errors="coerce")
+
+    if "last_seen_at" in df.columns:
+        df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], utc=True, errors="coerce")
+
+    # --- JST conversion ---
+    if "first_seen_at" in df.columns:
+        df["first_seen_at_jst"] = df["first_seen_at"].dt.tz_convert("Asia/Tokyo")
+
+    if "last_seen_at" in df.columns:
+        df["last_seen_at_jst"] = df["last_seen_at"].dt.tz_convert("Asia/Tokyo")
+
+    # --- Time flags ---
+    last_24_utc = now_utc - pd.Timedelta(hours=24)
+
+    if "first_seen_at" in df.columns:
+        df["is_new_24h"] = df["first_seen_at"] >= last_24_utc
+
+    if "first_seen_at_jst" in df.columns:
+        today_start = now_jst.replace(hour=0, minute=0, second=0, microsecond=0)
+        df["is_new_today"] = df["first_seen_at_jst"] >= today_start
+
+    # --- Relative time (NEW - better UX) ---
+    if "first_seen_at" in df.columns:
+        df["hours_since_posted"] = (
+            (now_utc - df["first_seen_at"]).dt.total_seconds() / 3600
+        ).fillna(0).astype(int)
+
+    # --- Days since (keep your existing UX) ---
+    if "first_seen_at_jst" in df.columns:
+        df["days_since_posted"] = (
+            now_jst.normalize() - df["first_seen_at_jst"].dt.normalize()
+        ).dt.days
+
+        def format_days_ago(days):
+            if pd.isna(days):
+                return ""
+            days = int(days)
+            if days == 0:
+                return "Today"
+            elif days == 1:
+                return "1d ago"
+            else:
+                return f"{days}d ago"
+
+        df["days_since_posted"] = df["days_since_posted"].apply(format_days_ago)
+
+    return df
+
 # Helper function to convert local images to Base64
 def get_base64_logo(company_name):
     # Standardize name for file path: logos/apple.webp
@@ -201,54 +256,14 @@ df["role_short"] = (
 df_for_trends = df.copy()  # keep full dataset for trends if needed
 
 # -----------------------------------
-# Cleanup & Time Logic
+# Cleanup & Time Logic (centralized)
 # -----------------------------------
 
-df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], utc=True, errors="coerce")
-df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], utc=True, errors="coerce")
+df = prepare_jobs_dataframe(df)
 
-# --- Convert to JST for display ---
-df["first_seen_at_jst"] = df["first_seen_at"].dt.tz_convert("Asia/Tokyo")
-df["last_seen_at_jst"] = df["last_seen_at"].dt.tz_convert("Asia/Tokyo")
-
-
-# --- Time references ---
-now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
 now_utc = pd.Timestamp.now(tz="UTC")
-
+now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
 last_24_utc = now_utc - pd.Timedelta(hours=24)
-
-# Days since posted
-def format_days_ago(days):
-    if pd.isna(days):
-        return ""
-    
-    days = int(days)
-    
-    if days == 0:
-        return "Today"
-    elif days == 1:
-        return "1d ago"
-    else:
-        return f"{days}d ago"
-
-# ✅ Normalize to midnight (keeps datetime dtype!)
-df["days_since_posted"] = (
-    now_jst.normalize() - df["first_seen_at_jst"].dt.normalize()
-).dt.days
-
-# Format
-df["days_since_posted"] = df["days_since_posted"].apply(format_days_ago)
-
-today_start = now_jst.replace(
-    hour=0,
-    minute=0,
-    second=0,
-    microsecond=0
-)
-
-df["is_new_24h"] = df["first_seen_at"] >= last_24_utc
-df["is_new_today"] = df["first_seen_at_jst"] >= today_start
 
 
 # -----------------------------------
@@ -508,14 +523,16 @@ company_first_seen = (
 
 df_filtered = df_filtered.merge(company_first_seen, on="company", how="left")
 
-# Convert to JST
+df_filtered["company_first_seen_at"] = pd.to_datetime(
+    df_filtered["company_first_seen_at"], utc=True, errors="coerce"
+)
+
 df_filtered["company_first_seen_at_jst"] = (
-    df_filtered["company_first_seen_at"]
-    .dt.tz_convert("Asia/Tokyo")
+    df_filtered["company_first_seen_at"].dt.tz_convert("Asia/Tokyo")
 )
 
 df_filtered["is_new_company"] = (
-    (now_jst - df_filtered["company_first_seen_at_jst"])
+    (now_utc - df_filtered["company_first_seen_at"])
     <= pd.Timedelta(hours=24)
 )
 
@@ -538,6 +555,7 @@ display_cols = [
     "title",
     "location",
     "url",
+    "hours_since_posted",
     "days_since_posted",
     "role",
     "first_seen_at",
@@ -575,6 +593,7 @@ with tab1:
                 "Priority": st.column_config.TextColumn("Priority", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
                 "first_seen_at_jst": "First Seen (JST)",
+                "hours_since_posted": "Hours Ago",
                 "days_since_posted": "Days Ago",
                 "company_display": st.column_config.TextColumn("Company", width="small"),
                 "title": "Title",
@@ -653,6 +672,7 @@ with tab2:
             "Priority": st.column_config.TextColumn("Priority", width="small"),
             "url": st.column_config.LinkColumn("Apply", display_text="Open"),
             "first_seen_at_jst": "First Seen (JST)",
+            "hours_since_posted": "Hours Ago",
             "days_since_posted": "Days Ago",
             "company_display": st.column_config.TextColumn("Company", width="small"),
             "title": "Title",
