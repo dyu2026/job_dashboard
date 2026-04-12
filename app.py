@@ -232,9 +232,6 @@ def format_days_ago(days):
     else:
         return f"{days}d ago"
 
-df["is_new_24h"] = df["first_seen_at"] >= last_24_utc
-df["is_new_today"] = df["first_seen_at_jst"] >= today_start
-
 # ✅ Normalize to midnight (keeps datetime dtype!)
 df["days_since_posted"] = (
     now_jst.normalize() - df["first_seen_at_jst"].dt.normalize()
@@ -249,6 +246,9 @@ today_start = now_jst.replace(
     second=0,
     microsecond=0
 )
+
+df["is_new_24h"] = df["first_seen_at"] >= last_24_utc
+df["is_new_today"] = df["first_seen_at_jst"] >= today_start
 
 
 # -----------------------------------
