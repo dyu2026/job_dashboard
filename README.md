@@ -1,6 +1,6 @@
 # Japan Tech Job Tracker
 
-This job tracking dashboard is built with Streamlit and Supabasea and is a personal project that aggregates publicly available job listings from selected global tech companies and tracks roles relevant to Japan.
+This job tracking dashboard is built with Streamlit and Supabase and is a personal project that aggregates publicly available job listings from selected global tech companies and tracks roles relevant to Japan.
 Designed for product-focused professionals in Japan/APAC, this tool aggregates job postings, highlights new opportunities, and surfaces hiring signals, all in one place.
 
 It is not affiliated with any companies or job platforms.
