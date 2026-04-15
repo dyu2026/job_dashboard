@@ -3,6 +3,7 @@ import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 from streamlit_cookies_manager import EncryptedCookieManager
+from utils import classify_location
 import streamlit.components.v1 as components
 import os, base64
 import altair as alt
