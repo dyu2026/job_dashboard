@@ -270,12 +270,6 @@ last_24_utc = now_utc - pd.Timedelta(hours=24)
 # Sidebar Filters
 # -----------------------------------
 
-# Remote
-remote_only = st.sidebar.checkbox("Remote Only")
-
-# Japan Only
-japan_only = st.sidebar.checkbox("Japan Only")
-
 # Roles filter
 st.sidebar.subheader("Roles")
 # Get unique roles from dataset
@@ -372,12 +366,6 @@ if not df.empty and "last_seen_at" in df.columns:
 # -----------------------------------
 # Apply Filters
 # -----------------------------------
-
-if remote_only:
-    df = df[df["is_remote"] == True]
-
-if japan_only:
-    df = df[df["location"].str.contains("Japan|Tokyo", case=False, na=False)]
 
 if selected_roles:
     df = df[df["role_short"].isin(selected_roles)]
