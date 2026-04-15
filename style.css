@@ -59,7 +59,7 @@ div[data-testid="column"] {
    ================================ */
 
 section[data-testid="stSidebar"] [data-testid="stWidgetLabel"]:empty {
-    display: none;
+    margin-top: -15px;
 }
 
 
