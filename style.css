@@ -55,6 +55,15 @@ div[data-testid="column"] {
 }
 
 /* ================================
+   Sidebar
+   ================================ */
+
+section[data-testid="stSidebar"] [data-testid="stWidgetLabel"]:empty {
+    display: none;
+}
+
+
+/* ================================
    Search box
    ================================ */
 
