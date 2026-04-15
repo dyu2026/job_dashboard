@@ -336,7 +336,7 @@ companies = sorted(df["company"].dropna().unique())
 selected_companies = st.sidebar.multiselect(
     "", 
     companies,
-    placeholder="select Company"
+    placeholder="Select Company"
 )
 
 
