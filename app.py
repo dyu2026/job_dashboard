@@ -258,21 +258,21 @@ df_for_trends = df.copy()  # keep full dataset for trends if needed
 def extract_seniority(title):
     title = str(title).lower()
 
-    if any(x in title for x in ["chief", "ceo", "cto", "cfo", "cpo"]):
+    if re.search(r"\b(chief|ceo|cto|cfo|cpo)\b", title):
         return "C-Level"
-    elif "vp" in title:
+    elif re.search(r"\bvp\b", title):
         return "VP"
-    elif "head" in title:
+    elif re.search(r"\bhead\b", title):
         return "Head"
-    elif "director" in title:
+    elif re.search(r"\bdirector\b", title):
         return "Director"
-    elif "principal" in title:
+    elif re.search(r"\bprincipal\b", title):
         return "Principal"
-    elif "lead" in title:
+    elif re.search(r"\blead\b", title):
         return "Lead"
-    elif "manager" in title:
+    elif re.search(r"\bmanager\b", title):
         return "Manager"
-    elif "senior" in title:
+    elif re.search(r"\bsenior\b", title):
         return "Senior"
     else:
         return "Other"
