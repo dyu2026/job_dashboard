@@ -276,12 +276,16 @@ remote_only = st.sidebar.checkbox("Remote Only")
 # Japan Only
 japan_only = st.sidebar.checkbox("Japan Only")
 
-# Focus Roles
-st.sidebar.subheader("Focus Roles")
+# Roles filter
+st.sidebar.subheader("Roles")
+# Get unique roles from dataset
+role_options = sorted(df["role_short"].dropna().unique())
 
-product_roles = st.sidebar.checkbox("Product")
-web_roles = st.sidebar.checkbox("Web")
-ecommerce_roles = st.sidebar.checkbox("Ecommerce")
+selected_roles = st.sidebar.multiselect(
+    "Select Roles",
+    role_options,
+    placeholder="Search and select roles..."
+)
 
 # Target Mode
 target_mode = st.sidebar.checkbox("Exec Target Mode")
@@ -375,20 +379,8 @@ if remote_only:
 if japan_only:
     df = df[df["location"].str.contains("Japan|Tokyo", case=False, na=False)]
 
-role_patterns = []
-
-if product_roles:
-    role_patterns.append(r"\bproduct\b")
-
-if web_roles:
-    role_patterns.append(r"\bweb\b|\bfrontend\b|\bfront-end\b")
-
-if ecommerce_roles:
-    role_patterns.append(r"ecommerce|e-commerce|commerce")
-
-if role_patterns:
-    pattern = "|".join(role_patterns)
-    df = df[df["title"].str.contains(pattern, case=False, na=False, regex=True)]
+if selected_roles:
+    df = df[df["role_short"].isin(selected_roles)]
 
 if selected_seniority:
     df = df[df["seniority"].isin(selected_seniority)]
