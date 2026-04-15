@@ -257,20 +257,27 @@ df_for_trends = df.copy()  # keep full dataset for trends if needed
 
 def extract_seniority(title):
     title = str(title).lower()
-    if "director" in title:
-        return "Director"
-    elif "head" in title:
-        return "Head"
+
+    if any(x in title for x in ["chief", "ceo", "cto", "cfo", "cpo"]):
+        return "C-Level"
     elif "vp" in title:
         return "VP"
+    elif "head" in title:
+        return "Head"
+    elif "director" in title:
+        return "Director"
     elif "principal" in title:
         return "Principal"
     elif "lead" in title:
         return "Lead"
     elif "manager" in title:
         return "Manager"
+    elif "senior" in title:
+        return "Senior"
     else:
-        return None
+        return "Other"
+
+df["seniority"] = df["title"].apply(extract_seniority)
 
 df["seniority"] = df["title"].apply(extract_seniority)
 
@@ -300,21 +307,10 @@ selected_roles = st.sidebar.multiselect(
     placeholder="Search and select roles..."
 )
 
-# Target Mode
-target_mode = st.sidebar.checkbox("Exec Target Mode")
-
-
 # Seniority
 st.sidebar.subheader("Seniority")
 
-seniority_options = [
-    "Director",
-    "Head",
-    "VP",
-    "Principal",
-    "Lead",
-    "Manager",
-]
+seniority_options = sorted(df["seniority"].dropna().unique())
 
 selected_seniority = st.sidebar.multiselect(
     "Select Seniority Levels",
@@ -400,14 +396,6 @@ if st.session_state.search:
         df["title"].str.contains(st.session_state.search, case=False, na=False)
         | df["company"].str.contains(st.session_state.search, case=False, na=False)
         | df["location"].str.contains(st.session_state.search, case=False, na=False)
-    ]
-
-# Exec Target Mode override
-if target_mode:
-    df = df[
-        df["title"].str.contains(
-            "Director|Head|VP|Principal", case=False, na=False
-        )
     ]
 
 # Apply Recency Filter (GLOBAL)
