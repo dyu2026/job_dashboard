@@ -314,9 +314,9 @@ role_options = sorted(df["role_short"].dropna().unique())
 
 # Roles
 selected_roles = st.sidebar.multiselect(
-    "Select Roles",
+    "",
     role_options,
-    placeholder="Search and select roles..."
+    placeholder="Search Roles"
 )
 
 # Seniority
@@ -325,14 +325,19 @@ seniority_options = [
     level for level in SENIORITY_ORDER if level in available_levels
 ]
 selected_seniority = st.sidebar.multiselect(
-    "Select Seniority Levels",
-    seniority_options
+    "",
+    seniority_options,
+    placeholder="Select Seniority"
 )
 
 # Company Filter
 st.sidebar.markdown('<h3 style="color:#ff4d6b;">Company</h3>', unsafe_allow_html=True)
 companies = sorted(df["company"].dropna().unique())
-selected_companies = st.sidebar.multiselect("Company", companies)
+selected_companies = st.sidebar.multiselect(
+    "", 
+    companies,
+    placeholder="select Company"
+)
 
 
 # Recency Filter
