@@ -140,6 +140,21 @@ if not data:
 
 df = pd.DataFrame(data)
 
+df[["region", "is_remote", "is_japan", "remote_scope"]] = df["location"].apply(
+    lambda x: pd.Series(classify_location(x))
+)
+
+# Keep only:
+# - Japan jobs (local or remote) OR global/APAC remote jobs
+
+df = df[
+    (df["is_japan"] == True) |
+    (
+        (df["is_remote"] == True) &
+        (df["remote_scope"].isin(["global", "apac"]))
+    )
+]
+
 def prepare_jobs_dataframe(df):
     now_utc = pd.Timestamp.now(tz="UTC")
     now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
