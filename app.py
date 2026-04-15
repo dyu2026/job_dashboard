@@ -308,7 +308,7 @@ last_24_utc = now_utc - pd.Timedelta(hours=24)
 # -----------------------------------
 
 # Roles and level filter
-st.sidebar.markdown('<h3 style="color:#ff4d6b;">🧑 Role & Level</h3>', unsafe_allow_html=True)
+st.sidebar.markdown('<h3 style="color:#ff4d6b;">Role & Level</h3>', unsafe_allow_html=True)
 # Get unique roles from dataset
 role_options = sorted(df["role_short"].dropna().unique())
 
@@ -330,13 +330,13 @@ selected_seniority = st.sidebar.multiselect(
 )
 
 # Company Filter
-st.sidebar.markdown('<h3 style="color:#ff4d6b;">🏢 Company</h3>', unsafe_allow_html=True)
+st.sidebar.markdown('<h3 style="color:#ff4d6b;">Company</h3>', unsafe_allow_html=True)
 companies = sorted(df["company"].dropna().unique())
 selected_companies = st.sidebar.multiselect("Company", companies)
 
 
 # Recency Filter
-st.sidebar.markdown('<h3 style="color:#ff4d6b;">🕒 Posted</h3>', unsafe_allow_html=True)
+st.sidebar.markdown('<h3 style="color:#ff4d6b;">Posted</h3>', unsafe_allow_html=True)
 
 TIME_FILTERS = {
     "Last 3 days": 3,
