@@ -58,10 +58,9 @@ div[data-testid="column"] {
    Sidebar
    ================================ */
 
-section[data-testid="stSidebar"] [data-testid="stWidgetLabel"]:empty {
+section[data-testid="stSidebar"] .stMultiSelect {
     margin-top: -15px;
 }
-
 
 /* ================================
    Search box
