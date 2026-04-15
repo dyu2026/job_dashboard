@@ -279,7 +279,17 @@ def extract_seniority(title):
 
 df["seniority"] = df["title"].apply(extract_seniority)
 
-df["seniority"] = df["title"].apply(extract_seniority)
+SENIORITY_ORDER = [
+    "C-Level",
+    "VP",
+    "Head",
+    "Director",
+    "Principal",
+    "Lead",
+    "Manager",
+    "Senior",
+    "Other"
+]
 
 # -----------------------------------
 # Cleanup & Time Logic (centralized)
@@ -310,8 +320,11 @@ selected_roles = st.sidebar.multiselect(
 # Seniority
 st.sidebar.subheader("Seniority")
 
-seniority_options = sorted(df["seniority"].dropna().unique())
+available_levels = df["seniority"].dropna().unique()
 
+seniority_options = [
+    level for level in SENIORITY_ORDER if level in available_levels
+]
 selected_seniority = st.sidebar.multiselect(
     "Select Seniority Levels",
     seniority_options
