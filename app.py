@@ -7,6 +7,7 @@ import streamlit.components.v1 as components
 import os, base64
 import altair as alt
 import uuid
+import re
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -260,7 +261,7 @@ def extract_seniority(title):
 
     if re.search(r"\b(chief|ceo|cto|cfo|cpo)\b", title):
         return "C-Level"
-    elif re.search(r"\bvp\b", title):
+    elif re.search(r"\b(vp|vice president)\b", title):
         return "VP"
     elif re.search(r"\bhead\b", title):
         return "Head"
