@@ -255,6 +255,25 @@ df["role_short"] = (
 
 df_for_trends = df.copy()  # keep full dataset for trends if needed
 
+def extract_seniority(title):
+    title = str(title).lower()
+    if "director" in title:
+        return "Director"
+    elif "head" in title:
+        return "Head"
+    elif "vp" in title:
+        return "VP"
+    elif "principal" in title:
+        return "Principal"
+    elif "lead" in title:
+        return "Lead"
+    elif "manager" in title:
+        return "Manager"
+    else:
+        return None
+
+df["seniority"] = df["title"].apply(extract_seniority)
+
 # -----------------------------------
 # Cleanup & Time Logic (centralized)
 # -----------------------------------
