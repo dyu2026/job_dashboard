@@ -4,6 +4,10 @@
     margin-top: 0px !important;
 }
 
+[data-testid="stSideBarContent"] h3 {
+    color: #ff4d6b !important;
+}
+
 /* Adjust main container */
 div.st-key-CookieManager-sync_cookies {
     margin-top: -65px;
