@@ -155,6 +155,24 @@ df["remote_scope"] = df["remote_scope"].astype(str).str.lower().fillna("unknown"
 df["region"] = df["region"].astype(str).str.lower().fillna("unknown")
 
 # Filter
+
+# Normalize location text
+df["location_clean"] = df["location"].astype(str).str.lower()
+
+# Hard exclude obvious non-target geographies
+EXCLUDE_KEYWORDS = [
+    "bogota", "colombia",
+    "brazil", "argentina", "mexico",
+    "south america", "latin america",
+    "africa", "nigeria", "kenya",
+    "europe", "germany", "france", "spain", "uk",
+    "canada", "united states", "usa"
+]
+
+df = df[
+    ~df["location_clean"].str.contains("|".join(EXCLUDE_KEYWORDS), na=False)
+]
+
 df = df[
     (df["is_japan"] == True) |
     (
