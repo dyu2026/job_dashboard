@@ -3,7 +3,6 @@ import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 from streamlit_cookies_manager import EncryptedCookieManager
-from utils import classify_location
 import streamlit.components.v1 as components
 import os, base64
 import altair as alt
@@ -141,13 +140,21 @@ if not data:
 
 df = pd.DataFrame(data)
 
-df[["region", "is_remote", "is_japan", "remote_scope"]] = df["location"].apply(
-    lambda x: pd.Series(classify_location(x))
-)
+# Safety fallback
+for col, default in {
+    "region": "unknown",
+    "is_remote": False,
+    "is_japan": False,
+    "remote_scope": "unknown"
+}.items():
+    if col not in df.columns:
+        df[col] = default
 
-# Keep only:
-# - Japan jobs (local or remote) OR global/APAC remote jobs
+# Normalize
+df["remote_scope"] = df["remote_scope"].astype(str).str.lower().fillna("unknown")
+df["region"] = df["region"].astype(str).str.lower().fillna("unknown")
 
+# Filter
 df = df[
     (df["is_japan"] == True) |
     (
