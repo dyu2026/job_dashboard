@@ -154,31 +154,42 @@ for col, default in {
 df["remote_scope"] = df["remote_scope"].astype(str).str.lower().fillna("unknown")
 df["region"] = df["region"].astype(str).str.lower().fillna("unknown")
 
-# Filter
+def classify_location(row):
+    location = str(row.get("location", "")).lower()
+    region = str(row.get("region", "")).lower()
+    remote_scope = str(row.get("remote_scope", "")).lower()
 
-# Normalize location text
-df["location_clean"] = df["location"].astype(str).str.lower()
+    # --- Strong Japan signals ---
+    if any(x in location for x in ["japan", "tokyo", "osaka"]):
+        return "japan"
 
-# Hard exclude obvious non-target geographies
-EXCLUDE_KEYWORDS = [
-    "bogota", "colombia",
-    "brazil", "argentina", "mexico",
-    "south america", "latin america",
-    "africa", "nigeria", "kenya",
-    "europe", "germany", "france", "spain", "uk",
-    "canada", "united states", "usa"
-]
+    if region == "japan":
+        return "japan"
+
+    # --- Remote allowed ---
+    if row.get("is_remote") == True:
+        if remote_scope in ["global", "apac"]:
+            return "remote_allowed"
+
+        if any(x in location for x in ["apac", "asia"]):
+            return "remote_allowed"
+
+    # --- Explicit exclusions ---
+    if any(x in location for x in [
+        "bogota", "colombia",
+        "brazil", "argentina", "mexico",
+        "africa", "nigeria", "kenya",
+        "europe", "germany", "france", "spain", "uk",
+        "canada", "united states", "usa"
+    ]):
+        return "exclude"
+
+    return "unknown"
+    
+df["location_class"] = df.apply(classify_location, axis=1)
 
 df = df[
-    ~df["location_clean"].str.contains("|".join(EXCLUDE_KEYWORDS), na=False)
-]
-
-df = df[
-    (df["is_japan"] == True) |
-    (
-        (df["is_remote"] == True) &
-        (df["remote_scope"].isin(["global", "apac", "asia", "japan"]))
-    )
+    df["location_class"].isin(["japan", "remote_allowed"])
 ]
 
 def prepare_jobs_dataframe(df):
