@@ -177,7 +177,7 @@ df = df[
     (df["is_japan"] == True) |
     (
         (df["is_remote"] == True) &
-        (df["remote_scope"].isin(["global", "apac"]))
+        (df["remote_scope"].isin(["global", "apac", "asia", "japan"]))
     )
 ]
 
