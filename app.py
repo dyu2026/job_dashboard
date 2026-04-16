@@ -159,8 +159,18 @@ def classify_location(row):
     region = str(row.get("region", "")).lower()
     remote_scope = str(row.get("remote_scope", "")).lower()
 
+    # --- Explicit exclusions ---
+    if any(x in location for x in [
+        "bogota", "colombia",
+        "brazil", "argentina", "mexico",
+        "africa", "nigeria", "kenya",
+        "europe", "germany", "france", "spain", "uk",
+        "canada", "united states", "usa"
+    ]):
+        return "exclude"
+
     # --- Strong Japan signals ---
-    if any(x in location for x in ["japan", "tokyo", "osaka"]):
+    if any(x in location for x in ["japan", "tokyo", "osaka", "yokohama", "kanagawa"]):
         return "japan"
 
     if region == "japan":
@@ -173,16 +183,6 @@ def classify_location(row):
 
         if any(x in location for x in ["apac", "asia"]):
             return "remote_allowed"
-
-    # --- Explicit exclusions ---
-    if any(x in location for x in [
-        "bogota", "colombia",
-        "brazil", "argentina", "mexico",
-        "africa", "nigeria", "kenya",
-        "europe", "germany", "france", "spain", "uk",
-        "canada", "united states", "usa"
-    ]):
-        return "exclude"
 
     return "unknown"
     
