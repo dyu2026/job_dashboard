@@ -761,91 +761,79 @@ with tab3:
     if selected_count == 1:
         selected_company = selected_companies[0]
 
-        role_stats = (
-            df_company[df_company["company"] == selected_company]
-            .groupby("role_short")
+        df_one = df_filtered[df_filtered["company"] == selected_company]
+
+        role_breakdown = (
+            df_one.groupby("role_short")
             .size()
             .reset_index(name="count")
+            .sort_values("count", ascending=False)
+            .reset_index(drop=True)
         )
 
-        # sort by volume (most → least)
-        role_stats = role_stats.sort_values("count", ascending=False).reset_index(drop=True)
-
-        # % share
-        role_stats["pct"] = (
-            role_stats["count"] / role_stats["count"].sum() * 100
-        ).round(1)
-
-        role_stats["order"] = range(len(role_stats))
-
-        role_stats["group"] = selected_company
-
-        st.markdown(f"**{selected_company} — Role Breakdown**")
-        st.caption("Role distribution (stacked by volume)")
+        total = role_breakdown["count"].sum()
 
         # -----------------------------------
-        # Red gradient (dark → light)
+        # assign explicit rank (THIS FIXES EVERYTHING)
         # -----------------------------------
-        import numpy as np
+        role_breakdown["rank"] = role_breakdown["count"].rank(
+            method="first",
+            ascending=False
+        ).astype(int)
 
-        base_gradient = [
-            "#ff4d6b",  # strongest (largest roles)
-            "#ff6b81",
-            "#ff8fa3",
-            "#ffb3c1",
-            "#ffd6dd",
-            "#ffe6ea",
-            "#fff0f3"
-        ]
+        role_breakdown["pct"] = role_breakdown["count"] / total * 100
 
-        n_roles = len(role_stats)
+        # -----------------------------------
+        # reverse order for stacking (bottom = biggest)
+        # -----------------------------------
+        role_breakdown = role_breakdown.sort_values("count", ascending=True)
 
-        if n_roles > len(base_gradient):
-            import matplotlib.colors as mcolors
+        # -----------------------------------
+        # RED GRADIENT (dynamic, no hard mapping needed)
+        # -----------------------------------
+        red_scale = alt.Scale(
+            scheme="reds"
+        )
 
-            cmap = mcolors.LinearSegmentedColormap.from_list(
-                "custom_red",
-                ["#ff4d6b", "#fff0f3"]
-            )
-
-            base_gradient = [
-                mcolors.to_hex(cmap(i / max(n_roles - 1, 1)))
-                for i in range(n_roles)
-            ]
-
-        chart = alt.Chart(role_stats).mark_bar().encode(
+        # -----------------------------------
+        # STACKED BAR (single bar)
+        # -----------------------------------
+        chart = alt.Chart(role_breakdown).mark_bar().encode(
             x=alt.X(
-                "group:N",
-                title="",
-                axis=alt.Axis(labels=False, ticks=False)
+                "sum(count):Q",
+                axis=None
             ),
 
             y=alt.Y(
-                "count:Q",
-                title="Total Jobs"
+                alt.Y("company:N", title=None),
+                axis=None
             ),
 
-            # stack order controlled explicitly
-            order=alt.Order("order:Q", sort="ascending"),
+            order=alt.Order("count:Q", sort="descending"),
 
             color=alt.Color(
-                "role_short:N",
-                scale=alt.Scale(
-                    range=base_gradient[:n_roles]
-                ),
-                legend=alt.Legend(title="Role")
+                "rank:O",
+                scale=red_scale,
+                legend=alt.Legend(
+                    title="Role (by volume)",
+                    sort=role_breakdown.sort_values("count", ascending=False)["role_short"].tolist()
+                )
             ),
 
             tooltip=[
                 alt.Tooltip("role_short:N", title="Role"),
                 alt.Tooltip("count:Q", title="Jobs"),
-                alt.Tooltip("pct:Q", title="%")
+                alt.Tooltip("pct:Q", title="% of company", format=".1f")
             ]
         ).properties(
-            height=400
+            height=120
         )
 
         st.altair_chart(chart, use_container_width=True)
+
+        st.caption(
+            f"Role breakdown for {selected_company} (largest segment at bottom)"
+)
 
     # -----------------------------------
     # CASE 2: Default → Company breakdown
