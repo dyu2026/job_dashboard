@@ -990,7 +990,7 @@ with tab6:
 
 with tabtest:
     
-     st.subheader("🚀 Company Breakdown")
+    st.subheader("🚀 Company Breakdown")
 
     df_company = df_filtered.copy()
     df_company["company"] = df_company["company"].str.strip()
