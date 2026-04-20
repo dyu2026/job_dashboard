@@ -746,20 +746,6 @@ with tab2:
 # Company Tab
 # -----------------------------------
 
-Yes — and this is actually the cleanest solution given your current setup (and avoids the performance issues you hit with Plotly).
-
-You don’t need interactivity hacks. You can reuse your existing sidebar filter and dynamically switch the chart behavior:
-
-No company selected → show current company bar chart
-One company selected → show role breakdown (same visual style)
-Multiple companies selected → still show company chart (or optionally stacked roles)
-
-This keeps everything fast, consistent, and intuitive.
-
-✅ Updated Company Tab (Altair-only, fast, clean)
-
-Replace your current tab3 block with this:
-
 with tab3:
     st.subheader("🚀 Company Breakdown")
 
