@@ -773,27 +773,12 @@ with tab3:
         role_stats["pct"] = (
             role_stats["count"] / role_stats["count"].sum() * 100
         ).round(1)
-
-        # -----------------------------------
-        # Stable red palette (consistent across app)
-        # -----------------------------------
-        ROLE_COLOR_MAP = {
-            "Engineering": "#ff4d6b",
-            "Product": "#ff6b81",
-            "Data": "#ff8fa3",
-            "Design": "#ffb3c1",
-            "Marketing": "#ffd6dd",
-            "Sales": "#ffe6ea",
-            "Customer Success": "#fff0f3",
-            "HR": "#ffd1d9",
-            "Finance": "#ff99aa",
-            "Operations": "#ffccd5",
-            "Other": "#f8d7da"
-        }
+        
 
         st.markdown(f"**{selected_company} — Role Breakdown**")
         st.caption("Role distribution (stacked by function)")
 
+        role_stats = role_stats.sort_values("count", ascending=False)
         chart = alt.Chart(role_stats).mark_bar().encode(
             x=alt.X(
                 "group:N",
@@ -806,13 +791,10 @@ with tab3:
             ),
             color=alt.Color(
                 "role_short:N",
-                scale=alt.Scale(
-                    domain=list(ROLE_COLOR_MAP.keys()),
-                    range=list(ROLE_COLOR_MAP.values())
-                ),
+                sort="descending",
                 legend=alt.Legend(title="Role")
             ),
-            tooltip=[
+                        tooltip=[
                 alt.Tooltip("role_short:N", title="Role"),
                 alt.Tooltip("count:Q", title="Jobs"),
                 alt.Tooltip("pct:Q", title="% Share", format=".1f")
