@@ -975,7 +975,12 @@ with tab4:
 
 with tab5:
     st.subheader("📮 Job Posting Trends (JST)")
-    st.caption("Excludes first day of each company to remove initial data spikes.")
+    
+    st.markdown("""
+    <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
+    Excludes first day of each company to remove initial data spikes.
+    </p>
+    """, unsafe_allow_html=True)
 
     if trend_df.empty:
         st.info("Not enough data to show trends.")
