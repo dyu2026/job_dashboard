@@ -757,6 +757,7 @@ with tab3:
     # -----------------------------------
     # CASE 1: Single company selected → show ROLE breakdown
     # -----------------------------------
+
     if selected_count == 1:
         selected_company = selected_companies[0]
 
@@ -768,36 +769,71 @@ with tab3:
             .sort_values("count", ascending=False)
         )
 
-        # Add grouping column for single stacked bar
-        role_stats["group"] = selected_company
+        # % calculation
         role_stats["pct"] = (
             role_stats["count"] / role_stats["count"].sum() * 100
         ).round(1)
-        
+
+        role_stats["group"] = selected_company
 
         st.markdown(f"**{selected_company} — Role Breakdown**")
-        st.caption("Role distribution (stacked by function)")
+        st.caption("Role distribution (stacked by volume)")
 
-        role_stats = role_stats.sort_values("count", ascending=False)
+        # -----------------------------------
+        # Red gradient (dark → light)
+        # -----------------------------------
+        import numpy as np
+
+        n_roles = len(role_stats)
+
+        RED_GRADIENT = [
+            "#ff4d6b",  # darkest (top roles / highest count)
+            "#ff6b81",
+            "#ff8fa3",
+            "#ffb3c1",
+            "#ffd6dd",
+            "#ffe6ea",
+            "#fff0f3"   # lightest (small roles)
+        ]
+
+        # expand gradient if more roles than colors
+        if n_roles > len(RED_GRADIENT):
+            extended = np.linspace(0, 1, n_roles)
+            import matplotlib.colors as mcolors
+
+            cmap = mcolors.LinearSegmentedColormap.from_list(
+                "custom_red",
+                ["#ff4d6b", "#fff0f3"]
+            )
+            RED_GRADIENT = [
+                mcolors.to_hex(cmap(i)) for i in extended
+            ]
+
         chart = alt.Chart(role_stats).mark_bar().encode(
             x=alt.X(
                 "group:N",
                 title="",
                 axis=alt.Axis(labels=False, ticks=False)
             ),
+
             y=alt.Y(
                 "count:Q",
                 title="Total Jobs"
             ),
+
+            # stack order follows dataframe order (important)
             color=alt.Color(
                 "role_short:N",
-                sort="descending",
+                scale=alt.Scale(
+                    range=RED_GRADIENT[:n_roles]
+                ),
                 legend=alt.Legend(title="Role")
             ),
-                        tooltip=[
+
+            tooltip=[
                 alt.Tooltip("role_short:N", title="Role"),
                 alt.Tooltip("count:Q", title="Jobs"),
-                alt.Tooltip("pct:Q", title="% Share", format=".1f")
+                alt.Tooltip("pct:Q", title="%")
             ]
         ).properties(
             height=400
