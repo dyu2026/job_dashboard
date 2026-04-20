@@ -629,18 +629,11 @@ with tab1:
     st.subheader("🔥 New Jobs (Last 24 Hours)")
     
     st.markdown("""
-    <div style="
-        background-color:#f5f7fb;
-        padding:12px 16px;
-        border-radius:8px;
-        font-size:14px;
-        margin-bottom: 40px;
-    ">
+    <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
     Includes newly tracked companies and recently discovered roles<br>
     🌟 New company added to tracking
-    </div>
+    </p>
     """, unsafe_allow_html=True)
-
 
     new_jobs = df_filtered[df_filtered["is_new_24h"]].copy()
     new_jobs["first_seen_at_jst"] = new_jobs["first_seen_at_jst"].dt.strftime("%Y-%m-%d %H:%M")
