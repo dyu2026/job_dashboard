@@ -3,3 +3,5 @@ pandas
 supabase
 altair
 streamlit-cookies-manager
+plotly
+streamlit-plotly-events
