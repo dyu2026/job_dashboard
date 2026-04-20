@@ -824,7 +824,6 @@ with tab3:
         st.altair_chart(chart, use_container_width=True)
 
         st.caption(f"Role breakdown for {selected_company}")
-)
 
     # -----------------------------------
     # CASE 2: Default → Company breakdown
