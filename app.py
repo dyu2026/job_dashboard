@@ -770,11 +770,10 @@ with tab3:
         )
 
         total = role_breakdown["count"].sum()
-
         role_breakdown["pct"] = role_breakdown["count"] / total * 100
 
         # -----------------------------------
-        # IMPORTANT: create explicit ordered category
+        # ORDER (important for stack + legend)
         # -----------------------------------
         role_order = role_breakdown["role_short"].tolist()
 
@@ -784,31 +783,38 @@ with tab3:
             ordered=True
         )
 
-        # reverse for stacking (largest at bottom)
+        # stack order (biggest at bottom)
         role_breakdown_stack = role_breakdown.sort_values("count", ascending=True)
 
-        # -----------------------------------
-        # COLOR SCALE (simple + robust)
-        # -----------------------------------
-        red_scale = alt.Scale(scheme="reds")
+        # add dummy field for single stacked bar
+        role_breakdown_stack["company_bar"] = selected_company
 
         # -----------------------------------
-        # STACKED BAR (single bar)
+        # COLOR SCALE
+        # -----------------------------------
+        color_scale = alt.Scale(scheme="reds")
+
+        # -----------------------------------
+        # STACKED BAR (correct Vega-Lite)
         # -----------------------------------
         chart = alt.Chart(role_breakdown_stack).mark_bar().encode(
-            x=alt.X("sum(count):Q", axis=None),
+            x=alt.X(
+                "sum(count):Q",
+                axis=None
+            ),
 
             y=alt.Y(
-                alt.value("Company"),  # dummy single-bar category
-                axis=None
+                "company_bar:N",
+                axis=None,
+                title=None
             ),
 
             order=alt.Order("count:Q", sort="ascending"),
 
             color=alt.Color(
                 "role_short:N",
-                scale=red_scale,
-                sort=role_order,   # THIS FIXES LEGEND ORDER
+                scale=color_scale,
+                sort=role_order,
                 legend=alt.Legend(title="Role (by volume)")
             ),
 
@@ -818,12 +824,12 @@ with tab3:
                 alt.Tooltip("pct:Q", title="% of company", format=".1f")
             ]
         ).properties(
-            height=120
+            height=140
         )
 
         st.altair_chart(chart, use_container_width=True)
 
-        st.caption(f"Role breakdown for {selected_company}")
+        st.caption(f"Role breakdown for {selected_company} (stacked view)")
 
     # -----------------------------------
     # CASE 2: Default → Company breakdown
