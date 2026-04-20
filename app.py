@@ -858,15 +858,6 @@ with tab3:
     # -----------------------------------
     else:
         
-        st.markdown("""
-            <style>
-            .stAlert {
-                background-color: #f5f7fb; /* Custom background */
-                color: #33394c;            /* Custom text color */
-            }
-            </style>
-            """, unsafe_allow_html=True)
-        
         st.info("**Tip:** Select a single company in the sidebar filter to view its detailed role breakdown.")
         company_stats = (
             df_company.groupby("company")
