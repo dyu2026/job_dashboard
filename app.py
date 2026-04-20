@@ -25,17 +25,6 @@ st.markdown("""
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-    st.markdown("""
-    <style>
-    /* Target st.info box */
-    div[data-testid="stAlert"] {
-        background-color: #f5f7fb;  /* lighter background */
-        color: #333333;             /* darker text */
-        border-left: 4px solid #a6c8ff; /* softer blue accent */
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
 # -----------------------------------
 # cookie to exclude my traffic
 # -----------------------------------
@@ -869,7 +858,19 @@ with tab3:
     # -----------------------------------
     else:
         
-        st.info("**Tip:** Select a single company in the sidebar filter to view its detailed role breakdown.")
+#        st.info("**Tip:** Select a single company in the sidebar filter to view its detailed role breakdown.")
+        st.markdown("""
+        <div style="
+            background-color:#f5f7fb;
+            padding:12px 16px;
+            border-radius:8px;
+            border-left:4px solid #a6c8ff;
+            font-size:14px;
+        ">
+        <b>Tip:</b> Select a single company in the sidebar filter to view its detailed role breakdown.
+        </div>
+        """, unsafe_allow_html=True)
+
         company_stats = (
             df_company.groupby("company")
             .agg(
