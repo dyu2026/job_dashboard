@@ -8,6 +8,8 @@ import os, base64
 import altair as alt
 import uuid
 import re
+import plotly.express as px
+from streamlit_plotly_events import plotly_events
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -759,77 +761,91 @@ with tab3:
     if selected_count == 1:
         selected_company = selected_companies[0]
 
-        df_one = df_filtered[df_filtered["company"] == selected_company]
-
-        role_breakdown = (
-            df_one.groupby("role_short")
+        role_stats = (
+            df_company[df_company["company"] == selected_company]
+            .groupby("role_short")
             .size()
             .reset_index(name="count")
-            .sort_values("count", ascending=False)
-            .reset_index(drop=True)
         )
 
-        total = role_breakdown["count"].sum()
-        role_breakdown["pct"] = role_breakdown["count"] / total * 100
+        # sort by volume (most → least)
+        role_stats = role_stats.sort_values("count", ascending=False).reset_index(drop=True)
+
+        # % share
+        role_stats["pct"] = (
+            role_stats["count"] / role_stats["count"].sum() * 100
+        ).round(1)
+
+        role_stats["order"] = range(len(role_stats))
+
+        role_stats["group"] = selected_company
+
+        st.markdown(f"**{selected_company} — Role Breakdown**")
+        st.caption("Role distribution (stacked by volume)")
 
         # -----------------------------------
-        # ORDER (important for stack + legend)
+        # Red gradient (dark → light)
         # -----------------------------------
-        role_order = role_breakdown["role_short"].tolist()
+        import numpy as np
 
-        role_breakdown["role_short"] = pd.Categorical(
-            role_breakdown["role_short"],
-            categories=role_order,
-            ordered=True
-        )
+        base_gradient = [
+            "#ff4d6b",  # strongest (largest roles)
+            "#ff6b81",
+            "#ff8fa3",
+            "#ffb3c1",
+            "#ffd6dd",
+            "#ffe6ea",
+            "#fff0f3"
+        ]
 
-        # stack order (biggest at bottom)
-        role_breakdown_stack = role_breakdown.sort_values("count", ascending=True)
+        n_roles = len(role_stats)
 
-        # add dummy field for single stacked bar
-        role_breakdown_stack["company_bar"] = selected_company
+        if n_roles > len(base_gradient):
+            import matplotlib.colors as mcolors
 
-        # -----------------------------------
-        # COLOR SCALE
-        # -----------------------------------
-        color_scale = alt.Scale(scheme="reds")
+            cmap = mcolors.LinearSegmentedColormap.from_list(
+                "custom_red",
+                ["#ff4d6b", "#fff0f3"]
+            )
 
-        # -----------------------------------
-        # STACKED BAR (correct Vega-Lite)
-        # -----------------------------------
-        chart = alt.Chart(role_breakdown_stack).mark_bar().encode(
+            base_gradient = [
+                mcolors.to_hex(cmap(i / max(n_roles - 1, 1)))
+                for i in range(n_roles)
+            ]
+
+        chart = alt.Chart(role_stats).mark_bar().encode(
             x=alt.X(
-                "sum(count):Q",
-                axis=None
+                "group:N",
+                title="",
+                axis=alt.Axis(labels=False, ticks=False)
             ),
 
             y=alt.Y(
-                "company_bar:N",
-                axis=None,
-                title=None
+                "count:Q",
+                title="Total Jobs"
             ),
 
-            order=alt.Order("count:Q", sort="ascending"),
+            # stack order controlled explicitly
+            order=alt.Order("order:Q", sort="ascending"),
 
             color=alt.Color(
                 "role_short:N",
-                scale=color_scale,
-                sort=role_order,
-                legend=alt.Legend(title="Role (by volume)")
+                scale=alt.Scale(
+                    range=base_gradient[:n_roles]
+                ),
+                legend=alt.Legend(title="Role")
             ),
 
             tooltip=[
                 alt.Tooltip("role_short:N", title="Role"),
                 alt.Tooltip("count:Q", title="Jobs"),
-                alt.Tooltip("pct:Q", title="% of company", format=".1f")
+                alt.Tooltip("pct:Q", title="%")
             ]
         ).properties(
-            height=140
+            height=400
         )
 
         st.altair_chart(chart, use_container_width=True)
-
-        st.caption(f"Role breakdown for {selected_company} (stacked view)")
 
     # -----------------------------------
     # CASE 2: Default → Company breakdown
