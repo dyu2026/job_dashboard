@@ -8,8 +8,9 @@ import os, base64
 import altair as alt
 import uuid
 import re
-import plotly.express as px
-from streamlit_plotly_events import plotly_events
+import numpy as np
+import matplotlib.colors as mcolors
+
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -757,7 +758,6 @@ with tab3:
     # -----------------------------------
     # CASE 1: Single company selected → show ROLE breakdown
     # -----------------------------------
-
     if selected_count == 1:
         selected_company = selected_companies[0]
 
@@ -776,8 +776,8 @@ with tab3:
             role_stats["count"] / role_stats["count"].sum() * 100
         ).round(1)
 
+        # order = 0 is highest volume, order = max is lowest volume
         role_stats["order"] = range(len(role_stats))
-
         role_stats["group"] = selected_company
 
         st.markdown(f"**{selected_company} — Role Breakdown**")
@@ -786,8 +786,6 @@ with tab3:
         # -----------------------------------
         # Red gradient (dark → light)
         # -----------------------------------
-        import numpy as np
-
         base_gradient = [
             "#ff4d6b",  # strongest (largest roles)
             "#ff6b81",
@@ -801,7 +799,6 @@ with tab3:
         n_roles = len(role_stats)
 
         if n_roles > len(base_gradient):
-            import matplotlib.colors as mcolors
 
             cmap = mcolors.LinearSegmentedColormap.from_list(
                 "custom_red",
@@ -812,6 +809,14 @@ with tab3:
                 mcolors.to_hex(cmap(i / max(n_roles - 1, 1)))
                 for i in range(n_roles)
             ]
+
+        # -----------------------------------
+        # FIX: Align Stack, Colors, and Legend
+        # -----------------------------------
+        # Reverse domains so the Legend displays Lowest (top) -> Highest (bottom)
+        # while mapping Lowest -> Light and Highest -> Dark.
+        legend_domain = role_stats["role_short"].tolist()[::-1]
+        legend_range = base_gradient[:n_roles][::-1]
 
         chart = alt.Chart(role_stats).mark_bar().encode(
             x=alt.X(
@@ -825,13 +830,14 @@ with tab3:
                 title="Total Jobs"
             ),
 
-            # stack order controlled explicitly
+            # Stack order: order:0 (highest volume) is drawn first (at the bottom)
             order=alt.Order("order:Q", sort="ascending"),
 
             color=alt.Color(
                 "role_short:N",
                 scale=alt.Scale(
-                    range=base_gradient[:n_roles]
+                    domain=legend_domain,
+                    range=legend_range
                 ),
                 legend=alt.Legend(title="Role")
             ),
