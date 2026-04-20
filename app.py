@@ -8,8 +8,6 @@ import os, base64
 import altair as alt
 import uuid
 import re
-import plotly.express as px
-from streamlit_plotly_events import plotly_events
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -773,51 +771,45 @@ with tab3:
 
         total = role_breakdown["count"].sum()
 
-        # -----------------------------------
-        # assign explicit rank (THIS FIXES EVERYTHING)
-        # -----------------------------------
-        role_breakdown["rank"] = role_breakdown["count"].rank(
-            method="first",
-            ascending=False
-        ).astype(int)
-
         role_breakdown["pct"] = role_breakdown["count"] / total * 100
 
         # -----------------------------------
-        # reverse order for stacking (bottom = biggest)
+        # IMPORTANT: create explicit ordered category
         # -----------------------------------
-        role_breakdown = role_breakdown.sort_values("count", ascending=True)
+        role_order = role_breakdown["role_short"].tolist()
+
+        role_breakdown["role_short"] = pd.Categorical(
+            role_breakdown["role_short"],
+            categories=role_order,
+            ordered=True
+        )
+
+        # reverse for stacking (largest at bottom)
+        role_breakdown_stack = role_breakdown.sort_values("count", ascending=True)
 
         # -----------------------------------
-        # RED GRADIENT (dynamic, no hard mapping needed)
+        # COLOR SCALE (simple + robust)
         # -----------------------------------
-        red_scale = alt.Scale(
-            scheme="reds"
-        )
+        red_scale = alt.Scale(scheme="reds")
 
         # -----------------------------------
         # STACKED BAR (single bar)
         # -----------------------------------
-        chart = alt.Chart(role_breakdown).mark_bar().encode(
-            x=alt.X(
-                "sum(count):Q",
-                axis=None
-            ),
+        chart = alt.Chart(role_breakdown_stack).mark_bar().encode(
+            x=alt.X("sum(count):Q", axis=None),
 
             y=alt.Y(
-                alt.Y("company:N", title=None),
+                alt.value("Company"),  # dummy single-bar category
                 axis=None
             ),
 
-            order=alt.Order("count:Q", sort="descending"),
+            order=alt.Order("count:Q", sort="ascending"),
 
             color=alt.Color(
-                "rank:O",
+                "role_short:N",
                 scale=red_scale,
-                legend=alt.Legend(
-                    title="Role (by volume)",
-                    sort=role_breakdown.sort_values("count", ascending=False)["role_short"].tolist()
-                )
+                sort=role_order,   # THIS FIXES LEGEND ORDER
+                legend=alt.Legend(title="Role (by volume)")
             ),
 
             tooltip=[
@@ -831,8 +823,7 @@ with tab3:
 
         st.altair_chart(chart, use_container_width=True)
 
-        st.caption(
-            f"Role breakdown for {selected_company} (largest segment at bottom)"
+        st.caption(f"Role breakdown for {selected_company}")
 )
 
     # -----------------------------------
