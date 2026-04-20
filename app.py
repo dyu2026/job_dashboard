@@ -602,8 +602,8 @@ df_filtered.loc[df_filtered["is_new_company"], "company_display"] += " 🌟"
 # Tabs Layout
 # -----------------------------------
 
-tab1, tab2, tab3, tab6, tab5, tab4, tabtest = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed", "test"]
+tab1, tab2, tab3, tab6, tab5, tab4 = st.tabs(
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed"]
 )
 
 
@@ -983,106 +983,3 @@ with tab6:
     {html}
     </div>
     """, height=650, scrolling=True)
-    
-# -----------------------------------
-# Test Tab - Plotly Interaction
-# -----------------------------------
-
-with tabtest:
-    
-    st.subheader("🚀 Company Breakdown")
-
-    df_company = df_filtered.copy()
-    df_company["company"] = df_company["company"].str.strip()
-
-    company_stats = (
-        df_company.groupby("company")
-        .agg(
-            total_jobs=("title", "count"),
-            new_24h=("is_new_24h", "sum"),
-        )
-        .reset_index()
-        .sort_values("total_jobs", ascending=False)
-    )
-
-    # -----------------------------------
-    # Plotly Bar Chart (CLICKABLE)
-    # -----------------------------------
-
-    fig = px.bar(
-        company_stats,
-        x="company",
-        y="total_jobs",
-        text="total_jobs"
-    )
-
-    fig.update_traces(
-        marker_color="#ff4d6b",
-        hovertemplate="<b>%{x}</b><br>Total Jobs: %{y}<extra></extra>"
-    )
-
-    fig.update_layout(
-        xaxis_title="Company",
-        yaxis_title="Total Jobs",
-        font=dict(
-            family="Open Sans, verdana, arial, sans-serif",
-            size=12
-        ),
-        xaxis=dict(tickangle=-45),
-        margin=dict(l=20, r=20, t=40, b=120),
-        height=400
-    )
-
-    # IMPORTANT: only use plotly_events (NOT st.plotly_chart)
-    selected_points = plotly_events(fig, click_event=True)
-
-    # -----------------------------------
-    # Determine selected company
-    # -----------------------------------
-
-    if selected_points:
-        selected_company = selected_points[0]["x"]
-    else:
-        selected_company = company_stats.iloc[0]["company"]
-
-    st.caption(f"Selected: {selected_company}")
-
-    # -----------------------------------
-    # Role Breakdown (FIXED)
-    # -----------------------------------
-
-    role_breakdown = (
-        df_company[df_company["company"] == selected_company]
-        .groupby("role_short")
-        .size()
-        .reset_index(name="count")
-        .sort_values("count", ascending=False)
-    )
-
-    # Optional: keep top N for cleaner donut
-    role_breakdown = role_breakdown.head(8)
-
-    # -----------------------------------
-    # Donut Chart
-    # -----------------------------------
-
-    fig_donut = px.pie(
-        role_breakdown,
-        names="role_short",
-        values="count",
-        hole=0.5
-    )
-
-    fig_donut.update_traces(
-        textinfo="percent+label"
-    )
-
-    fig_donut.update_layout(
-        title=f"Role Breakdown — {selected_company}",
-        font=dict(
-            family="Open Sans, verdana, arial, sans-serif",
-            size=12
-        )
-    )
-
-    st.plotly_chart(fig_donut, use_container_width=True)
