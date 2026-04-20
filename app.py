@@ -864,8 +864,8 @@ with tab3:
             background-color:#f5f7fb;
             padding:12px 16px;
             border-radius:8px;
-            border-left:4px solid #a6c8ff;
             font-size:14px;
+            margin-bottom: 40px;
         ">
         <b>Tip:</b> Select a single company in the sidebar filter to view its detailed role breakdown.
         </div>
