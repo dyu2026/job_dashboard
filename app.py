@@ -988,9 +988,11 @@ with tab6:
 # Test Tab - Plotly Interaction
 # -----------------------------------
 
-with st.tabtest("🧪 Test Interaction"):
+with tabtest:
+    
+    st.subheader("🧪 Test Interaction")
 
-    st.subheader("Click a company → See role breakdown")
+    st.caption("Click a company → See role breakdown")
 
     # --- Prepare data ---
     df_company = df_filtered.copy()
