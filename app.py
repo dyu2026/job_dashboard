@@ -8,8 +8,6 @@ import os, base64
 import altair as alt
 import uuid
 import re
-import plotly.express as px
-from streamlit_plotly_events import plotly_events
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -777,7 +775,7 @@ with tab3:
             x=alt.X(
                 "group:N",
                 title="",
-                axis=alt.Axis(labels=False, ticks=False)  # hide axis label
+                axis=alt.Axis(labels=False, ticks=False)
             ),
             y=alt.Y(
                 "count:Q",
@@ -785,6 +783,17 @@ with tab3:
             ),
             color=alt.Color(
                 "role_short:N",
+                scale=alt.Scale(
+                    range=[
+                        "#ff4d6b",  # strong red
+                        "#ff6b81",
+                        "#ff8fa3",
+                        "#ffb3c1",
+                        "#ffd6dd",
+                        "#ffe6ea",
+                        "#fff0f3"
+                    ]
+                ),
                 legend=alt.Legend(title="Role")
             ),
             tooltip=[
