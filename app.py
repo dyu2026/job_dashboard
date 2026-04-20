@@ -920,7 +920,7 @@ with tab5:
 
 with tab6:
     
-    st.subheader("🏆 Role Distribution")
+    st.subheader("❄️ Role Distribution")
 
     st.caption(f"Showing: {selected_recency}")
 
