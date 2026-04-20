@@ -1005,15 +1005,17 @@ with tabtest:
         .sort_values("total_jobs", ascending=False)
     )
 
-    # --- Plotly Bar Chart ---
+    # -----------------------------------
+    # Plotly Bar Chart (CLICKABLE)
+    # -----------------------------------
+
     fig = px.bar(
         company_stats,
         x="company",
         y="total_jobs",
-        text="total_jobs",  # shows values on bars
+        text="total_jobs"
     )
 
-    # --- Styling to match your current look ---
     fig.update_traces(
         marker_color="#ff4d6b",
         hovertemplate="<b>%{x}</b><br>Total Jobs: %{y}<extra></extra>"
@@ -1026,39 +1028,61 @@ with tabtest:
             family="Open Sans, verdana, arial, sans-serif",
             size=12
         ),
-        xaxis=dict(
-            tickangle=-45
-        ),
+        xaxis=dict(tickangle=-45),
         margin=dict(l=20, r=20, t=40, b=120),
         height=400
     )
 
-    # --- Click capture ---
+    # IMPORTANT: only use plotly_events (NOT st.plotly_chart)
     selected_points = plotly_events(fig, click_event=True)
 
-    st.plotly_chart(fig, use_container_width=True)
-
-    # --- Selected company ---
-    selected_company = None
+    # -----------------------------------
+    # Determine selected company
+    # -----------------------------------
 
     if selected_points:
         selected_company = selected_points[0]["x"]
-
-    # fallback
-    if not selected_company:
+    else:
         selected_company = company_stats.iloc[0]["company"]
 
     st.caption(f"Selected: {selected_company}")
 
-    # --- Donut chart ---
-    fig_donut = px.pie(
-        top_roles,
-        names="role",
-        values="count",
-        hole=0.5,
-        title=f"Role Breakdown — {selected_company}"
+    # -----------------------------------
+    # Role Breakdown (FIXED)
+    # -----------------------------------
+
+    role_breakdown = (
+        df_company[df_company["company"] == selected_company]
+        .groupby("role_short")
+        .size()
+        .reset_index(name="count")
+        .sort_values("count", ascending=False)
     )
 
-    fig_donut.update_traces(textinfo="percent+label")
+    # Optional: keep top N for cleaner donut
+    role_breakdown = role_breakdown.head(8)
+
+    # -----------------------------------
+    # Donut Chart
+    # -----------------------------------
+
+    fig_donut = px.pie(
+        role_breakdown,
+        names="role_short",
+        values="count",
+        hole=0.5
+    )
+
+    fig_donut.update_traces(
+        textinfo="percent+label"
+    )
+
+    fig_donut.update_layout(
+        title=f"Role Breakdown — {selected_company}",
+        font=dict(
+            family="Open Sans, verdana, arial, sans-serif",
+            size=12
+        )
+    )
 
     st.plotly_chart(fig_donut, use_container_width=True)
