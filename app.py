@@ -712,7 +712,7 @@ with tab2:
     st.subheader("📋 All Active Jobs")
     
     st.markdown("""
-    <p style="color: gray; margin-top: -5px; margin-bottom: 30px; font-size: 0.875rem;">
+    <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
     All roles currently tracked across companies and regions<br>
     🌟 New company added to tracking
     </p>
