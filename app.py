@@ -25,6 +25,17 @@ st.markdown("""
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+    st.markdown("""
+    <style>
+    /* Target st.info box */
+    div[data-testid="stAlert"] {
+        background-color: #f5f7fb;  /* lighter background */
+        color: #333333;             /* darker text */
+        border-left: 4px solid #a6c8ff; /* softer blue accent */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # -----------------------------------
 # cookie to exclude my traffic
 # -----------------------------------
@@ -811,7 +822,7 @@ with tab3:
             ]
 
         # -----------------------------------
-        # FIX: Align Stack, Colors, and Legend
+        # Align Stack, Colors, and Legend
         # -----------------------------------
         # Reverse domains so the Legend displays Lowest (top) -> Highest (bottom)
         # while mapping Lowest -> Light and Highest -> Dark.
