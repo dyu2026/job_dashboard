@@ -8,6 +8,8 @@ import os, base64
 import altair as alt
 import uuid
 import re
+import plotly.express as px
+from streamlit_plotly_events import plotly_events
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -766,10 +768,31 @@ with tab3:
             .sort_values("count", ascending=False)
         )
 
-        # Add a constant column for single stacked bar
+        # Add grouping column for single stacked bar
         role_stats["group"] = selected_company
+        role_stats["pct"] = (
+            role_stats["count"] / role_stats["count"].sum() * 100
+        ).round(1)
+
+        # -----------------------------------
+        # Stable red palette (consistent across app)
+        # -----------------------------------
+        ROLE_COLOR_MAP = {
+            "Engineering": "#ff4d6b",
+            "Product": "#ff6b81",
+            "Data": "#ff8fa3",
+            "Design": "#ffb3c1",
+            "Marketing": "#ffd6dd",
+            "Sales": "#ffe6ea",
+            "Customer Success": "#fff0f3",
+            "HR": "#ffd1d9",
+            "Finance": "#ff99aa",
+            "Operations": "#ffccd5",
+            "Other": "#f8d7da"
+        }
 
         st.markdown(f"**{selected_company} — Role Breakdown**")
+        st.caption("Role distribution (stacked by function)")
 
         chart = alt.Chart(role_stats).mark_bar().encode(
             x=alt.X(
@@ -784,21 +807,15 @@ with tab3:
             color=alt.Color(
                 "role_short:N",
                 scale=alt.Scale(
-                    range=[
-                        "#ff4d6b",  # strong red
-                        "#ff6b81",
-                        "#ff8fa3",
-                        "#ffb3c1",
-                        "#ffd6dd",
-                        "#ffe6ea",
-                        "#fff0f3"
-                    ]
+                    domain=list(ROLE_COLOR_MAP.keys()),
+                    range=list(ROLE_COLOR_MAP.values())
                 ),
                 legend=alt.Legend(title="Role")
             ),
             tooltip=[
                 alt.Tooltip("role_short:N", title="Role"),
-                alt.Tooltip("count:Q", title="Jobs")
+                alt.Tooltip("count:Q", title="Jobs"),
+                alt.Tooltip("pct:Q", title="% Share", format=".1f")
             ]
         ).properties(
             height=400
