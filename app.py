@@ -8,6 +8,8 @@ import os, base64
 import altair as alt
 import uuid
 import re
+import plotly.express as px
+from streamlit_plotly_events import plotly_events
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -600,9 +602,10 @@ df_filtered.loc[df_filtered["is_new_company"], "company_display"] += " 🌟"
 # Tabs Layout
 # -----------------------------------
 
-tab1, tab2, tab3, tab6, tab5, tab4 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed"]
+tab1, tab2, tab3, tab6, tab5, tab4 tabtest = st.tabs(
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed", "test"]
 )
+
 
 display_cols = [
     "logo",
@@ -980,3 +983,81 @@ with tab6:
     {html}
     </div>
     """, height=650, scrolling=True)
+    
+# -----------------------------------
+# Test Tab - Plotly Interaction
+# -----------------------------------
+
+with st.tabtest("🧪 Test Interaction"):
+
+    st.subheader("Click a company → See role breakdown")
+
+    # --- Prepare data ---
+    df_company = df_filtered.copy()
+    df_company["company"] = df_company["company"].str.strip()
+
+    company_stats = (
+        df_company.groupby("company")
+        .agg(total_jobs=("title", "count"))
+        .reset_index()
+        .sort_values("total_jobs", ascending=False)
+    )
+
+    # --- Bar chart ---
+    fig_bar = px.bar(
+        company_stats,
+        x="company",
+        y="total_jobs",
+        title="Company Breakdown"
+    )
+
+    # --- Capture click ---
+    selected_points = plotly_events(fig_bar, click_event=True)
+
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+    # --- Get selected company ---
+    selected_company = None
+
+    if selected_points:
+        selected_company = selected_points[0]["x"]
+
+    # --- Default fallback ---
+    if not selected_company:
+        selected_company = company_stats.iloc[0]["company"]
+
+    st.markdown(f"### Selected: {selected_company}")
+
+    # --- Role breakdown ---
+    df_selected = df_company[df_company["company"] == selected_company]
+
+    role_breakdown = (
+        df_selected.groupby("role")
+        .size()
+        .reset_index(name="count")
+        .sort_values("count", ascending=False)
+    )
+
+    # --- Optional: group small roles ---
+    top_n = 5
+    top_roles = role_breakdown.head(top_n)
+    other_count = role_breakdown.iloc[top_n:]["count"].sum()
+
+    if other_count > 0:
+        top_roles = pd.concat([
+            top_roles,
+            pd.DataFrame([{"role": "Other", "count": other_count}])
+        ])
+
+    # --- Donut chart ---
+    fig_donut = px.pie(
+        top_roles,
+        names="role",
+        values="count",
+        hole=0.5,
+        title=f"Role Breakdown — {selected_company}"
+    )
+
+    fig_donut.update_traces(textinfo="percent+label")
+
+    st.plotly_chart(fig_donut, use_container_width=True)
