@@ -600,8 +600,8 @@ df_filtered.loc[df_filtered["is_new_company"], "company_display"] += " 🌟"
 # Tabs Layout
 # -----------------------------------
 
-tab1, tab2, tab3, tab5, tab6, tab4 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "📮 Posting Trends", "❄️ Roles", "🚫 Removed"]
+tab1, tab2, tab3, tab6, tab5, tab4 = st.tabs(
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed"]
 )
 
 display_cols = [
