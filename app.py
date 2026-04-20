@@ -990,66 +990,65 @@ with tab6:
 
 with tabtest:
     
-    st.subheader("🧪 Test Interaction")
+     st.subheader("🚀 Company Breakdown")
 
-    st.caption("Click a company → See role breakdown")
-
-    # --- Prepare data ---
     df_company = df_filtered.copy()
     df_company["company"] = df_company["company"].str.strip()
 
     company_stats = (
         df_company.groupby("company")
-        .agg(total_jobs=("title", "count"))
+        .agg(
+            total_jobs=("title", "count"),
+            new_24h=("is_new_24h", "sum"),
+        )
         .reset_index()
         .sort_values("total_jobs", ascending=False)
     )
 
-    # --- Bar chart ---
-    fig_bar = px.bar(
+    # --- Plotly Bar Chart ---
+    fig = px.bar(
         company_stats,
         x="company",
         y="total_jobs",
-        title="Company Breakdown"
+        text="total_jobs",  # shows values on bars
     )
 
-    # --- Capture click ---
-    selected_points = plotly_events(fig_bar, click_event=True)
+    # --- Styling to match your current look ---
+    fig.update_traces(
+        marker_color="#ff4d6b",
+        hovertemplate="<b>%{x}</b><br>Total Jobs: %{y}<extra></extra>"
+    )
 
-    st.plotly_chart(fig_bar, use_container_width=True)
+    fig.update_layout(
+        xaxis_title="Company",
+        yaxis_title="Total Jobs",
+        font=dict(
+            family="Open Sans, verdana, arial, sans-serif",
+            size=12
+        ),
+        xaxis=dict(
+            tickangle=-45
+        ),
+        margin=dict(l=20, r=20, t=40, b=120),
+        height=400
+    )
 
-    # --- Get selected company ---
+    # --- Click capture ---
+    selected_points = plotly_events(fig, click_event=True)
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # --- Selected company ---
     selected_company = None
 
     if selected_points:
         selected_company = selected_points[0]["x"]
 
-    # --- Default fallback ---
+    # fallback
     if not selected_company:
         selected_company = company_stats.iloc[0]["company"]
 
-    st.markdown(f"### Selected: {selected_company}")
-
-    # --- Role breakdown ---
-    df_selected = df_company[df_company["company"] == selected_company]
-
-    role_breakdown = (
-        df_selected.groupby("role")
-        .size()
-        .reset_index(name="count")
-        .sort_values("count", ascending=False)
-    )
-
-    # --- Optional: group small roles ---
-    top_n = 5
-    top_roles = role_breakdown.head(top_n)
-    other_count = role_breakdown.iloc[top_n:]["count"].sum()
-
-    if other_count > 0:
-        top_roles = pd.concat([
-            top_roles,
-            pd.DataFrame([{"role": "Other", "count": other_count}])
-        ])
+    st.caption(f"Selected: {selected_company}")
 
     # --- Donut chart ---
     fig_donut = px.pie(
