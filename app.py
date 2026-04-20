@@ -752,29 +752,80 @@ with tab3:
     df_company = df_filtered.copy()
     df_company["company"] = df_company["company"].str.strip()
 
-    company_stats = (
-        df_filtered.groupby("company")
-        .agg(
-            total_jobs=("title", "count"),
-            new_24h=("is_new_24h", "sum"),
+    selected_count = len(selected_companies)
+
+    # -----------------------------------
+    # CASE 1: Single company selected → show ROLE breakdown
+    # -----------------------------------
+    if selected_count == 1:
+        selected_company = selected_companies[0]
+
+        role_stats = (
+            df_company[df_company["company"] == selected_company]
+            .groupby("role_short")
+            .size()
+            .reset_index(name="count")
+            .sort_values("count", ascending=False)
         )
-        .reset_index()
-    )
 
-    sorted_companies = sorted(company_stats["company"], key=lambda x: x.lower())
+        # Add a constant column for single stacked bar
+        role_stats["group"] = selected_company
 
-    chart = alt.Chart(company_stats).mark_bar().encode(
-        x=alt.X(
-            "company:N",
-            sort=sorted_companies,
-            title="Company"
-        ),
-        y=alt.Y("total_jobs:Q", title="Total Jobs"),
-        color=alt.value("#ff4d6b"),
-        tooltip=["company", "total_jobs"]
-    )
+        st.markdown(f"**{selected_company} — Role Breakdown**")
 
-    st.altair_chart(chart, use_container_width=True)
+        chart = alt.Chart(role_stats).mark_bar().encode(
+            x=alt.X(
+                "group:N",
+                title="",
+                axis=alt.Axis(labels=False, ticks=False)  # hide axis label
+            ),
+            y=alt.Y(
+                "count:Q",
+                title="Total Jobs"
+            ),
+            color=alt.Color(
+                "role_short:N",
+                legend=alt.Legend(title="Role")
+            ),
+            tooltip=[
+                alt.Tooltip("role_short:N", title="Role"),
+                alt.Tooltip("count:Q", title="Jobs")
+            ]
+        ).properties(
+            height=400
+        )
+
+        st.altair_chart(chart, use_container_width=True)
+
+    # -----------------------------------
+    # CASE 2: Default → Company breakdown
+    # -----------------------------------
+    else:
+        company_stats = (
+            df_company.groupby("company")
+            .agg(
+                total_jobs=("title", "count"),
+                new_24h=("is_new_24h", "sum"),
+            )
+            .reset_index()
+        )
+
+        sorted_companies = sorted(company_stats["company"], key=lambda x: x.lower())
+
+        chart = alt.Chart(company_stats).mark_bar().encode(
+            x=alt.X(
+                "company:N",
+                sort=sorted_companies,
+                title="Company"
+            ),
+            y=alt.Y("total_jobs:Q", title="Total Jobs"),
+            color=alt.value("#ff4d6b"),
+            tooltip=["company", "total_jobs"]
+        ).properties(
+            height=400
+        )
+
+        st.altair_chart(chart, use_container_width=True)
 
 # -----------------------------------
 # 🗑 Removed Jobs Tab
