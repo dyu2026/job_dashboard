@@ -766,13 +766,17 @@ with tab3:
             .groupby("role_short")
             .size()
             .reset_index(name="count")
-            .sort_values("count", ascending=False)
         )
 
-        # % calculation
+        # sort by volume (most → least)
+        role_stats = role_stats.sort_values("count", ascending=False).reset_index(drop=True)
+
+        # % share
         role_stats["pct"] = (
             role_stats["count"] / role_stats["count"].sum() * 100
         ).round(1)
+
+        role_stats["order"] = range(len(role_stats))
 
         role_stats["group"] = selected_company
 
@@ -784,29 +788,29 @@ with tab3:
         # -----------------------------------
         import numpy as np
 
-        n_roles = len(role_stats)
-
-        RED_GRADIENT = [
-            "#ff4d6b",  # darkest (top roles / highest count)
+        base_gradient = [
+            "#ff4d6b",  # strongest (largest roles)
             "#ff6b81",
             "#ff8fa3",
             "#ffb3c1",
             "#ffd6dd",
             "#ffe6ea",
-            "#fff0f3"   # lightest (small roles)
+            "#fff0f3"
         ]
 
-        # expand gradient if more roles than colors
-        if n_roles > len(RED_GRADIENT):
-            extended = np.linspace(0, 1, n_roles)
+        n_roles = len(role_stats)
+
+        if n_roles > len(base_gradient):
             import matplotlib.colors as mcolors
 
             cmap = mcolors.LinearSegmentedColormap.from_list(
                 "custom_red",
                 ["#ff4d6b", "#fff0f3"]
             )
-            RED_GRADIENT = [
-                mcolors.to_hex(cmap(i)) for i in extended
+
+            base_gradient = [
+                mcolors.to_hex(cmap(i / max(n_roles - 1, 1)))
+                for i in range(n_roles)
             ]
 
         chart = alt.Chart(role_stats).mark_bar().encode(
@@ -821,11 +825,13 @@ with tab3:
                 title="Total Jobs"
             ),
 
-            # stack order follows dataframe order (important)
+            # stack order controlled explicitly
+            order=alt.Order("order:Q", sort="ascending"),
+
             color=alt.Color(
                 "role_short:N",
                 scale=alt.Scale(
-                    range=RED_GRADIENT[:n_roles]
+                    range=base_gradient[:n_roles]
                 ),
                 legend=alt.Legend(title="Role")
             ),
