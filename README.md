@@ -6,6 +6,10 @@ Designed for product-focused professionals in Japan/APAC, this tool aggregates j
 It is not affiliated with any companies or job platforms.
 The project only accesses publicly available endpoints and does not bypass authentication or paywalls.
 
+## Live Demo
+Streamlit dashboard:
+https://tokyojobs.streamlit.app/
+
 ---
 
 ## Smart Job Filtering
@@ -13,9 +17,7 @@ The project only accesses publicly available endpoints and does not bypass authe
 Search across title, company, and location
 
 Filter by:
-* Remote roles
 * Japan-based roles
-* Product / Web / Ecommerce functions
 * Seniority levels (Manager → VP)
 * Specific companies
 
