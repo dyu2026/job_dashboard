@@ -461,7 +461,7 @@ if not df.empty and "last_seen_at" in df.columns:
     
     # 3. Convert to python datetime and then to JST
     # We use .to_pydatetime() to avoid the pandas astimezone error
-    last_updated_jst = latest_utc.to_pydatetime().astimezone(jst_timezone).strftime("%Y-%m-%d %H:%M:%S")
+    last_updated_jst = latest_utc.to_pydatetime().astimezone(jst_timezone).strftime("%Y-%m-%d %H:%M")
 
     st.sidebar.markdown("---")
     st.sidebar.caption(f"Last scraper run: {last_updated_jst} JST")
