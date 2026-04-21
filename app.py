@@ -669,12 +669,12 @@ with tab1:
                 
                 # --- THE SORTING FIX ---
                 "hours_since_posted": st.column_config.NumberColumn(
-                    "Hrs Ago", 
+                    "Hrs", 
                     format="%d h", 
                     width="small"
                 ),
                 
-                "days_since_posted": "Days Ago", # Kept as standard text per your request
+                "days_since_posted": st.column_config.TextColumn("Days", width="small"),
                 "company_display": st.column_config.TextColumn("Company", width="small"),
                 "title": "Title",
                 "location": "Location",
@@ -773,15 +773,16 @@ with tab2:
             
             # --- THE SORTING FIXES ---
             "hours_since_posted": st.column_config.NumberColumn(
-                "Hrs Ago", 
+                "Hrs", 
                 help="Hours since the job was posted",
                 format="%d h", # Adds 'h' suffix visually
                 width="small"
             ),
             "days_since_posted": st.column_config.NumberColumn(
-                "Days Ago", 
+                "Days", 
                 help="Days since the job was posted",
-                format="%d d" # Adds 'd' suffix visually
+                format="%d d", # Adds 'd' suffix visually
+                width="small"
             ),
             # -------------------------
             
