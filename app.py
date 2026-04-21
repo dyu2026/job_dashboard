@@ -708,6 +708,10 @@ with tab1:
 # All Jobs Tab
 # -----------------------------------
 
+# -----------------------------------
+# All Jobs Tab
+# -----------------------------------
+
 with tab2:
     st.subheader("📋 All Active Jobs")
     
@@ -719,8 +723,26 @@ with tab2:
     """, unsafe_allow_html=True)
 
     df_display = df_filtered.copy()
-    df_display["first_seen_at_jst"] = df_display["first_seen_at_jst"].dt.strftime("%Y-%m-%d %H:%M")
 
+    # --- DATA CLEANUP FOR SORTING ---
+    # Ensure these are numeric. If they contain "today" or strings, 
+    # we convert them to 0 or extract the digits so sorting works.
+    for col in ["hours_since_posted", "days_since_posted"]:
+        if col in df_display.columns:
+            # Convert to string first to handle mixed types, then extract digits
+            df_display[col] = (
+                df_display[col]
+                .astype(str)
+                .str.extract(r'(\d+)') # Extract only the numbers
+                .fillna(0)             # Treat "today" or NaNs as 0
+                .astype(int)           # Convert to actual integers
+            )
+
+    # Format the timestamp for display
+    if "first_seen_at_jst" in df_display.columns:
+        df_display["first_seen_at_jst"] = df_display["first_seen_at_jst"].dt.strftime("%Y-%m-%d %H:%M")
+
+    # Column selection logic
     safe_cols = [c for c in display_cols if c in df_display.columns]
     safe_cols = ["company_display" if c == "company" else c for c in safe_cols]
     safe_cols = ["first_seen_at_jst" if c == "first_seen_at" else c for c in safe_cols]
@@ -730,10 +752,23 @@ with tab2:
         column_config={
             "logo": st.column_config.ImageColumn("Logo", width="small"),
             "Priority": st.column_config.TextColumn("Priority", width="small"),
-            "url": st.column_config.LinkColumn("Apply", display_text="Open"),
+            "url": st.column_config.LinkColumn("Apply", display_text="🔗 Open"),
             "first_seen_at_jst": "First Seen (JST)",
-            "hours_since_posted": st.column_config.TextColumn("Hrs Ago", width="small"),
-            "days_since_posted": "Days Ago",
+            
+            # --- THE SORTING FIXES ---
+            "hours_since_posted": st.column_config.NumberColumn(
+                "Hrs Ago", 
+                help="Hours since the job was posted",
+                format="%d h", # Adds 'h' suffix visually
+                width="small"
+            ),
+            "days_since_posted": st.column_config.NumberColumn(
+                "Days Ago", 
+                help="Days since the job was posted",
+                format="%d d" # Adds 'd' suffix visually
+            ),
+            # -------------------------
+            
             "company_display": st.column_config.TextColumn("Company", width="small"),
             "title": "Title",
             "location": "Location",
