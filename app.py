@@ -61,7 +61,6 @@ JST = timezone(timedelta(hours=9))
 # -----------------------------------
 
 with st.sidebar:
-    st.image("logos/RainbowDino_200x173.png", width=140)
     st.markdown("""
     <style>
     .sidebar-title {
