@@ -636,12 +636,25 @@ with tab1:
     """, unsafe_allow_html=True)
 
     new_jobs = df_filtered[df_filtered["is_new_24h"]].copy()
-    new_jobs["first_seen_at_jst"] = new_jobs["first_seen_at_jst"].dt.strftime("%Y-%m-%d %H:%M")
 
     if new_jobs.empty:
         st.info("No new jobs in last 24 hours.")
     else:
-        
+        # --- DATA CLEANUP FOR SORTING ---
+        # Extract digits from "Hrs Ago" to allow numeric sorting
+        if "hours_since_posted" in new_jobs.columns:
+            new_jobs["hours_since_posted"] = (
+                new_jobs["hours_since_posted"]
+                .astype(str)
+                .str.extract(r'(\d+)')
+                .fillna(0)
+                .astype(int)
+            )
+
+        # Format timestamp for display
+        new_jobs["first_seen_at_jst"] = new_jobs["first_seen_at_jst"].dt.strftime("%Y-%m-%d %H:%M")
+
+        # Column mapping
         safe_cols = [c for c in display_cols if c in new_jobs.columns]
         safe_cols = ["company_display" if c == "company" else c for c in safe_cols]
         safe_cols = ["first_seen_at_jst" if c == "first_seen_at" else c for c in safe_cols]
@@ -653,8 +666,15 @@ with tab1:
                 "Priority": st.column_config.TextColumn("Priority", width="small"),
                 "url": st.column_config.LinkColumn("Apply", display_text="Open"),
                 "first_seen_at_jst": "First Seen (JST)",
-                "hours_since_posted": st.column_config.TextColumn("Hrs Ago", width="small"),
-                "days_since_posted": "Days Ago",
+                
+                # --- THE SORTING FIX ---
+                "hours_since_posted": st.column_config.NumberColumn(
+                    "Hrs Ago", 
+                    format="%d h", 
+                    width="small"
+                ),
+                
+                "days_since_posted": "Days Ago", # Kept as standard text per your request
                 "company_display": st.column_config.TextColumn("Company", width="small"),
                 "title": "Title",
                 "location": "Location",
