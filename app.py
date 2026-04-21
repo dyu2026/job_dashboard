@@ -61,25 +61,42 @@ JST = timezone(timedelta(hours=9))
 # -----------------------------------
 
 with st.sidebar:
-    st.markdown("""
+    import base64
+
+    def get_base64_image(path):
+        with open(path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+
+    img_base64 = get_base64_image("logos/RainbowDino_200x173.png")
+
+    st.markdown(f"""
     <style>
-    .sidebar-title {
+    .sidebar-header {{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }}
+    .sidebar-header .left {{
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 24px;
         font-weight: 700;
-        margin-bottom: 10px;
-    }
+    }}
     </style>
 
-    <div class="sidebar-title">
-        <span class="material-symbols-rounded">filter_alt</span>
-        <span>Filters</span>
+    <div class="sidebar-header">
+        <div class="left">
+            <span class="material-symbols-rounded">filter_alt</span>
+            <span>Filters</span>
+        </div>
+        <img src="data:image/png;base64,{img_base64}" 
+             style="width:40px; height:auto;" />
     </div>
     """, unsafe_allow_html=True)
-   
-    st.markdown("---") # Visual separator
+
+    st.markdown("---")
 
 # -----------------------------------
 # Page Config
