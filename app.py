@@ -92,7 +92,7 @@ with st.sidebar:
             <span>Filters</span>
         </div>
         <img src="data:image/png;base64,{img_base64}" 
-             style="width:40px; height:auto;" />
+             style="width:70px; height:auto;" />
     </div>
     """, unsafe_allow_html=True)
 
