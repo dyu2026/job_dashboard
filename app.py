@@ -482,7 +482,7 @@ if not df.empty and "last_seen_at" in df.columns:
 
     # 7. Display
     st.sidebar.markdown("---")
-    st.sidebar.caption(f"🟢 Last updated: {rel} ({absolute})")
+    st.sidebar.caption(f"Last updated: {rel} ({absolute})")
     st.sidebar.caption("Made in :streamlit: by [Derek Yu](https://www.linkedin.com/in/derekhyyu/)")
 
 # -----------------------------------
