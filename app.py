@@ -453,18 +453,36 @@ st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # Get the most recent timestamp from the records
 if not df.empty and "last_seen_at" in df.columns:
-    # 1. Get the max timestamp
-    latest_utc = df["last_seen_at"].max()
-    
-    # 2. Define JST
-    jst_timezone = timezone(timedelta(hours=9))
-    
-    # 3. Convert to python datetime and then to JST
-    # We use .to_pydatetime() to avoid the pandas astimezone error
-    last_updated_jst = latest_utc.to_pydatetime().astimezone(jst_timezone).strftime("%Y-%m-%d %H:%M")
+    # 1. Get latest timestamp (UTC)
+    latest_utc = df["last_seen_at"].max().to_pydatetime()
 
+    # 2. Current time (UTC)
+    now_utc = datetime.now(timezone.utc)
+
+    # 3. Time difference
+    diff = now_utc - latest_utc
+    seconds = int(diff.total_seconds())
+
+    # 4. Format relative time
+    if seconds < 60:
+        rel = f"{seconds}s ago"
+    elif seconds < 3600:
+        rel = f"{seconds // 60} min ago"
+    elif seconds < 86400:
+        rel = f"{seconds // 3600} hr ago"
+    else:
+        rel = f"{seconds // 86400} day ago"
+
+    # 5. Convert to JST
+    jst_timezone = timezone(timedelta(hours=9))
+    last_updated_jst = latest_utc.astimezone(jst_timezone)
+
+    # 6. Format absolute time
+    absolute = last_updated_jst.strftime("%b %d, %H:%M JST")
+
+    # 7. Display
     st.sidebar.markdown("---")
-    st.sidebar.caption(f"Last scraper run: {last_updated_jst} JST")
+    st.sidebar.caption(f"🟢 Last updated: {rel} ({absolute})")
     st.sidebar.caption("Made in :streamlit: by [Derek Yu](https://www.linkedin.com/in/derekhyyu/)")
 
 # -----------------------------------
