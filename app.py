@@ -465,13 +465,19 @@ if not df.empty and "last_seen_at" in df.columns:
 
     # 4. Format relative time
     if seconds < 60:
-        rel = f"{seconds}s ago"
+        val = seconds
+        unit = "sec" if val == 1 else "secs"
     elif seconds < 3600:
-        rel = f"{seconds // 60} min ago"
+        val = seconds // 60
+        unit = "min" if val == 1 else "mins"
     elif seconds < 86400:
-        rel = f"{seconds // 3600} hr ago"
+        val = seconds // 3600
+        unit = "hr" if val == 1 else "hrs"
     else:
-        rel = f"{seconds // 86400} day ago"
+        val = seconds // 86400
+        unit = "day" if val == 1 else "days"
+
+    rel = f"{val} {unit} ago"
 
     # 5. Convert to JST
     jst_timezone = timezone(timedelta(hours=9))
