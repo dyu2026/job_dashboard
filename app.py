@@ -286,7 +286,7 @@ df["logo"] = df["company"].apply(get_base64_logo)
 
 def tag_priority(title):
     title = str(title).lower()
-    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president"]):
+    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president", "general manager"]):
         return "👑 Exec"
     elif "senior" in title:
         return "😎 Senior"
