@@ -1095,8 +1095,7 @@ with tab5:
         
         st.markdown("""
         <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
-        Shows when new jobs are first detected by the scraper (JST).<br>
-        Excludes the first day for each company to remove initial data spikes.
+        When new jobs are first detected (JST), excluding initial bulk import when company is first tracked.
         </p>
         """, unsafe_allow_html=True)
 
