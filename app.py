@@ -1092,6 +1092,13 @@ with tab5:
 
         # Ensure correct hour order
         hour_order = [f"{i}:00" for i in range(24)]
+        
+        st.markdown("""
+        <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
+        Shows when new jobs are first detected by the scraper (JST).<br>
+        Excludes the first day for each company to remove initial data spikes.
+        </p>
+        """, unsafe_allow_html=True)
 
         heatmap = alt.Chart(heatmap_data).mark_rect().encode(
             x=alt.X(
@@ -1125,7 +1132,7 @@ with tab5:
         if not heatmap_data.empty:
             top_slots = heatmap_data.sort_values("count", ascending=False).head(3)
 
-            st.markdown("### 🔥 Peak Posting Times")
+            st.markdown("### 🔥 Peak Posting Activity (Observed)")
 
             medals = ["🥇", "🥈", "🥉"]
 
