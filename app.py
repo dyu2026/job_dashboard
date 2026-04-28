@@ -14,13 +14,6 @@ import matplotlib.colors as mcolors
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
 
-st.markdown(
-    """
-    <meta name="google-site-verification" content="0ZQmae-vCPEMNbfbukXZULJGjzFelyp6hXXMEFl7nE0" />
-    """,
-    unsafe_allow_html=True
-)
-
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 """, unsafe_allow_html=True)
