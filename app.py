@@ -11,6 +11,12 @@ import re
 import numpy as np
 import matplotlib.colors as mcolors
 
+st.markdown(
+    """
+    <meta name="google-site-verification" content="0ZQmae-vCPEMNbfbukXZULJGjzFelyp6hXXMEFl7nE0" />
+    """,
+    unsafe_allow_html=True
+)
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
