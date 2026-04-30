@@ -121,3 +121,15 @@ section[data-testid="stSidebar"] div[data-testid="stTextInput"] label {
 section[data-testid="stSidebar"] div[data-testid="stTextInput"] > div {
     margin-top: 0 !important;
 }
+
+/* Company tab */
+
+.ag-theme-streamlit .ag-header-cell-text {
+    font-size: 15px;
+}
+
+.ag-theme-streamlit .ag-cell {
+    font-size: 15px;
+}
+
+gb.configure_grid_options(rowHeight=40)
