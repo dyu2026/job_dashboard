@@ -1341,7 +1341,7 @@ with tab7:
     # --- Company summary ---
     company_stats = (
         df_company.groupby("company")
-        .agg(active_roles=("title", "count"), last_updated=("first_seen_at", "max")
+        .agg(active_roles=("title", "count"), last_updated=("first_seen_at", "max"),)
         .reset_index()
     )
 
