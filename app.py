@@ -1074,7 +1074,8 @@ with tab5:
     st.subheader("📮 Weekly Posting Trends")
     st.markdown("""
     <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
-    New roles detected per week, grouped by calendar week start (JST)
+    New roles detected per week, grouped by calendar week start (JST).<br>
+    Excludes first day of each company to remove initial data spikes.
     </p>
     """, unsafe_allow_html=True)
 
