@@ -1072,7 +1072,7 @@ with tab5:
     # 📅 Weekly Posting Trends
     # -----------------------------------
 
-    st.markdown("### 📅 Weekly Posting Trends")
+    st.markdown("### Weekly Posting Trends")
 
     time_window = st.selectbox(
         "Time Range",
@@ -1137,21 +1137,15 @@ with tab5:
             )
 
             # --- 📊 Chart ---
-            weekly_chart = alt.Chart(weekly_counts).mark_bar().encode(
-                x=alt.X(
-                    "week_start:T",
-                    title="Week (Start Date)",
-                    axis=alt.Axis(format="%b %d"),
-                ),
-                y=alt.Y("count:Q", title="New Jobs"),
-                tooltip=[
-                    alt.Tooltip("week_start:T", title="Week"),
-                    alt.Tooltip("count:Q", title="Jobs"),
-                ],
+            weekly_counts["label"] = weekly_counts["week_start"].dt.strftime("%b %d")
+
+            chart_data = (
+                weekly_counts
+                .set_index("label")["count"]
             )
 
-            st.altair_chart(weekly_chart, use_container_width=True)
-    
+            st.bar_chart(chart_data, color="#ff4d6b")
+                
     
     st.markdown("""
     <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
