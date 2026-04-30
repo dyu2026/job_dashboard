@@ -209,6 +209,8 @@ def classify_location(row):
     
 df["location_class"] = df.apply(classify_location, axis=1)
 
+df_full = df.copy()
+
 df = df[
     df["location_class"].isin(["japan", "remote_allowed"])
 ]
@@ -1318,108 +1320,35 @@ with tab6:
 # Test Tab
 # -----------------------------------
 
-with tab7:
-    
-    # -----------------------------------
-    # Data prep
-    # -----------------------------------
-    df_company = df.copy()  # ✅ FIX: use full dataset
+# --- Data prep ---
+    df_company = df_full.copy()   # ← full dataset
     df_company["company"] = df_company["company"].str.strip()
+    df_company["first_seen_at"] = pd.to_datetime(df_company["first_seen_at"], errors="coerce", utc=True)
+    df_company["last_seen_at"]  = pd.to_datetime(df_company["last_seen_at"],  errors="coerce", utc=True)
 
-    df_company["first_seen_at"] = pd.to_datetime(
-        df_company["first_seen_at"], errors="coerce", utc=True
-    )
-    df_company["last_seen_at"] = pd.to_datetime(
-        df_company["last_seen_at"], errors="coerce", utc=True
-    )
-
-    # -----------------------------------
-    # Company summary (table)
-    # -----------------------------------
+    # --- Company summary ---
     company_stats = (
         df_company.groupby("company")
-        .agg(
-            active_roles=("title", "count"),
-            last_updated=("last_seen_at", "max"),
-        )
+        .agg(active_roles=("title", "count"), last_updated=("last_seen_at", "max"))
         .reset_index()
     )
 
-    # --- Growth (correct logic) ---
     recent_new = df_company[
-        df_company["first_seen_at"] >= (
-            pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7)
-        )
+        df_company["first_seen_at"] >= (pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7))
     ]
+    recent_counts = recent_new.groupby("company")["title"].count().reset_index(name="new_roles_7d")
 
-    recent_counts = (
-        recent_new.groupby("company")["title"]
-        .count()
-        .reset_index(name="new_roles_7d")
-    )
-
-    company_stats = company_stats.merge(
-        recent_counts, on="company", how="left"
-    ).fillna(0)
-
-    company_stats["growth_rate"] = (
-        company_stats["new_roles_7d"] / company_stats["active_roles"]
-    ) * 100
-
+    company_stats = company_stats.merge(recent_counts, on="company", how="left").fillna(0)
+    company_stats["growth_rate"] = (company_stats["new_roles_7d"] / company_stats["active_roles"]) * 100
     company_stats["last_updated"] = company_stats["last_updated"].dt.strftime("%b %d")
+    company_stats = company_stats.sort_values("active_roles", ascending=False)
 
-    company_stats = company_stats.sort_values(
-        "active_roles", ascending=False
-    )
-
-    # -----------------------------------
-    # Session state
-    # -----------------------------------
     if "selected_company_table" not in st.session_state:
-        st.session_state.selected_company_table = None
+        st.session_state.selected_company_table = company_stats.iloc[0]["company"]
 
     # -----------------------------------
-    # 🔥 Top: Workforce Composition
-    # -----------------------------------
-    selected_company = (
-        st.session_state.selected_company_table
-        or (selected_companies[0] if len(selected_companies) == 1 else None)
-    )
-
-    if selected_company:
-        role_stats = (
-            df_company[df_company["company"] == selected_company]
-            .groupby("role_short")
-            .size()
-            .reset_index(name="count")
-            .sort_values("count", ascending=False)
-        )
-
-        role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
-
-        chart = alt.Chart(role_stats).mark_bar().encode(
-            x=alt.X("pct:Q", stack="normalize", axis=None),
-            y=alt.value(30),
-            color=alt.Color(
-                "role_short:N",
-                legend=alt.Legend(
-                    orient="bottom",   # ✅ FIX
-                    direction="horizontal",
-                    title="Role"
-                )
-            ),
-            tooltip=["role_short", "count"]
-        ).properties(height=80)
-
-        st.altair_chart(chart, use_container_width=True)
-
-        st.caption(f"{selected_company} — Workforce Composition")
-
-    else:
-        st.info("Select a company below")
-
-    # -----------------------------------
-    # 🏢 Company Table (AgGrid)
+    # 🏢 Company Table — RENDER FIRST
+    # so selection is captured before chart draws
     # -----------------------------------
     st.markdown("### 🏢 Companies")
 
@@ -1431,15 +1360,10 @@ with tab7:
     })
 
     gb = GridOptionsBuilder.from_dataframe(display_df)
-
     gb.configure_selection("single", use_checkbox=False)
     gb.configure_pagination(paginationPageSize=10)
     gb.configure_column("Company", pinned="left")
-
-    gb.configure_column(
-        "Growth %",
-        valueFormatter="x.toFixed(1) + '%'"
-    )
+    gb.configure_column("Growth %", valueFormatter="x.toFixed(1) + '%'")
 
     grid = AgGrid(
         display_df,
@@ -1450,14 +1374,52 @@ with tab7:
     )
 
     selected_rows = grid.get("selected_rows")
-
-    # Normalize safely
     if selected_rows is None:
         selected_rows = []
-
     elif isinstance(selected_rows, pd.DataFrame):
         selected_rows = selected_rows.to_dict("records")
 
-    # Now safe
+    # Update session state immediately after capturing selection
     if len(selected_rows) > 0:
         st.session_state.selected_company_table = selected_rows[0]["Company"]
+
+    # -----------------------------------
+    # 📊 Workforce Composition — RENDER AFTER
+    # session state is now current for this run
+    # -----------------------------------
+    selected_company = st.session_state.selected_company_table
+
+    if selected_company:
+        role_stats = (
+            df_company[df_company["company"] == selected_company]
+            .groupby("role")
+            .size()
+            .reset_index(name="count")
+            .sort_values("count", ascending=False)
+        )
+        role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
+        role_stats["_y"] = "roles"   # dummy constant for single-row bar
+
+        chart = (
+            alt.Chart(role_stats)
+            .mark_bar()
+            .encode(
+                x=alt.X("pct:Q", stack="normalize", axis=None),
+                y=alt.Y("_y:N", axis=None),            # ← dummy y, not alt.value()
+                color=alt.Color(
+                    "role:N",
+                    legend=alt.Legend(orient="bottom", direction="horizontal", title="Role"),
+                ),
+                order=alt.Order("count:Q", sort="descending"),
+                tooltip=[
+                    alt.Tooltip("role:N", title="Role"),
+                    alt.Tooltip("count:Q", title="Roles"),
+                ],
+            )
+            .properties(height=60)
+        )
+
+        st.caption(f"**{selected_company}** — Workforce Composition")
+        st.altair_chart(chart, use_container_width=True)
+    else:
+        st.info("Select a company below to see workforce composition.")
