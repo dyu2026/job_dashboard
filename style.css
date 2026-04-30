@@ -124,10 +124,6 @@ section[data-testid="stSidebar"] div[data-testid="stTextInput"] > div {
 
 /* Company tab */
 
-.ag-theme-streamlit .ag-header-cell-text {
-    font-size: 15px;
-}
-
-.ag-theme-streamlit .ag-cell {
+.ag-header-cell-text {
     font-size: 15px;
 }
