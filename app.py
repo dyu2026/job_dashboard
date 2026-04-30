@@ -1347,6 +1347,9 @@ with tab7:
 
     if "selected_company_table" not in st.session_state:
         st.session_state.selected_company_table = company_stats.iloc[0]["company"]
+    
+    # Declare placeholder
+    composition_placeholder = st.empty()
 
     # -----------------------------------
     # 🏢 Company Table — RENDER FIRST
@@ -1381,47 +1384,47 @@ with tab7:
     elif isinstance(selected_rows, pd.DataFrame):
         selected_rows = selected_rows.to_dict("records")
 
-    # Update session state immediately after capturing selection
     if len(selected_rows) > 0:
         st.session_state.selected_company_table = selected_rows[0]["Company"]
 
     # -----------------------------------
-    # 📊 Workforce Composition — RENDER AFTER
-    # session state is now current for this run
+    # 📊 Workforce Composition
+    # Fills the placeholder declared above — appears above the table visually
     # -----------------------------------
     selected_company = st.session_state.selected_company_table
 
-    if selected_company:
-        role_stats = (
-            df_company[df_company["company"] == selected_company]
-            .groupby("role")
-            .size()
-            .reset_index(name="count")
-            .sort_values("count", ascending=False)
-        )
-        role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
-        role_stats["_y"] = "roles"   # dummy constant for single-row bar
-
-        chart = (
-            alt.Chart(role_stats)
-            .mark_bar()
-            .encode(
-                x=alt.X("pct:Q", stack="normalize", axis=None),
-                y=alt.Y("_y:N", axis=None),            # ← dummy y, not alt.value()
-                color=alt.Color(
-                    "role:N",
-                    legend=alt.Legend(orient="bottom", direction="horizontal", title="Role"),
-                ),
-                order=alt.Order("count:Q", sort="descending"),
-                tooltip=[
-                    alt.Tooltip("role:N", title="Role"),
-                    alt.Tooltip("count:Q", title="Roles"),
-                ],
+    with composition_placeholder.container():
+        if selected_company:
+            role_stats = (
+                df_company[df_company["company"] == selected_company]
+                .groupby("role")
+                .size()
+                .reset_index(name="count")
+                .sort_values("count", ascending=False)
             )
-            .properties(height=60)
-        )
+            role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
+            role_stats["_y"] = "roles"
 
-        st.caption(f"**{selected_company}** — Workforce Composition")
-        st.altair_chart(chart, use_container_width=True)
-    else:
-        st.info("Select a company below to see workforce composition.")
+            chart = (
+                alt.Chart(role_stats)
+                .mark_bar()
+                .encode(
+                    x=alt.X("pct:Q", stack="normalize", axis=None),
+                    y=alt.Y("_y:N", axis=None),
+                    color=alt.Color(
+                        "role:N",
+                        legend=alt.Legend(orient="bottom", direction="horizontal", title="Role"),
+                    ),
+                    order=alt.Order("count:Q", sort="descending"),
+                    tooltip=[
+                        alt.Tooltip("role:N", title="Role"),
+                        alt.Tooltip("count:Q", title="Roles"),
+                    ],
+                )
+                .properties(height=120)   # ← increase this to make bar chunkier
+            )
+
+            st.caption(f"**{selected_company}** — Workforce Composition")
+            st.altair_chart(chart, use_container_width=True)
+        else:
+            st.info("Select a company to see workforce composition.")
