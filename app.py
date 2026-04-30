@@ -1374,7 +1374,7 @@ with tab7:
         display_df,
         gridOptions=gb.build(),
         update_mode=GridUpdateMode.SELECTION_CHANGED,
-        height=800,
+        height=400,
         fit_columns_on_grid_load=True,
     )
 
@@ -1452,7 +1452,7 @@ with tab7:
                         alt.Tooltip("pct:Q", title="Share", format=".0%"),
                     ],
                 )
-                .properties(height=120)
+                .properties(height=240)
             )
 
             st.caption(f"**{selected_company}** — Workforce Composition · hover a segment for details")
