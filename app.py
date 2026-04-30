@@ -1137,14 +1137,21 @@ with tab5:
             )
 
             # --- 📊 Chart ---
-            weekly_counts = weekly_counts.sort_values("week_start")
-
-            # --- Create label AFTER sorting ---
             weekly_counts["label"] = weekly_counts["week_start"].dt.strftime("%b %d")
 
-            chart_data = weekly_counts.set_index("label")["count"]
+            # Pass explicit label order to Altair so it never re-sorts alphabetically
+            label_order = weekly_counts["label"].tolist()
 
-            st.bar_chart(chart_data, color="#ff4d6b")
+            bar_chart = alt.Chart(weekly_counts).mark_bar(color="#ff4d6b").encode(
+                x=alt.X("label:N", sort=label_order, title=None),
+                y=alt.Y("count:Q", title="New roles"),
+                tooltip=[
+                    alt.Tooltip("label:N", title="Week of"),
+                    alt.Tooltip("count:Q", title="New roles"),
+                ],
+            )
+
+            st.altair_chart(bar_chart, use_container_width=True)
                 
     
     st.markdown("""
