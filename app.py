@@ -1439,8 +1439,6 @@ with tab7:
         custom_css={
             ".ag-header-cell-text": {"font-size": "13px !important"},
             ".ag-cell": {"font-size": "13px !important"},
-            ".ag-header-cell-text": {"font-size": "15px !important"},
-            ".ag-cell": {"font-size": "15px !important"},
             ".ag-left-aligned-header .ag-header-cell-label": {"flex-direction": "row !important"},
         }
     )
