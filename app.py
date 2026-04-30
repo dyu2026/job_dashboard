@@ -1430,7 +1430,12 @@ with tab7:
 
             chart = (
                 alt.Chart(role_stats)
-                .mark_bar()
+                .mark_bar(
+                    cornerRadiusTopLeft=6,
+                    cornerRadiusBottomLeft=6,
+                    cornerRadiusTopRight=6,
+                    cornerRadiusBottomRight=6,
+                )
                 .encode(
                     x=alt.X("pct:Q", stack="normalize", axis=None),
                     y=alt.Y("_y:N", axis=None),
