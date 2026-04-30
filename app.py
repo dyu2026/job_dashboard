@@ -3,7 +3,7 @@ import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 from streamlit_cookies_manager import EncryptedCookieManager
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, JsCode
 import streamlit.components.v1 as components
 import os, base64
 import altair as alt
@@ -1370,25 +1370,69 @@ with tab7:
     # -----------------------------------
     st.markdown("### Companies")
 
+    # --- Add logo to company_stats ---
+    company_stats["logo"] = company_stats["company"].apply(get_base64_logo)
+
+    # --- Rename and reorder columns ---
     display_df = company_stats.rename(columns={
         "company": "Company",
         "active_roles": "Active Roles",
+        "new_roles_7d": "7D New Roles",
         "growth_rate": "Growth %",
         "last_updated": "Last Updated",
     })
 
+    display_df = display_df[[
+        "logo", "Company", "Active Roles", "7D New Roles", "Growth %", "Last Updated"
+    ]]
+
+    # --- AgGrid config ---
+    logo_renderer = JsCode("""
+        class LogoRenderer {
+            init(params) {
+                this.eGui = document.createElement('div');
+                this.eGui.style.display = 'flex';
+                this.eGui.style.alignItems = 'center';
+                this.eGui.style.height = '100%';
+                if (params.value) {
+                    const img = document.createElement('img');
+                    img.src = params.value;
+                    img.style.height = '24px';
+                    img.style.width = '24px';
+                    img.style.objectFit = 'contain';
+                    img.style.borderRadius = '4px';
+                    this.eGui.appendChild(img);
+                }
+            }
+            getGui() { return this.eGui; }
+        }
+    """)
+
     gb = GridOptionsBuilder.from_dataframe(display_df)
+
+    # Left-align all columns by default
+    gb.configure_default_column(
+        cellStyle={"textAlign": "left"},
+        headerClass="ag-left-aligned-header",
+    )
+
+    gb.configure_column("logo", header_name="", cellRenderer=logo_renderer, width=50, pinned="left", sortable=False, filter=False)
+    gb.configure_column("Company", pinned="left", width=160)
+    gb.configure_column("Active Roles", width=120)
+    gb.configure_column("7D New Roles", width=130)
+    gb.configure_column("Growth %", width=110, valueFormatter="x.toFixed(1) + '%'")
+    gb.configure_column("Last Updated", width=120)
+
     gb.configure_selection("single", use_checkbox=False)
     gb.configure_pagination(paginationPageSize=10)
-    gb.configure_column("Company", pinned="left")
-    gb.configure_column("Growth %", valueFormatter="x.toFixed(1) + '%'")
 
     grid = AgGrid(
         display_df,
         gridOptions=gb.build(),
         update_mode=GridUpdateMode.SELECTION_CHANGED,
         height=400,
-        fit_columns_on_grid_load=True,
+        fit_columns_on_grid_load=False,   # False so our explicit widths are respected
+        allow_unsafe_jscode=True,         # required for JsCode renderer
     )
 
     selected_rows = grid.get("selected_rows")
