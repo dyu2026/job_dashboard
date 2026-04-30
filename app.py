@@ -1374,7 +1374,7 @@ with tab7:
         display_df,
         gridOptions=gb.build(),
         update_mode=GridUpdateMode.SELECTION_CHANGED,
-        height=400,
+        height=800,
         fit_columns_on_grid_load=True,
     )
 
@@ -1402,8 +1402,25 @@ with tab7:
                 .reset_index(name="count")
                 .sort_values("count", ascending=False)
             )
+
+            # --- Top 5 + Other grouping ---
+            top5 = role_stats.head(5)
+            rest = role_stats.iloc[5:]
+
+            if not rest.empty:
+                other_row = pd.DataFrame([{
+                    "role": f"Other ({len(rest)} roles)",
+                    "count": rest["count"].sum(),
+                }])
+                role_stats = pd.concat([top5, other_row], ignore_index=True)
+            else:
+                role_stats = top5.copy()
+
             role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
             role_stats["_y"] = "roles"
+
+            # Explicit sort order — largest slice left, Other always last
+            role_order = role_stats["role"].tolist()
 
             chart = (
                 alt.Chart(role_stats)
@@ -1413,18 +1430,32 @@ with tab7:
                     y=alt.Y("_y:N", axis=None),
                     color=alt.Color(
                         "role:N",
-                        legend=alt.Legend(orient="bottom", direction="horizontal", title="Role"),
+                        sort=role_order,
+                        scale=alt.Scale(
+                            domain=role_order,
+                            # Other gets a neutral grey, top 5 get your palette
+                            range=["#4e8df5", "#f5774e", "#4ecf8d", "#f5c84e", "#a44ef5", "#c0c0c0"],
+                        ),
+                        legend=alt.Legend(
+                            orient="bottom",
+                            direction="horizontal",
+                            title=None,
+                            columns=3,           # 3 columns keeps it compact
+                            symbolSize=80,
+                            labelFontSize=12,
+                        ),
                     ),
-                    order=alt.Order("count:Q", sort="descending"),
+                    order=alt.Order("pct:Q", sort="descending"),
                     tooltip=[
                         alt.Tooltip("role:N", title="Role"),
                         alt.Tooltip("count:Q", title="Roles"),
+                        alt.Tooltip("pct:Q", title="Share", format=".0%"),
                     ],
                 )
-                .properties(height=120)   # ← increase this to make bar chunkier
+                .properties(height=120)
             )
 
-            st.caption(f"**{selected_company}** — Workforce Composition")
+            st.caption(f"**{selected_company}** — Workforce Composition · hover a segment for details")
             st.altair_chart(chart, use_container_width=True)
         else:
             st.info("Select a company to see workforce composition.")
