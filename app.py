@@ -643,7 +643,7 @@ df_filtered.loc[df_filtered["is_new_company"], "company_display"] += " 🌟"
 # Tabs Layout
 # -----------------------------------
 
-tab1, tab2, tab3, tab6, tab5, tab4 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed"]
 )
 
@@ -989,77 +989,71 @@ with tab3:
         st.altair_chart(chart, use_container_width=True)
 
 # -----------------------------------
-# 🗑 Removed Jobs Tab
+# Role Insights Tab
 # -----------------------------------
 
 with tab4:
-    st.subheader("🚫 Recently Removed (Last 24h)")
+    
+    st.subheader("❄️ Role Distribution")
 
-    removed = (
-        supabase.table("jobs")
-        .select("*")
-        .eq("is_active", False)
-        .gte("last_seen_at", last_24_utc.isoformat())
-        .execute()
+    st.caption(f"Showing: {selected_recency}")
+
+    # ✅ STEP 1: Create role_df
+    
+    role_df = (
+        df_filtered.groupby("role_short")
+        .size()
+        .reset_index(name="count")
     )
 
-    removed_df = pd.DataFrame(removed.data)
+    # ✅ STEP 2: Sort
+    role_df = role_df.sort_values("count", ascending=False).reset_index(drop=True)
+    
+    total_jobs = role_df["count"].sum()
+    max_count = role_df["count"].max()
+    
+    medals = ["🥇", "🥈", "🥉"]
 
-    if removed_df.empty:
-        st.info("No jobs removed in last 24 hours.")
-    else:
-        # --- Datetime handling (correct way) ---
-        removed_df["first_seen_at"] = pd.to_datetime(
-            removed_df["first_seen_at"], utc=True, errors="coerce"
-        )
-
-        removed_df["first_seen_at_jst"] = (
-            removed_df["first_seen_at"]
-            .dt.tz_convert("Asia/Tokyo")
-            .dt.strftime("%Y-%m-%d %H:%M")
-        )
-
-        # --- Add missing columns ---
-        if "Priority" not in removed_df.columns:
-            removed_df["Priority"] = removed_df["title"].apply(tag_priority)
-
-        removed_df["logo"] = removed_df["company"].apply(get_base64_logo)
-
-        if "days_since_posted" not in removed_df.columns:
-            removed_df["days_since_posted"] = ""
-
-        if "role" not in removed_df.columns:
-            removed_df["role"] = ""
-
-        # --- Safe columns ---
-        removed_display_cols = [
-            "logo",
-            "company",
-            "Priority",
-            "title",
-            "location",
-            "role",
-            "first_seen_at_jst",
-        ]
-
-        safe_cols = [c for c in removed_display_cols if c in removed_df.columns]
-        safe_cols = ["first_seen_at_jst" if c == "first_seen_at" else c for c in safe_cols]
-
-        # --- Render ---
-        st.dataframe(
-            removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
-            column_config={
-                "logo": st.column_config.ImageColumn("Logo", width="small"),
-                "Priority": st.column_config.TextColumn("Priority", width="small"),
-                "company": st.column_config.TextColumn("Company", width="small"),
-                "title": "Title",
-                "location": "Location",
-                "role": "Role",
-                "first_seen_at_jst": "First Seen (JST)",
-            },
-            use_container_width=True,
-            hide_index=True
-        )
+    # Build HTML
+    html = ""
+    
+    for i, row in role_df.iterrows():
+        role = row["role_short"]
+        count = int(row["count"])
+        pct = (count / total_jobs) * 100
+    
+        rank = medals[i] if i < 3 else f"{i+1}"
+    
+        bar_width = int((count / max_count) * 100)
+    
+        html += f"""
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            
+            <div style="width: 40px;">{rank}</div>
+            
+            <div style="width: 180px;">{role}</div>
+            
+            <div style="flex-grow: 1; background-color: rgba(0,0,0,0.05); height: 16px; border-radius: 5px; margin: 0 10px;">
+                <div style="
+                    width: {bar_width}%;
+                    background-color: #ff4d6b;
+                    height: 100%;
+                    border-radius: 5px;
+                "></div>
+            </div>
+            
+            <div style="width: 60px;">{count}</div>
+            <div style="width: 60px;">{pct:.1f}%</div>
+            
+        </div>
+        """
+    
+    # ✅ STEP 3: Render HTML
+    components.html(f"""
+    <div style="font-family: sans-serif;">
+    {html}
+    </div>
+    """, height=650, scrolling=True)
 
 # -----------------------------------
 # Posting Trends Tab
@@ -1244,70 +1238,76 @@ with tab5:
 
         st.altair_chart(heatmap, use_container_width=True)
        
-
+    
 # -----------------------------------
-# Role Insights Tab
+# 🗑 Removed Jobs Tab
 # -----------------------------------
 
 with tab6:
-    
-    st.subheader("❄️ Role Distribution")
+    st.subheader("🚫 Recently Removed (Last 24h)")
 
-    st.caption(f"Showing: {selected_recency}")
-
-    # ✅ STEP 1: Create role_df
-    
-    role_df = (
-        df_filtered.groupby("role_short")
-        .size()
-        .reset_index(name="count")
+    removed = (
+        supabase.table("jobs")
+        .select("*")
+        .eq("is_active", False)
+        .gte("last_seen_at", last_24_utc.isoformat())
+        .execute()
     )
 
-    # ✅ STEP 2: Sort
-    role_df = role_df.sort_values("count", ascending=False).reset_index(drop=True)
-    
-    total_jobs = role_df["count"].sum()
-    max_count = role_df["count"].max()
-    
-    medals = ["🥇", "🥈", "🥉"]
+    removed_df = pd.DataFrame(removed.data)
 
-    # Build HTML
-    html = ""
-    
-    for i, row in role_df.iterrows():
-        role = row["role_short"]
-        count = int(row["count"])
-        pct = (count / total_jobs) * 100
-    
-        rank = medals[i] if i < 3 else f"{i+1}"
-    
-        bar_width = int((count / max_count) * 100)
-    
-        html += f"""
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-            
-            <div style="width: 40px;">{rank}</div>
-            
-            <div style="width: 180px;">{role}</div>
-            
-            <div style="flex-grow: 1; background-color: rgba(0,0,0,0.05); height: 16px; border-radius: 5px; margin: 0 10px;">
-                <div style="
-                    width: {bar_width}%;
-                    background-color: #ff4d6b;
-                    height: 100%;
-                    border-radius: 5px;
-                "></div>
-            </div>
-            
-            <div style="width: 60px;">{count}</div>
-            <div style="width: 60px;">{pct:.1f}%</div>
-            
-        </div>
-        """
-    
-    # ✅ STEP 3: Render HTML
-    components.html(f"""
-    <div style="font-family: sans-serif;">
-    {html}
-    </div>
-    """, height=650, scrolling=True)
+    if removed_df.empty:
+        st.info("No jobs removed in last 24 hours.")
+    else:
+        # --- Datetime handling (correct way) ---
+        removed_df["first_seen_at"] = pd.to_datetime(
+            removed_df["first_seen_at"], utc=True, errors="coerce"
+        )
+
+        removed_df["first_seen_at_jst"] = (
+            removed_df["first_seen_at"]
+            .dt.tz_convert("Asia/Tokyo")
+            .dt.strftime("%Y-%m-%d %H:%M")
+        )
+
+        # --- Add missing columns ---
+        if "Priority" not in removed_df.columns:
+            removed_df["Priority"] = removed_df["title"].apply(tag_priority)
+
+        removed_df["logo"] = removed_df["company"].apply(get_base64_logo)
+
+        if "days_since_posted" not in removed_df.columns:
+            removed_df["days_since_posted"] = ""
+
+        if "role" not in removed_df.columns:
+            removed_df["role"] = ""
+
+        # --- Safe columns ---
+        removed_display_cols = [
+            "logo",
+            "company",
+            "Priority",
+            "title",
+            "location",
+            "role",
+            "first_seen_at_jst",
+        ]
+
+        safe_cols = [c for c in removed_display_cols if c in removed_df.columns]
+        safe_cols = ["first_seen_at_jst" if c == "first_seen_at" else c for c in safe_cols]
+
+        # --- Render ---
+        st.dataframe(
+            removed_df.sort_values("first_seen_at", ascending=False)[safe_cols],
+            column_config={
+                "logo": st.column_config.ImageColumn("Logo", width="small"),
+                "Priority": st.column_config.TextColumn("Priority", width="small"),
+                "company": st.column_config.TextColumn("Company", width="small"),
+                "title": "Title",
+                "location": "Location",
+                "role": "Role",
+                "first_seen_at_jst": "First Seen (JST)",
+            },
+            use_container_width=True,
+            hide_index=True
+        )
