@@ -1142,6 +1142,7 @@ with tab5:
             # --- Create label AFTER sorting ---
             weekly_counts["label"] = weekly_counts["week_start"].dt.strftime("%b %d")
 
+            chart_data = weekly_counts.set_index("label")["count"]
             chart_data = chart_data.sort_index(key=lambda x: pd.to_datetime(x, format="%b %d"))
 
             st.bar_chart(chart_data, color="#ff4d6b")
