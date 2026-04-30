@@ -675,7 +675,7 @@ display_cols = [
 # -----------------------------------
 
 with tab1:
-    st.subheader("🔥 New Jobs (Last 24 Hours)")
+    st.subheader("New Jobs (Last 24 Hours)")
     
     st.markdown("""
     <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
@@ -778,7 +778,7 @@ with tab1:
 # -----------------------------------
 
 with tab2:
-    st.subheader("📋 All Active Jobs")
+    st.subheader("All Active Jobs")
     
     st.markdown("""
     <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
@@ -891,7 +891,7 @@ with tab3:
     
     # Declare placeholder
     
-    st.subheader("🚀 Company Breakdown")
+    st.subheader("Company Breakdown")
     
     composition_placeholder = st.empty()
 
@@ -1075,7 +1075,7 @@ with tab3:
 
 with tab4:
     
-    st.subheader("❄️ Role Distribution")
+    st.subheader("Role Distribution")
 
     st.caption(f"Showing: {selected_recency}")
 
@@ -1146,7 +1146,7 @@ with tab5:
     # 📅 Weekly Posting Trends
     # -----------------------------------
 
-    st.subheader("📮 Weekly Posting Trends")
+    st.subheader("Weekly Posting Trends")
     st.markdown("""
     <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
     New roles detected per week, grouped by calendar week start (JST).<br>
@@ -1325,7 +1325,7 @@ with tab5:
 # -----------------------------------
 
 with tab6:
-    st.subheader("🚫 Recently Removed (Last 24h)")
+    st.subheader("Recently Removed (Last 24h)")
 
     removed = (
         supabase.table("jobs")
