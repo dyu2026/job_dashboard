@@ -1066,13 +1066,18 @@ with tab4:
 # -----------------------------------
 
 with tab5:
-    st.subheader("📮 Job Posting Trends (JST)")
+#    st.subheader("📮 Job Posting Trends (JST)")
     
     # -----------------------------------
     # 📅 Weekly Posting Trends
     # -----------------------------------
 
-    st.markdown("### Weekly Posting Trends")
+    st.subheader("📮 Weekly Posting Trends")
+    st.markdown("""
+    <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
+    New roles detected per week, grouped by calendar week start (JST)
+    </p>
+    """, unsafe_allow_html=True)
 
     time_window = st.selectbox(
         "Time Range",
@@ -1154,8 +1159,10 @@ with tab5:
             st.altair_chart(bar_chart, use_container_width=True)
                 
     
+    st.subheader("Most Active Posting Days")
     st.markdown("""
     <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
+    Which days of the week new roles are most frequently detected.<br>
     Excludes first day of each company to remove initial data spikes.
     </p>
     """, unsafe_allow_html=True)
@@ -1178,9 +1185,11 @@ with tab5:
         # Ensure correct hour order
         hour_order = [f"{i}:00" for i in range(24)]
         
+        st.subheader("New Job Detection Heatmap")
         st.markdown("""
         <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
-        When new jobs are first detected (JST), excluding initial bulk import when company is first tracked.
+        When new roles are first detected by day and hour (JST)<br>
+        Excludes first day of each company to remove initial data spikes.
         </p>
         """, unsafe_allow_html=True)
 
