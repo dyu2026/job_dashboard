@@ -1446,8 +1446,9 @@ with tab7:
                             direction="horizontal",
                             title=None,
                             columns=3,
-                            symbolSize=80,
-                            labelFontSize=12,
+                            symbolSize=100,
+                            symbolType="circle",
+                            labelFontSize=14,
                         ),
                     ),
                     order=alt.Order("sort_order:Q", sort="ascending"),  # ← sort by index, not pct
