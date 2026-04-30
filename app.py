@@ -1448,11 +1448,14 @@ with tab7:
         fit_columns_on_grid_load=True,
     )
 
-    selected_rows = grid_response["selected_rows"]
+    selected_rows = grid_response.get("selected_rows", [])
 
     # -----------------------------------
     # Update selection from grid
     # -----------------------------------
-    if selected_rows:
+    if isinstance(selected_rows, pd.DataFrame):
+        selected_rows = selected_rows.to_dict("records")
+
+    if selected_rows and len(selected_rows) > 0:
         selected_company = selected_rows[0]["Company"]
         st.session_state.selected_company = selected_company
