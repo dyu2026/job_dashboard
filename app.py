@@ -1388,7 +1388,7 @@ with tab7:
         st.session_state.selected_company_table = selected_rows[0]["Company"]
 
     # -----------------------------------
-    # 📊 Workforce Composition
+    # 📊 Role Composition
     # Fills the placeholder declared above — appears above the table visually
     # -----------------------------------
     selected_company = st.session_state.selected_company_table
@@ -1418,6 +1418,9 @@ with tab7:
 
             role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
             role_stats["_y"] = "roles"
+            
+            role_stats["sort_order"] = range(len(role_stats))
+            role_stats.loc[role_stats["role"].str.startswith("Other"), "sort_order"] = 999
 
             # Explicit sort order — largest slice left, Other always last
             role_order = role_stats["role"].tolist()
@@ -1433,19 +1436,18 @@ with tab7:
                         sort=role_order,
                         scale=alt.Scale(
                             domain=role_order,
-                            # Other gets a neutral grey, top 5 get your palette
                             range=["#4e8df5", "#f5774e", "#4ecf8d", "#f5c84e", "#a44ef5", "#c0c0c0"],
                         ),
                         legend=alt.Legend(
                             orient="bottom",
                             direction="horizontal",
                             title=None,
-                            columns=3,           # 3 columns keeps it compact
+                            columns=3,
                             symbolSize=80,
                             labelFontSize=12,
                         ),
                     ),
-                    order=alt.Order("pct:Q", sort="descending"),
+                    order=alt.Order("sort_order:Q", sort="ascending"),  # ← sort by index, not pct
                     tooltip=[
                         alt.Tooltip("role:N", title="Role"),
                         alt.Tooltip("count:Q", title="Roles"),
@@ -1455,7 +1457,7 @@ with tab7:
                 .properties(height=240)
             )
 
-            st.caption(f"**{selected_company}** — Workforce Composition · hover a segment for details")
+            st.caption(f"**{selected_company}** — Role Composition · hover a segment for details")
             st.altair_chart(chart, use_container_width=True)
         else:
-            st.info("Select a company to see workforce composition.")
+            st.info("Select a company to see role composition.")
