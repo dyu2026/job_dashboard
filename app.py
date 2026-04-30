@@ -1178,13 +1178,13 @@ with tab5:
         day_bar_df.columns = ["day_of_week", "count"]
 
         day_bar = alt.Chart(day_bar_df).mark_bar(
-            color="#ff4d6b",
-            size=40,
+            color="#ff4d6b"
         ).encode(
             x=alt.X(
                 "day_of_week:N",
                 sort=day_order,
                 title=None,
+                scale=alt.Scale(paddingInner=0.15),
                 axis=alt.Axis(labelAngle=0, ticks=False, domain=False, grid=False),
             ),
             y=alt.Y(
