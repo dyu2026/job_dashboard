@@ -1444,7 +1444,7 @@ with tab7:
                         sort=role_order,
                         scale=alt.Scale(
                             domain=role_order,
-                            range=["#1b4e6b", "#ff4d6b", "#c068a8", "#ec7176", "#f4ab33", "#c0c0c0"],
+                            range=["#1b4e6b", "#ff4d6b", "#f4ab33", "#c068a8", "#ec7176", "#5c63a2"],
                         ),
                         legend=alt.Legend(
                             orient="bottom",
