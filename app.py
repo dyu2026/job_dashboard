@@ -647,7 +647,8 @@ df_filtered.loc[df_filtered["is_new_company"], "company_display"] += " 🌟"
 # -----------------------------------
 
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed", ]
+#    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed", ]
+    [":material/fiber_new: New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed", ]
 )
 
 
