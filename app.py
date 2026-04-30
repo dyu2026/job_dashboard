@@ -1327,6 +1327,16 @@ with tab7:
     df_company["company"] = df_company["company"].str.strip()
     df_company["first_seen_at"] = pd.to_datetime(df_company["first_seen_at"], errors="coerce", utc=True)
     df_company["last_seen_at"]  = pd.to_datetime(df_company["last_seen_at"],  errors="coerce", utc=True)
+    
+    role_cache = (
+        df_company.groupby(["company", "role"])
+        .size()
+        .reset_index(name="count")
+    )
+    role_cache_dict = {
+        company: group.drop(columns="company").reset_index(drop=True)
+        for company, group in role_cache.groupby("company")
+    }
 
     # --- Company summary ---
     company_stats = (
@@ -1398,35 +1408,31 @@ with tab7:
 
     with composition_placeholder.container():
         if selected_company:
-            role_stats = (
-                df_company[df_company["company"] == selected_company]
-                .groupby("role")
-                .size()
-                .reset_index(name="count")
-                .sort_values("count", ascending=False)
-            )
+            # Dict lookup — no groupby on every rerun
+            role_df = role_cache_dict.get(selected_company, pd.DataFrame(columns=["role", "count"]))
 
-            # --- Top 5 + Other grouping ---
-            top5 = role_stats.head(5)
-            rest = role_stats.iloc[5:]
-
-            if not rest.empty:
-                other_row = pd.DataFrame([{
-                    "role": f"Other ({len(rest)} roles)",
-                    "count": rest["count"].sum(),
-                }])
-                role_stats = pd.concat([top5, other_row], ignore_index=True)
+            if role_df.empty:
+                st.info(f"No role data for {selected_company}.")
             else:
-                role_stats = top5.copy()
+                role_df = role_df.sort_values("count", ascending=False)
 
-            role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
-            role_stats["_y"] = "roles"
-            
-            role_stats["sort_order"] = range(len(role_stats))
-            role_stats.loc[role_stats["role"].str.startswith("Other"), "sort_order"] = 999
+                # Top 5 + Other (unchanged logic)
+                top5 = role_df.head(5)
+                rest = role_df.iloc[5:]
+                if not rest.empty:
+                    other_row = pd.DataFrame([{
+                        "role": f"Other ({len(rest)} roles)",
+                        "count": rest["count"].sum(),
+                    }])
+                    role_stats = pd.concat([top5, other_row], ignore_index=True)
+                else:
+                    role_stats = top5.copy()
 
-            # Explicit sort order — largest slice left, Other always last
-            role_order = role_stats["role"].tolist()
+                role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
+                role_stats["_y"] = "roles"
+                role_stats["sort_order"] = range(len(role_stats))
+                role_stats.loc[role_stats["role"].str.startswith("Other"), "sort_order"] = 999
+                role_order = role_stats["role"].tolist()
 
             chart = (
                 alt.Chart(role_stats)
