@@ -5,12 +5,11 @@ from datetime import datetime, timedelta, timezone
 from streamlit_cookies_manager import EncryptedCookieManager
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, JsCode
 import streamlit.components.v1 as components
-import os, base64
+import os
+import base64
 import altair as alt
 import uuid
 import re
-import numpy as np
-import matplotlib.colors as mcolors
 
 # Page setting
 st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
@@ -198,7 +197,7 @@ def classify_location(row):
         return "japan"
 
     # --- Remote allowed ---
-    if row.get("is_remote") == True:
+    if row.get("is_remote"):
         if remote_scope in ["global", "apac"]:
             return "remote_allowed"
 
