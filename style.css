@@ -131,5 +131,3 @@ section[data-testid="stSidebar"] div[data-testid="stTextInput"] > div {
 .ag-theme-streamlit .ag-cell {
     font-size: 15px;
 }
-
-gb.configure_grid_options(rowHeight=40)
