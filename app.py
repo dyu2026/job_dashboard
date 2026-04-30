@@ -1172,23 +1172,7 @@ with tab5:
         # -----------------------------------
         # Day-of-week bar chart
         # -----------------------------------
-#        st.bar_chart(day_counts, color="#ff4d6b")
-
-        chart = alt.Chart(weekly_counts).mark_bar().encode(
-            x=alt.X(
-                "week_start:T",
-                title=None,
-                axis=alt.Axis(format="%b %d")
-            ),
-            y=alt.Y("count:Q", title=None),
-            tooltip=["week_start:T", "count:Q"]
-        ).properties(
-            height=300
-        ).configure_mark(
-            color="#ff4d6b"
-        ).interactive(False)  # 🚫 disables zoom/pan
-
-        st.altair_chart(chart, use_container_width=True)
+        st.bar_chart(day_counts, color="#ff4d6b")
 
         # -----------------------------------
         # Heatmap (Day x Hour)
