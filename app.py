@@ -1352,7 +1352,9 @@ with tab7:
 
     company_stats = company_stats.merge(recent_counts, on="company", how="left").fillna(0)
     company_stats["growth_rate"] = (company_stats["new_roles_7d"] / company_stats["active_roles"]) * 100
-    company_stats["last_updated"] = company_stats["last_updated"].dt.strftime("%b %d")
+    company_stats["last_updated"] = pd.to_datetime(
+        company_stats["last_updated"], utc=True, errors="coerce"
+    ).dt.tz_convert("Asia/Tokyo").dt.strftime("%b %d")
     company_stats = company_stats.sort_values("active_roles", ascending=False)
 
     if "selected_company_table" not in st.session_state:
