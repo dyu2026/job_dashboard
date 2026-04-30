@@ -1142,7 +1142,7 @@ with tab5:
             # --- Create label AFTER sorting ---
             weekly_counts["label"] = weekly_counts["week_start"].dt.strftime("%b %d")
 
-            chart_data = weekly_counts.set_index("label")["count"]
+            chart_data = chart_data.sort_index(key=lambda x: pd.to_datetime(x, format="%b %d"))
 
             st.bar_chart(chart_data, color="#ff4d6b")
                 
@@ -1201,23 +1201,7 @@ with tab5:
         )
 
         st.altair_chart(heatmap, use_container_width=True)
-        
-        # -----------------------------------
-        # 🔥 Auto Insight: Top Posting Times 
-        # -----------------------------------
-
-        if not heatmap_data.empty:
-            top_slots = heatmap_data.sort_values("count", ascending=False).head(3)
-
-            st.markdown("### 🔥 Peak Posting Activity (Observed)")
-
-            medals = ["🥇", "🥈", "🥉"]
-
-            for i, row in enumerate(top_slots.itertuples()):
-                label = f"{row.day_of_week} at {int(row.hour)}:00 JST"
-                count = int(row.count)
-
-                st.markdown(f"{medals[i]} {label} ({count} jobs)")
+       
 
 # -----------------------------------
 # Role Insights Tab
