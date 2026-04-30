@@ -1320,81 +1320,100 @@ with tab6:
 
 with tab7:
     
-    if "selected_company" not in st.session_state:
-        st.session_state.selected_company = None
+    # -----------------------------------
+    # Data prep
+    # -----------------------------------
+    df_company = df.copy()  # ✅ FIX: use full dataset
+    df_company["company"] = df_company["company"].str.strip()
+
+    df_company["first_seen_at"] = pd.to_datetime(
+        df_company["first_seen_at"], errors="coerce", utc=True
+    )
+    df_company["last_seen_at"] = pd.to_datetime(
+        df_company["last_seen_at"], errors="coerce", utc=True
+    )
 
     # -----------------------------------
-    # Build company summary
+    # Company summary (table)
     # -----------------------------------
-    company_summary = (
-        df.groupby("company")
+    company_stats = (
+        df_company.groupby("company")
         .agg(
-            active_roles=("external_id", "count"),
+            active_roles=("title", "count"),
             last_updated=("last_seen_at", "max"),
         )
         .reset_index()
     )
 
-    # --- Growth proxy (last 7 days) ---
-    recent_df = df[
-        df["last_seen_at"] >= (pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7))
+    # --- Growth (correct logic) ---
+    recent_new = df_company[
+        df_company["first_seen_at"] >= (
+            pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7)
+        )
     ]
 
     recent_counts = (
-        recent_df.groupby("company")["external_id"]
+        recent_new.groupby("company")["title"]
         .count()
-        .reset_index(name="recent_roles")
+        .reset_index(name="new_roles_7d")
     )
 
-    company_summary = company_summary.merge(recent_counts, on="company", how="left")
-    company_summary["growth_rate"] = (
-        (company_summary["recent_roles"] / company_summary["active_roles"]) * 100
+    company_stats = company_stats.merge(
+        recent_counts, on="company", how="left"
     ).fillna(0)
 
-    # --- Format display ---
-    company_summary["last_updated"] = pd.to_datetime(
-        company_summary["last_updated"]
-    ).dt.strftime("%b %d")
+    company_stats["growth_rate"] = (
+        company_stats["new_roles_7d"] / company_stats["active_roles"]
+    ) * 100
 
-    company_summary = company_summary.sort_values(
+    company_stats["last_updated"] = company_stats["last_updated"].dt.strftime("%b %d")
+
+    company_stats = company_stats.sort_values(
         "active_roles", ascending=False
     )
 
     # -----------------------------------
-    # Default selection
+    # Session state
     # -----------------------------------
-    if st.session_state.selected_company is None and not company_summary.empty:
-        st.session_state.selected_company = company_summary.iloc[0]["company"]
+    if "selected_company_table" not in st.session_state:
+        st.session_state.selected_company_table = None
 
     # -----------------------------------
-    # 🧩 Workforce Composition (Top)
+    # 🔥 Top: Workforce Composition
     # -----------------------------------
-    st.markdown("### 🧩 Workforce Composition")
-
-    selected_company = st.session_state.selected_company
+    selected_company = (
+        st.session_state.selected_company_table
+        or (selected_companies[0] if len(selected_companies) == 1 else None)
+    )
 
     if selected_company:
-        company_df = df[df["company"] == selected_company]
-
-        role_counts = (
-            company_df["role"]
-            .value_counts()
-            .reset_index()
+        role_stats = (
+            df_company[df_company["company"] == selected_company]
+            .groupby("role_short")
+            .size()
+            .reset_index(name="count")
+            .sort_values("count", ascending=False)
         )
-        role_counts.columns = ["role", "count"]
 
-        role_counts["pct"] = role_counts["count"] / role_counts["count"].sum()
+        role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
 
-        chart = alt.Chart(role_counts).mark_bar().encode(
+        chart = alt.Chart(role_stats).mark_bar().encode(
             x=alt.X("pct:Q", stack="normalize", axis=None),
             y=alt.value(30),
-            color=alt.Color("role:N", legend=alt.Legend(title="Role")),
-            tooltip=["role", "count"]
-        ).properties(height=60)
+            color=alt.Color(
+                "role_short:N",
+                legend=alt.Legend(
+                    orient="bottom",   # ✅ FIX
+                    direction="horizontal",
+                    title="Role"
+                )
+            ),
+            tooltip=["role_short", "count"]
+        ).properties(height=80)
 
         st.altair_chart(chart, use_container_width=True)
 
-        st.caption(f"Showing role distribution for **{selected_company}**")
+        st.caption(f"{selected_company} — Workforce Composition")
 
     else:
         st.info("Select a company below")
@@ -1402,60 +1421,39 @@ with tab7:
     # -----------------------------------
     # 🏢 Company Table (AgGrid)
     # -----------------------------------
-    st.markdown("### 🏢 Company Breakdown")
+    st.markdown("### 🏢 Companies")
 
-    display_df = company_summary.copy()
+    display_df = company_stats.rename(columns={
+        "company": "Company",
+        "active_roles": "Active Roles",
+        "growth_rate": "Growth %",
+        "last_updated": "Last Updated",
+    })
 
-    # Rename for UI
-    display_df.columns = [
-        "Company",
-        "Active Roles",
-        "Last Updated",
-        "Recent Roles",
-        "Growth Rate (%)",
-    ]
-
-    # -----------------------------------
-    # AgGrid Config
-    # -----------------------------------
     gb = GridOptionsBuilder.from_dataframe(display_df)
 
-    gb.configure_selection(
-        selection_mode="single",
-        use_checkbox=False
-    )
-
-    gb.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
-
+    gb.configure_selection("single", use_checkbox=False)
+    gb.configure_pagination(paginationPageSize=10)
     gb.configure_column("Company", pinned="left")
 
     gb.configure_column(
-        "Growth Rate (%)",
-        type=["numericColumn"],
+        "Growth %",
         valueFormatter="x.toFixed(1) + '%'"
     )
 
-    grid_options = gb.build()
-
-    # -----------------------------------
-    # Render Grid
-    # -----------------------------------
-    grid_response = AgGrid(
+    grid = AgGrid(
         display_df,
-        gridOptions=grid_options,
+        gridOptions=gb.build(),
         update_mode=GridUpdateMode.SELECTION_CHANGED,
         height=400,
         fit_columns_on_grid_load=True,
     )
 
-    selected_rows = grid_response.get("selected_rows", [])
+    selected_rows = grid.get("selected_rows", [])
 
-    # -----------------------------------
-    # Update selection from grid
-    # -----------------------------------
+    # normalize
     if isinstance(selected_rows, pd.DataFrame):
         selected_rows = selected_rows.to_dict("records")
 
-    if selected_rows and len(selected_rows) > 0:
-        selected_company = selected_rows[0]["Company"]
-        st.session_state.selected_company = selected_company
+    if len(selected_rows) > 0:
+        st.session_state.selected_company_table = selected_rows[0]["Company"]
