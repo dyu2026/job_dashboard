@@ -1137,12 +1137,12 @@ with tab5:
             )
 
             # --- 📊 Chart ---
+            weekly_counts = weekly_counts.sort_values("week_start")
+
+            # --- Create label AFTER sorting ---
             weekly_counts["label"] = weekly_counts["week_start"].dt.strftime("%b %d")
 
-            chart_data = (
-                weekly_counts
-                .set_index("label")["count"]
-            )
+            chart_data = weekly_counts.set_index("label")["count"]
 
             st.bar_chart(chart_data, color="#ff4d6b")
                 
