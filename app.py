@@ -1420,11 +1420,12 @@ with tab7:
 
     gb.configure_column("logo", header_name="", cellRenderer=logo_renderer, width=50, pinned="left", sortable=False, filter=False)
     gb.configure_column("Company", pinned="left", width=160)
-    gb.configure_column("Active Roles", width=120)
-    gb.configure_column("7D New Roles", width=130)
-    gb.configure_column("Growth %", width=110, valueFormatter="x.toFixed(1) + '%'")
+    gb.configure_column("Active Roles", width=80, cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",)
+    gb.configure_column("7D New Roles", width=80, cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",)
+    gb.configure_column("Growth %", width=80, valueFormatter="x.toFixed(1) + '%'", 
+        cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",
+    )
     gb.configure_column("Last Updated", width=120)
-
     gb.configure_selection("single", use_checkbox=False)
     gb.configure_pagination(paginationPageSize=10)
 
@@ -1438,6 +1439,9 @@ with tab7:
         custom_css={
             ".ag-header-cell-text": {"font-size": "13px !important"},
             ".ag-cell": {"font-size": "13px !important"},
+            ".ag-header-cell-text": {"font-size": "15px !important"},
+            ".ag-cell": {"font-size": "15px !important"},
+            ".ag-left-aligned-header .ag-header-cell-label": {"flex-direction": "row !important"},
         }
     )
 
