@@ -1068,6 +1068,166 @@ with tab4:
 with tab5:
     st.subheader("📮 Job Posting Trends (JST)")
     
+    st.markdown("---")
+    st.markdown("### 📅 Calendar View")
+    st.markdown(
+        '<p style="color: gray; margin-bottom: 20px; font-size: 14px;">'
+        "Daily new job postings. First day per company is excluded to remove "
+        "initial import spikes."
+        "</p>",
+        unsafe_allow_html=True,
+    )
+     
+    # --- Window selector ---
+    col_left, col_right = st.columns([2, 5])
+    with col_left:
+        window = st.radio(
+            "Show last",
+            options=["7 days", "30 days", "90 days", "All time"],
+            index=1,            # default: 30 days
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+     
+    # --- Build daily counts from trend_df ---
+    # Convert to JST date (trend_df already uses JST per your existing code)
+    cal_df = trend_df.copy()
+    cal_df["date"] = (
+        pd.to_datetime(cal_df["first_seen_at"], utc=True)
+        .dt.tz_convert("Asia/Tokyo")
+        .dt.date
+    )
+     
+    daily = (
+        cal_df.groupby("date")
+        .size()
+        .reset_index(name="count")
+    )
+    daily["date"] = pd.to_datetime(daily["date"])
+     
+    # --- Apply window filter ---
+    window_days = {"7 days": 7, "30 days": 30, "90 days": 90, "All time": None}
+    n_days = window_days[window]
+     
+    if n_days is not None:
+        cutoff = pd.Timestamp.now(tz="Asia/Tokyo").normalize().tz_localize(None) - pd.Timedelta(days=n_days - 1)
+        daily = daily[daily["date"] >= cutoff]
+     
+    if daily.empty:
+        st.info("No posting data in this window.")
+    else:
+        # --- Calendar geometry ---
+        # Align to Monday-start weeks for a GitHub-style grid.
+        daily["week_start"] = daily["date"] - pd.to_timedelta(
+            daily["date"].dt.dayofweek, unit="d"
+        )
+        daily["day_of_week"] = daily["date"].dt.dayofweek  # 0=Mon … 6=Sun
+     
+        # Fill the full date spine so empty days render as blank cells
+        date_min = daily["date"].min()
+        # Snap to Monday of first week
+        date_min_monday = date_min - pd.Timedelta(days=date_min.dayofweek)
+        date_max = daily["date"].max()
+        # Snap to Sunday of last week
+        date_max_sunday = date_max + pd.Timedelta(days=6 - date_max.dayofweek)
+     
+        spine = pd.DataFrame({"date": pd.date_range(date_min_monday, date_max_sunday)})
+        spine["week_start"] = spine["date"] - pd.to_timedelta(
+            spine["date"].dt.dayofweek, unit="d"
+        )
+        spine["day_of_week"] = spine["date"].dt.dayofweek
+     
+        full_df = spine.merge(daily[["date", "count"]], on="date", how="left")
+        full_df["count"] = full_df["count"].fillna(0).astype(int)
+        full_df["date_str"] = full_df["date"].dt.strftime("%b %d, %Y")
+     
+        # Week label: show "Mar 10" style on the first day of each week
+        full_df["week_label"] = full_df.apply(
+            lambda r: r["week_start"].strftime("%-m/%-d") if r["day_of_week"] == 0 else "",
+            axis=1,
+        )
+     
+        day_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        full_df["day_label"] = full_df["day_of_week"].map(lambda d: day_labels[d])
+     
+        # --- Altair calendar chart ---
+        max_count = max(full_df["count"].max(), 1)
+     
+        cell_size = 18 if n_days and n_days <= 30 else 14
+     
+        chart = (
+            alt.Chart(full_df)
+            .mark_rect(cornerRadius=3, stroke="rgba(0,0,0,0.08)", strokeWidth=0.5)
+            .encode(
+                x=alt.X(
+                    "week_start:T",
+                    title=None,
+                    axis=alt.Axis(
+                        format="%-m/%-d",
+                        labelAngle=0,
+                        tickCount="week",
+                        labelFontSize=11,
+                        grid=False,
+                        ticks=False,
+                        domain=False,
+                    ),
+                ),
+                y=alt.Y(
+                    "day_label:O",
+                    sort=day_labels,
+                    title=None,
+                    axis=alt.Axis(
+                        labelFontSize=11,
+                        grid=False,
+                        ticks=False,
+                        domain=False,
+                    ),
+                ),
+                color=alt.condition(
+                    alt.datum.count == 0,
+                    alt.value("#f0f0f0"),           # empty cell colour
+                    alt.Color(
+                        "count:Q",
+                        scale=alt.Scale(
+                            scheme="reds",
+                            domain=[1, max_count],
+                        ),
+                        legend=alt.Legend(
+                            title="New jobs",
+                            orient="bottom",
+                            direction="horizontal",
+                            gradientLength=160,
+                            labelFontSize=11,
+                        ),
+                    ),
+                ),
+                tooltip=[
+                    alt.Tooltip("date_str:N", title="Date"),
+                    alt.Tooltip("count:Q", title="New jobs"),
+                ],
+            )
+            .properties(
+                height=cell_size * 7 + 40,
+            )
+            .configure_view(strokeWidth=0)
+        )
+     
+        st.altair_chart(chart, use_container_width=True)
+     
+        # --- Summary strip below the calendar ---
+        total_in_window = daily["count"].sum()
+        active_days = (daily["count"] > 0).sum()
+        busiest_day = daily.loc[daily["count"].idxmax()]
+     
+        c1, c2, c3 = st.columns(3)
+        c1.metric("New roles in window", int(total_in_window))
+        c2.metric("Active posting days", int(active_days))
+        c3.metric(
+            "Busiest day",
+            busiest_day["date"].strftime("%b %d"),
+            f"{int(busiest_day['count'])} roles",
+        )
+    
     st.markdown("""
     <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
     Excludes first day of each company to remove initial data spikes.
