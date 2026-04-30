@@ -1398,7 +1398,9 @@ with tab7:
         selected_rows = selected_rows.to_dict("records")
 
     if len(selected_rows) > 0:
-        st.session_state.selected_company_table = selected_rows[0]["Company"]
+        new_selection = selected_rows[0]["Company"]
+        if new_selection != st.session_state.selected_company_table:
+            st.session_state.selected_company_table = new_selection
 
     # -----------------------------------
     # 📊 Role Composition
@@ -1408,7 +1410,6 @@ with tab7:
 
     with composition_placeholder.container():
         if selected_company:
-            # Dict lookup — no groupby on every rerun
             role_df = role_cache_dict.get(selected_company, pd.DataFrame(columns=["role", "count"]))
 
             if role_df.empty:
@@ -1416,12 +1417,11 @@ with tab7:
             else:
                 role_df = role_df.sort_values("count", ascending=False)
 
-                # Top 5 + Other (unchanged logic)
                 top5 = role_df.head(5)
                 rest = role_df.iloc[5:]
                 if not rest.empty:
                     other_row = pd.DataFrame([{
-                        "role": f"Other ({len(rest)} roles)",
+                        "role": f"+ {len(rest)} more",
                         "count": rest["count"].sum(),
                     }])
                     role_stats = pd.concat([top5, other_row], ignore_index=True)
@@ -1431,50 +1431,50 @@ with tab7:
                 role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
                 role_stats["_y"] = "roles"
                 role_stats["sort_order"] = range(len(role_stats))
-                role_stats.loc[role_stats["role"].str.startswith("Other"), "sort_order"] = 999
+                role_stats.loc[role_stats["role"].str.startswith("+"), "sort_order"] = 999
                 role_order = role_stats["role"].tolist()
 
-            chart = (
-                alt.Chart(role_stats)
-                .mark_bar(
-                    cornerRadiusTopLeft=12,
-                    cornerRadiusBottomLeft=12,
-                    cornerRadiusTopRight=12,
-                    cornerRadiusBottomRight=12,
-                )
-                .encode(
-                    x=alt.X("pct:Q", stack="normalize", axis=None),
-                    y=alt.Y("_y:N", axis=None),
-                    color=alt.Color(
-                        "role:N",
-                        sort=role_order,
-                        scale=alt.Scale(
-                            domain=role_order,
-                            range=["#1b4e6b", "#ff4d6b", "#f4ab33", "#c068a8", "#ec7176", "#5c63a2"],
+                chart = (                          # ← now correctly inside else
+                    alt.Chart(role_stats)
+                    .mark_bar(
+                        cornerRadiusTopLeft=12,
+                        cornerRadiusBottomLeft=12,
+                        cornerRadiusTopRight=12,
+                        cornerRadiusBottomRight=12,
+                    )
+                    .encode(
+                        x=alt.X("pct:Q", stack="normalize", axis=None),
+                        y=alt.Y("_y:N", axis=None),
+                        color=alt.Color(
+                            "role:N",
+                            sort=role_order,
+                            scale=alt.Scale(
+                                domain=role_order,
+                                range=["#1b4e6b", "#ff4d6b", "#f4ab33", "#c068a8", "#ec7176", "#5c63a2"],
+                            ),
+                            legend=alt.Legend(
+                                orient="bottom",
+                                direction="horizontal",
+                                title=None,
+                                columns=3,
+                                symbolSize=100,
+                                symbolType="circle",
+                                labelFontSize=14,
+                                columnPadding=20,
+                                padding=0,
+                            ),
                         ),
-                        legend=alt.Legend(
-                            orient="bottom",
-                            direction="horizontal",
-                            title=None,
-                            columns=3,
-                            symbolSize=100,
-                            symbolType="circle",
-                            labelFontSize=14,
-                            columnPadding=20,
-                            padding=0,
-                        ),
-                    ),
-                    order=alt.Order("sort_order:Q", sort="ascending"),  # ← sort by index, not pct
-                    tooltip=[
-                        alt.Tooltip("role:N", title="Role"),
-                        alt.Tooltip("count:Q", title="Roles"),
-                        alt.Tooltip("pct:Q", title="Share", format=".0%"),
-                    ],
+                        order=alt.Order("sort_order:Q", sort="ascending"),
+                        tooltip=[
+                            alt.Tooltip("role:N", title="Role"),
+                            alt.Tooltip("count:Q", title="Roles"),
+                            alt.Tooltip("pct:Q", title="Share", format=".0%"),
+                        ],
+                    )
+                    .properties(height=240)
                 )
-                .properties(height=240)
-            )
 
-            st.caption(f"**{selected_company}** — Role Composition · hover a segment for details")
-            st.altair_chart(chart, use_container_width=True)
+                st.caption(f"**{selected_company}** — Role Composition · hover a segment for details")
+                st.altair_chart(chart, use_container_width=True)
         else:
             st.info("Select a company to see role composition.")
