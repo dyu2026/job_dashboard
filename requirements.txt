@@ -3,6 +3,4 @@ pandas
 supabase
 altair
 streamlit-cookies-manager
-numpy
-matplotlib
 streamlit-aggrid
