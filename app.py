@@ -1320,6 +1320,8 @@ with tab6:
 # Test Tab
 # -----------------------------------
 
+with tab7:
+
 # --- Data prep ---
     df_company = df_full.copy()   # ← full dataset
     df_company["company"] = df_company["company"].str.strip()
