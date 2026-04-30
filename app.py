@@ -1412,9 +1412,11 @@ with tab7:
 
     # Left-align all columns by default
     gb.configure_default_column(
-        cellStyle={"textAlign": "left", "fontSize": "15px"},
+        cellStyle={"textAlign": "left", "fontSize": "15px", "paddingTop": "10px", "paddingBottom": "10px"},
         headerClass="ag-left-aligned-header",
     )
+
+    gb.configure_grid_options(rowHeight=52) 
 
     gb.configure_column("logo", header_name="", cellRenderer=logo_renderer, width=50, pinned="left", sortable=False, filter=False)
     gb.configure_column("Company", pinned="left", width=160)
