@@ -55,7 +55,6 @@ user_type = cookies.get("user_type", "external")
 # -----------------------------------
 
 JST = timezone(timedelta(hours=9))
-df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], errors="coerce", utc=True)
 
 # -----------------------------------
 # Sidebar Content
@@ -174,6 +173,7 @@ for col, default in {
 # Normalize
 df["remote_scope"] = df["remote_scope"].astype(str).str.lower().fillna("unknown")
 df["region"] = df["region"].astype(str).str.lower().fillna("unknown")
+df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], errors="coerce", utc=True)
 
 def classify_location(row):
     location = str(row.get("location", "")).lower()
