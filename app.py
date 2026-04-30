@@ -1488,7 +1488,7 @@ with tab7:
                 role_stats.loc[role_stats["role"].str.startswith("+"), "sort_order"] = 999
                 role_order = role_stats["role"].tolist()
 
-                chart = (                          # ← now correctly inside else
+                chart = (
                     alt.Chart(role_stats)
                     .mark_bar(
                         cornerRadiusTopLeft=12,
