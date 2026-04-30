@@ -1349,13 +1349,16 @@ with tab7:
         st.session_state.selected_company_table = company_stats.iloc[0]["company"]
     
     # Declare placeholder
+    
+    st.subheader("Role Composition")
+    
     composition_placeholder = st.empty()
 
     # -----------------------------------
     # 🏢 Company Table — RENDER FIRST
     # so selection is captured before chart draws
     # -----------------------------------
-    st.markdown("### 🏢 Companies")
+    st.markdown("### Companies")
 
     display_df = company_stats.rename(columns={
         "company": "Company",
