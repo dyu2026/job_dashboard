@@ -1397,10 +1397,10 @@ with tab7:
                 if (params.value) {
                     const img = document.createElement('img');
                     img.src = params.value;
-                    img.style.height = '24px';
-                    img.style.width = '24px';
+                    img.style.height = '32px';
+                    img.style.width = '32px';
                     img.style.objectFit = 'contain';
-                    img.style.borderRadius = '4px';
+                    img.style.borderRadius = '6px';
                     this.eGui.appendChild(img);
                 }
             }
@@ -1412,7 +1412,7 @@ with tab7:
 
     # Left-align all columns by default
     gb.configure_default_column(
-        cellStyle={"textAlign": "left"},
+        cellStyle={"textAlign": "left", "fontSize": "15px"},
         headerClass="ag-left-aligned-header",
     )
 
