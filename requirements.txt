@@ -5,4 +5,4 @@ altair
 streamlit-cookies-manager
 numpy
 matplotlib
-st_aggrid
+streamlit-aggrid
