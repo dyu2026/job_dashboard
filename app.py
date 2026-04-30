@@ -1449,11 +1449,15 @@ with tab7:
         fit_columns_on_grid_load=True,
     )
 
-    selected_rows = grid.get("selected_rows", [])
+    selected_rows = grid.get("selected_rows")
 
-    # normalize
-    if isinstance(selected_rows, pd.DataFrame):
+    # Normalize safely
+    if selected_rows is None:
+        selected_rows = []
+
+    elif isinstance(selected_rows, pd.DataFrame):
         selected_rows = selected_rows.to_dict("records")
 
+    # Now safe
     if len(selected_rows) > 0:
         st.session_state.selected_company_table = selected_rows[0]["Company"]
