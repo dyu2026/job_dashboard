@@ -647,8 +647,8 @@ df_filtered.loc[df_filtered["is_new_company"], "company_display"] += " 🌟"
 # Tabs Layout
 # -----------------------------------
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed", "Test"]
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed", ]
 )
 
 
@@ -946,9 +946,9 @@ with tab3:
 
     gb.configure_column("logo", header_name="", cellRenderer=logo_renderer, width=50, pinned="left", sortable=False, filter=False)
     gb.configure_column("Company", pinned="left", width=160)
-    gb.configure_column("Active Roles", width=80, cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",)
-    gb.configure_column("7D New Roles", width=80, cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",)
-    gb.configure_column("Growth %", width=80, valueFormatter="x.toFixed(1) + '%'", 
+    gb.configure_column("Active Roles", width=120, cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",)
+    gb.configure_column("7D New Roles", width=120, cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",)
+    gb.configure_column("Growth %", width=120, valueFormatter="x.toFixed(1) + '%'", 
         cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",
     )
     gb.configure_column("Last Updated", width=120)
