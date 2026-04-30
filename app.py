@@ -3,6 +3,7 @@ import pandas as pd
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 from streamlit_cookies_manager import EncryptedCookieManager
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 import streamlit.components.v1 as components
 import os, base64
 import altair as alt
@@ -643,8 +644,8 @@ df_filtered.loc[df_filtered["is_new_company"], "company_display"] += " 🌟"
 # Tabs Layout
 # -----------------------------------
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
-    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed"]
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
+    ["🔥 New", "📋 All Jobs", "🚀 Companies", "❄️ Roles", "📮 Posting Trends", "🚫 Removed", "Test"]
 )
 
 
@@ -1311,3 +1312,146 @@ with tab6:
             use_container_width=True,
             hide_index=True
         )
+        
+# -----------------------------------
+# Test Tab
+# -----------------------------------
+
+with tab7:
+    
+    if "selected_company" not in st.session_state:
+        st.session_state.selected_company = None
+
+    # -----------------------------------
+    # Build company summary
+    # -----------------------------------
+    company_summary = (
+        df.groupby("company")
+        .agg(
+            active_roles=("external_id", "count"),
+            last_updated=("last_seen_at", "max"),
+        )
+        .reset_index()
+    )
+
+    # --- Growth proxy (last 7 days) ---
+    recent_df = df[
+        df["last_seen_at"] >= (pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7))
+    ]
+
+    recent_counts = (
+        recent_df.groupby("company")["external_id"]
+        .count()
+        .reset_index(name="recent_roles")
+    )
+
+    company_summary = company_summary.merge(recent_counts, on="company", how="left")
+    company_summary["growth_rate"] = (
+        (company_summary["recent_roles"] / company_summary["active_roles"]) * 100
+    ).fillna(0)
+
+    # --- Format display ---
+    company_summary["last_updated"] = pd.to_datetime(
+        company_summary["last_updated"]
+    ).dt.strftime("%b %d")
+
+    company_summary = company_summary.sort_values(
+        "active_roles", ascending=False
+    )
+
+    # -----------------------------------
+    # Default selection
+    # -----------------------------------
+    if st.session_state.selected_company is None and not company_summary.empty:
+        st.session_state.selected_company = company_summary.iloc[0]["company"]
+
+    # -----------------------------------
+    # 🧩 Workforce Composition (Top)
+    # -----------------------------------
+    st.markdown("### 🧩 Workforce Composition")
+
+    selected_company = st.session_state.selected_company
+
+    if selected_company:
+        company_df = df[df["company"] == selected_company]
+
+        role_counts = (
+            company_df["role"]
+            .value_counts()
+            .reset_index()
+        )
+        role_counts.columns = ["role", "count"]
+
+        role_counts["pct"] = role_counts["count"] / role_counts["count"].sum()
+
+        chart = alt.Chart(role_counts).mark_bar().encode(
+            x=alt.X("pct:Q", stack="normalize", axis=None),
+            y=alt.value(30),
+            color=alt.Color("role:N", legend=alt.Legend(title="Role")),
+            tooltip=["role", "count"]
+        ).properties(height=60)
+
+        st.altair_chart(chart, use_container_width=True)
+
+        st.caption(f"Showing role distribution for **{selected_company}**")
+
+    else:
+        st.info("Select a company below")
+
+    # -----------------------------------
+    # 🏢 Company Table (AgGrid)
+    # -----------------------------------
+    st.markdown("### 🏢 Company Breakdown")
+
+    display_df = company_summary.copy()
+
+    # Rename for UI
+    display_df.columns = [
+        "Company",
+        "Active Roles",
+        "Last Updated",
+        "Recent Roles",
+        "Growth Rate (%)",
+    ]
+
+    # -----------------------------------
+    # AgGrid Config
+    # -----------------------------------
+    gb = GridOptionsBuilder.from_dataframe(display_df)
+
+    gb.configure_selection(
+        selection_mode="single",
+        use_checkbox=False
+    )
+
+    gb.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
+
+    gb.configure_column("Company", pinned="left")
+
+    gb.configure_column(
+        "Growth Rate (%)",
+        type=["numericColumn"],
+        valueFormatter="x.toFixed(1) + '%'"
+    )
+
+    grid_options = gb.build()
+
+    # -----------------------------------
+    # Render Grid
+    # -----------------------------------
+    grid_response = AgGrid(
+        display_df,
+        gridOptions=grid_options,
+        update_mode=GridUpdateMode.SELECTION_CHANGED,
+        height=400,
+        fit_columns_on_grid_load=True,
+    )
+
+    selected_rows = grid_response["selected_rows"]
+
+    # -----------------------------------
+    # Update selection from grid
+    # -----------------------------------
+    if selected_rows:
+        selected_company = selected_rows[0]["Company"]
+        st.session_state.selected_company = selected_company
