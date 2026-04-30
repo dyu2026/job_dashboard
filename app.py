@@ -1068,9 +1068,8 @@ with tab4:
 with tab5:
     st.subheader("📮 Job Posting Trends (JST)")
     
-    
     # -----------------------------------
-    # 📅 Weekly Posting Trends (NEW)
+    # 📅 Weekly Posting Trends
     # -----------------------------------
 
     st.markdown("### 📅 Weekly Posting Trends")
@@ -1152,18 +1151,79 @@ with tab5:
             )
 
             st.altair_chart(weekly_chart, use_container_width=True)
+    
+    
+    st.markdown("""
+    <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
+    Excludes first day of each company to remove initial data spikes.
+    </p>
+    """, unsafe_allow_html=True)
 
-            # --- 🔥 Peak weeks insight ---
-            top_weeks = weekly_counts.sort_values("count", ascending=False).head(3)
+    if trend_df.empty:
+        st.info("Not enough data to show trends.")
+    else:
+        # -----------------------------------
+        # Day-of-week bar chart
+        # -----------------------------------
+        st.bar_chart(day_counts, color="#ff4d6b")
 
-            if not top_weeks.empty:
-                st.markdown("### 🔥 Peak Hiring Weeks")
-                medals = ["🥇", "🥈", "🥉"]
+        # -----------------------------------
+        # Heatmap (Day x Hour)
+        # -----------------------------------
 
-                for i, row in enumerate(top_weeks.itertuples()):
-                    label = row.week_start.strftime("%b %d")
-                    count = int(row.count)
-                    st.markdown(f"{medals[i]} Week of {label} ({count} jobs)")
+        # Format hour labels (1:00, 2:00, etc.)
+        heatmap_data["hour_label"] = heatmap_data["hour"].apply(lambda x: f"{x}:00")
+
+        # Ensure correct hour order
+        hour_order = [f"{i}:00" for i in range(24)]
+        
+        st.markdown("""
+        <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
+        When new jobs are first detected (JST), excluding initial bulk import when company is first tracked.
+        </p>
+        """, unsafe_allow_html=True)
+
+        heatmap = alt.Chart(heatmap_data).mark_rect().encode(
+            x=alt.X(
+                "hour_label:O",
+                sort=hour_order,
+                title="Hour of Day (JST)"
+            ),
+            y=alt.Y(
+                "day_of_week:O",
+                sort=day_order,
+                title="Day of Week"
+            ),
+            color=alt.Color(
+                "count:Q",
+                scale=alt.Scale(scheme="reds"),
+                title="Jobs"
+            ),
+            tooltip=[
+                alt.Tooltip("day_of_week", title="Day"),
+                alt.Tooltip("hour_label", title="Hour"),
+                alt.Tooltip("count", title="Jobs")
+            ]
+        )
+
+        st.altair_chart(heatmap, use_container_width=True)
+        
+        # -----------------------------------
+        # 🔥 Auto Insight: Top Posting Times 
+        # -----------------------------------
+
+        if not heatmap_data.empty:
+            top_slots = heatmap_data.sort_values("count", ascending=False).head(3)
+
+            st.markdown("### 🔥 Peak Posting Activity (Observed)")
+
+            medals = ["🥇", "🥈", "🥉"]
+
+            for i, row in enumerate(top_slots.itertuples()):
+                label = f"{row.day_of_week} at {int(row.hour)}:00 JST"
+                count = int(row.count)
+
+                st.markdown(f"{medals[i]} {label} ({count} jobs)")
 
 # -----------------------------------
 # Role Insights Tab
