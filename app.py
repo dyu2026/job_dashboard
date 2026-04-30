@@ -55,6 +55,7 @@ user_type = cookies.get("user_type", "external")
 # -----------------------------------
 
 JST = timezone(timedelta(hours=9))
+df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], errors="coerce", utc=True)
 
 # -----------------------------------
 # Sidebar Content
