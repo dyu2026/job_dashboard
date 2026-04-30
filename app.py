@@ -1416,7 +1416,7 @@ with tab7:
         headerClass="ag-left-aligned-header",
     )
 
-    gb.configure_grid_options(rowHeight=48) 
+    gb.configure_grid_options(rowHeight=48, headerHeight=48,) 
 
     gb.configure_column("logo", header_name="", cellRenderer=logo_renderer, width=50, pinned="left", sortable=False, filter=False)
     gb.configure_column("Company", pinned="left", width=160)
@@ -1435,6 +1435,10 @@ with tab7:
         height=600,
         fit_columns_on_grid_load=False,   # False so our explicit widths are respected
         allow_unsafe_jscode=True,         # required for JsCode renderer
+        custom_css={
+            ".ag-header-cell-text": {"font-size": "15px !important"},
+            ".ag-cell": {"font-size": "15px !important"},
+        }
     )
 
     selected_rows = grid.get("selected_rows")
