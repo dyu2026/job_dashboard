@@ -1107,7 +1107,7 @@ with tab5:
             st.error("No valid timestamp column found.")
             st.stop()
 
-        # --- 🕒 Convert to JST ---
+        # --- Convert to JST ---
         df["timestamp"] = pd.to_datetime(df[ts_col], errors="coerce", utc=True)
         df["timestamp"] = df["timestamp"].dt.tz_convert(JST)
 
@@ -1115,11 +1115,11 @@ with tab5:
 
         df["date"] = df["timestamp"].dt.date
 
-        # --- 🚫 Exclude first day per company ---
+        # --- Exclude first day per company ---
         first_seen = df.groupby("company")["date"].transform("min")
         df = df[df["date"] > first_seen]
 
-        # --- ⏱ Apply time window (JST aligned) ---
+        # --- Apply time window (JST aligned) ---
         today = datetime.now(JST).date()
         cutoff = today - timedelta(days=time_window)
 
@@ -1128,9 +1128,9 @@ with tab5:
         if df.empty:
             st.info("No data available after filtering.")
         else:
-            # --- 📊 Weekly buckets (Monday start) ---
+            # --- Weekly buckets (Sunda start) ---
             df["week_start"] = pd.to_datetime(df["date"]) - pd.to_timedelta(
-                pd.to_datetime(df["date"]).dt.weekday, unit="d"
+                (pd.to_datetime(df["date"]).dt.weekday + 1) % 7, unit="d"
             )
 
             weekly_counts = (
@@ -1140,7 +1140,7 @@ with tab5:
                 .sort_values("week_start")
             )
 
-            # --- 📊 Chart ---
+            # --- Chart ---
             weekly_counts["label"] = weekly_counts["week_start"].dt.strftime("%b %d")
 
             # Pass explicit label order to Altair so it never re-sorts alphabetically
@@ -1172,7 +1172,33 @@ with tab5:
         # -----------------------------------
         # Day-of-week bar chart
         # -----------------------------------
-        st.bar_chart(day_counts, color="#ff4d6b")
+#        st.bar_chart(day_counts, color="#ff4d6b")
+
+        day_bar_df = day_counts.reset_index()
+        day_bar_df.columns = ["day_of_week", "count"]
+
+        day_bar = alt.Chart(day_bar_df).mark_bar(
+            color="#ff4d6b",
+            size=40,
+        ).encode(
+            x=alt.X(
+                "day_of_week:N",
+                sort=day_order,
+                title=None,
+                axis=alt.Axis(labelAngle=0, ticks=False, domain=False, grid=False),
+            ),
+            y=alt.Y(
+                "count:Q",
+                title="New roles",
+                axis=alt.Axis(grid=True, gridColor="#f0f0f0", domain=False, ticks=False),
+            ),
+            tooltip=[
+                alt.Tooltip("day_of_week:N", title="Day"),
+                alt.Tooltip("count:Q", title="New roles"),
+            ],
+        )
+
+        st.altair_chart(day_bar, use_container_width=True)
 
         # -----------------------------------
         # Heatmap (Day x Hour)
