@@ -1431,10 +1431,10 @@ with tab7:
             chart = (
                 alt.Chart(role_stats)
                 .mark_bar(
-                    cornerRadiusTopLeft=6,
-                    cornerRadiusBottomLeft=6,
-                    cornerRadiusTopRight=6,
-                    cornerRadiusBottomRight=6,
+                    cornerRadiusTopLeft=12,
+                    cornerRadiusBottomLeft=12,
+                    cornerRadiusTopRight=12,
+                    cornerRadiusBottomRight=12,
                 )
                 .encode(
                     x=alt.X("pct:Q", stack="normalize", axis=None),
@@ -1444,7 +1444,7 @@ with tab7:
                         sort=role_order,
                         scale=alt.Scale(
                             domain=role_order,
-                            range=["#4e8df5", "#f5774e", "#4ecf8d", "#f5c84e", "#a44ef5", "#c0c0c0"],
+                            range=["#1b4e6b", "#ff4d6b", "#c068a8", "#ec7176", "#f4ab33", "#c0c0c0"],
                         ),
                         legend=alt.Legend(
                             orient="bottom",
