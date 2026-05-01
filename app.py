@@ -953,9 +953,16 @@ with tab3:
         headerClass="ag-left-aligned-header",
     )
 
+    PAGE_SIZE = 20
+    ROW_HEIGHT = 42
+    HEADER_HEIGHT = 42
+    PAGINATION_HEIGHT = 40
+
+    grid_height = (PAGE_SIZE * ROW_HEIGHT) + HEADER_HEIGHT + PAGINATION_HEIGHT
+
     gb.configure_grid_options(
-        rowHeight=42, 
-        headerHeight=42,
+        rowHeight=ROW_HEIGHT,
+        headerHeight=HEADER_HEIGHT,
         suppressSizeToFit=True, 
         suppressColumnVirtualisation=True,
     ) 
@@ -976,13 +983,13 @@ with tab3:
     )
     gb.configure_column("Last Updated", flex=1,)
     gb.configure_selection("single", use_checkbox=False)
-    gb.configure_pagination(paginationPageSize=20)
+    gb.configure_pagination(paginationPageSize=PAGE_SIZE)
 
     grid = AgGrid(
         display_df,
         gridOptions=gb.build(),
         update_mode=GridUpdateMode.SELECTION_CHANGED,
-        height=600,
+        height=grid_height,
         fit_columns_on_grid_load=False,   # False so our explicit widths are respected
         allow_unsafe_jscode=True,         # required for JsCode renderer
         custom_css={
