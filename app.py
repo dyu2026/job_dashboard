@@ -953,7 +953,7 @@ with tab3:
         headerClass="ag-left-aligned-header",
     )
 
-    PAGE_SIZE = 20
+    PAGE_SIZE = 15
     ROW_HEIGHT = 42
     HEADER_HEIGHT = 42
     PAGINATION_HEIGHT = 40
