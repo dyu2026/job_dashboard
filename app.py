@@ -270,106 +270,6 @@ def prepare_jobs_dataframe(df):
     return df
 
 # Helper function to convert local images to Base64
-def get_base64_logo(company_name):
-    # Standardize name for file path: logos/apple.webp
-    file_path = f"logos/{company_name.lower()}.webp"
-    if os.path.exists(file_path):
-        with open(file_path, "rb") as f:
-            data = base64.b64encode(f.read()).decode()
-            return f"data:image/webp;base64,{data}"
-    return None
-
-# Apply the logo mapping to the main dataframe
-df["logo"] = df["company"].apply(get_base64_logo)
-
-# -----------------------------------
-# Priority Tagging
-# -----------------------------------
-
-def tag_priority(title):
-    title = str(title).lower()
-    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president", "general manager"]):
-        return "👑 Exec"
-    elif "senior" in title:
-        return "😎 Senior"
-    else:
-        return ""
-
-df["Priority"] = df["title"].apply(tag_priority)
-
-ROLE_LABEL_MAP = {
-    "product management": "Product",
-    "engineering": "Engineering",
-    "design": "Design",
-    "data and analytics": "Data",
-    "marketing": "Marketing",
-    "sales": "Sales",
-    "business development": "Biz Dev",
-    "customer success and experience": "Customer Success",
-    "hr and recruiting": "HR",
-    "finance and accounting": "Finance",
-    "operations and support": "Operations",
-    "program and project management": "Program/Proj Mgmt",
-    "information technology": "IT",
-    "security": "Security",
-    "legal": "Legal",
-    "research and development": "R&D",
-    "supply chain and procurement": "Supply Chain",
-    "customer solution": "Customer Solutions",
-    "communications and pr": "Comms",
-    "solutions architect and engineer": "Solutions SA/SE",
-    "other": "Other"
-}
-
-df["role_short"] = (
-    df["role"]
-    .str.lower()
-    .map(ROLE_LABEL_MAP)
-    .fillna("Other")
-)
-
-df_for_trends = df.copy()  # keep full dataset for trends if needed
-
-def extract_seniority(title):
-    title = str(title).lower()
-
-    if re.search(r"\b(chief|ceo|cto|cfo|cpo)\b", title):
-        return "C-Level"
-    elif re.search(r"\b(vp|vice president)\b", title):
-        return "VP"
-    elif re.search(r"\bhead\b", title):
-        return "Head"
-    elif re.search(r"\bdirector\b", title):
-        return "Director"
-    elif re.search(r"\bprincipal\b", title):
-        return "Principal"
-    elif re.search(r"\blead\b", title):
-        return "Lead"
-    elif re.search(r"\bmanager\b", title):
-        return "Manager"
-    elif re.search(r"\bsenior\b", title):
-        return "Senior"
-    else:
-        return "Other"
-
-df["seniority"] = df["title"].apply(extract_seniority)
-
-SENIORITY_ORDER = [
-    "C-Level",
-    "VP",
-    "Head",
-    "Director",
-    "Principal",
-    "Lead",
-    "Manager",
-    "Senior",
-    "Other"
-]
-
-# -----------------------------------
-# Caching helper functions for tab3
-# -----------------------------------
-
 @st.cache_data
 def get_base64_logo(company_name):
     """Cached logo loader — reads from disk once per session per company."""
@@ -380,7 +280,10 @@ def get_base64_logo(company_name):
             return f"data:image/webp;base64,{data}"
     return None
  
- 
+
+# Apply the logo mapping to the main dataframe
+df["logo"] = df["company"].apply(get_base64_logo)
+
 @st.cache_data(ttl=300)
 def build_tab3_data(df_full):
     """
@@ -431,14 +334,13 @@ def build_tab3_data(df_full):
     ).dt.tz_convert("Asia/Tokyo").dt.strftime("%b %d")
     company_stats = company_stats.sort_values("active_roles", ascending=False)
  
-    # Add logos inside the cache so disk reads only happen once
+    # Logos built inside the cache so disk reads only happen once
     company_stats["logo"] = company_stats["company"].apply(get_base64_logo)
  
     return company_stats, role_cache_dict
 
-@st.fragment
 def render_composition(role_cache_dict):
-    """Renders the role composition bar chart. Reruns independently of the app."""
+    """Renders the role composition bar chart into whatever container calls it."""
     selected_company = st.session_state.get("selected_company_table")
  
     if not selected_company:
@@ -539,6 +441,90 @@ def render_composition(role_cache_dict):
         alt.layer(bars, labels).properties(height=240),
         use_container_width=True,
     )
+
+# -----------------------------------
+# Priority Tagging
+# -----------------------------------
+
+def tag_priority(title):
+    title = str(title).lower()
+    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president", "general manager"]):
+        return "👑 Exec"
+    elif "senior" in title:
+        return "😎 Senior"
+    else:
+        return ""
+
+df["Priority"] = df["title"].apply(tag_priority)
+
+ROLE_LABEL_MAP = {
+    "product management": "Product",
+    "engineering": "Engineering",
+    "design": "Design",
+    "data and analytics": "Data",
+    "marketing": "Marketing",
+    "sales": "Sales",
+    "business development": "Biz Dev",
+    "customer success and experience": "Customer Success",
+    "hr and recruiting": "HR",
+    "finance and accounting": "Finance",
+    "operations and support": "Operations",
+    "program and project management": "Program/Proj Mgmt",
+    "information technology": "IT",
+    "security": "Security",
+    "legal": "Legal",
+    "research and development": "R&D",
+    "supply chain and procurement": "Supply Chain",
+    "customer solution": "Customer Solutions",
+    "communications and pr": "Comms",
+    "solutions architect and engineer": "Solutions SA/SE",
+    "other": "Other"
+}
+
+df["role_short"] = (
+    df["role"]
+    .str.lower()
+    .map(ROLE_LABEL_MAP)
+    .fillna("Other")
+)
+
+df_for_trends = df.copy()  # keep full dataset for trends if needed
+
+def extract_seniority(title):
+    title = str(title).lower()
+
+    if re.search(r"\b(chief|ceo|cto|cfo|cpo)\b", title):
+        return "C-Level"
+    elif re.search(r"\b(vp|vice president)\b", title):
+        return "VP"
+    elif re.search(r"\bhead\b", title):
+        return "Head"
+    elif re.search(r"\bdirector\b", title):
+        return "Director"
+    elif re.search(r"\bprincipal\b", title):
+        return "Principal"
+    elif re.search(r"\blead\b", title):
+        return "Lead"
+    elif re.search(r"\bmanager\b", title):
+        return "Manager"
+    elif re.search(r"\bsenior\b", title):
+        return "Senior"
+    else:
+        return "Other"
+
+df["seniority"] = df["title"].apply(extract_seniority)
+
+SENIORITY_ORDER = [
+    "C-Level",
+    "VP",
+    "Head",
+    "Director",
+    "Principal",
+    "Lead",
+    "Manager",
+    "Senior",
+    "Other"
+]
 
 # -----------------------------------
 # Cleanup & Time Logic (centralized)
@@ -1031,19 +1017,17 @@ with tab2:
 
 with tab3:
  
-    # Single cached call — replaces all the data prep that was here before
     company_stats, role_cache_dict = build_tab3_data(df_full)
  
-    # Initialise selection to the top company on first load
     if "selected_company_table" not in st.session_state:
         st.session_state.selected_company_table = company_stats.iloc[0]["company"]
  
     st.subheader("Company Breakdown")
  
-    # Composition chart renders here (above the table visually).
-    # Because it's a fragment it only reruns itself when session state changes —
-    # not the whole app.
-    render_composition(role_cache_dict)
+    # Placeholder reserves the visual slot above the table.
+    # It is filled AFTER AgGrid captures the selection — all in one rerun,
+    # so the chart always reflects the current click with no double rerun.
+    composition_placeholder = st.empty()
  
     # -----------------------------------
     # Company table
@@ -1156,11 +1140,18 @@ with tab3:
     elif isinstance(selected_rows, pd.DataFrame):
         selected_rows = selected_rows.to_dict("records")
  
+    # Update session state — no st.rerun() needed
     if len(selected_rows) > 0:
         new_selection = selected_rows[0]["Company"]
         if new_selection != st.session_state.selected_company_table:
             st.session_state.selected_company_table = new_selection
-            st.rerun() 
+ 
+    # -----------------------------------
+    # Fill placeholder — runs after AgGrid has updated session state.
+    # Chart reflects the current selection in a single rerun.
+    # -----------------------------------
+    with composition_placeholder.container():
+        render_composition(role_cache_dict)
 
 # -----------------------------------
 # Role Insights Tab
