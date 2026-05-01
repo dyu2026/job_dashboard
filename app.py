@@ -545,8 +545,6 @@ col2.metric("🔥 New (24h)", int(df_filtered["is_new_24h"].sum()))
 col3.metric("✨ New Today (JST)", int(df_filtered["is_new_today"].sum()))
 col4.metric("Companies Tracked", df_filtered["company"].nunique())
 
-st.divider()
-
 # -----------------------------------
 # Posting Trend Dataset
 # -----------------------------------
