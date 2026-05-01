@@ -1080,7 +1080,7 @@ with tab3:
                 labels = base.mark_text(
                     align="center",
                     baseline="middle",
-                    fontSize=12,
+                    fontSize=14,
                     fontWeight="bold",
                     color="white",
                 ).encode(
