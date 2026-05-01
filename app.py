@@ -962,15 +962,15 @@ with tab3:
         width=160, minWidth=160, suppressSizeToFit=True,
     )
     gb.configure_column("Active Roles", cellStyle={"textAlign": "left"}, 
-        width=120, minWidth=120, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
+        width=160, minWidth=160, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
     )
     gb.configure_column("7D New Roles", cellStyle={"textAlign": "left"}, 
-        width=120, minWidth=120, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
+        width=160, minWidth=160, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
     )
     gb.configure_column("Growth %", valueFormatter="x.toFixed(1) + '%'", cellStyle={"textAlign": "left"}, 
-        width=120, minWidth=120, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
+        width=160, minWidth=160, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
     )
-    gb.configure_column("Last Updated", width=120, minWidth=120, suppressSizeToFit=True,)
+    gb.configure_column("Last Updated", width=160, minWidth=160, suppressSizeToFit=True,)
     gb.configure_selection("single", use_checkbox=False)
     gb.configure_pagination(paginationPageSize=10)
 
