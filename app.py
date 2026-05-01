@@ -1160,7 +1160,7 @@ with tab3:
         new_selection = selected_rows[0]["Company"]
         if new_selection != st.session_state.selected_company_table:
             st.session_state.selected_company_table = new_selection
-            st.rerun(scope="fragment")   # only reruns render_composition, not the whole app
+            st.rerun() 
 
 # -----------------------------------
 # Role Insights Tab
