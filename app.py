@@ -329,9 +329,12 @@ def build_tab3_data(df_full):
     company_stats["growth_rate"] = (
         company_stats["new_roles_7d"] / company_stats["active_roles"]
     ) * 100
-    company_stats["last_updated"] = pd.to_datetime(
-        company_stats["last_updated"], utc=True, errors="coerce"
-    ).dt.tz_convert("Asia/Tokyo").dt.strftime("%b %d")
+    last_updated_dt = pd.to_datetime(
+    company_stats["last_updated"], utc=True, errors="coerce"
+    ).dt.tz_convert("Asia/Tokyo")
+
+    company_stats["last_updated_ts"] = last_updated_dt.astype("int64") // 10**6  # Unix ms for JS
+    company_stats["last_updated"] = last_updated_dt.dt.strftime("%b %d")
     company_stats = company_stats.sort_values("active_roles", ascending=False)
  
     # Logos built inside the cache so disk reads only happen once
@@ -1048,7 +1051,7 @@ with tab3:
     })
  
     display_df = display_df[[
-        "logo", "Company", "Active Roles", "7D New Roles", "Growth %", "Last Updated"
+        "logo", "Company", "Active Roles", "7D New Roles", "Growth %", "Last Updated", "last_updated_ts"
     ]]
  
     logo_renderer = JsCode("""
@@ -1114,7 +1117,20 @@ with tab3:
         valueFormatter="x.toFixed(1) + '%'",
         cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",
     )
-    gb.configure_column("Last Updated", flex=1)
+    gb.configure_column(
+        "Last Updated",
+        flex=1,
+        sortingOrder=["desc", "asc"],
+        comparator=JsCode("""
+            function(a, b, nodeA, nodeB) {
+                return nodeA.data.last_updated_ts - nodeB.data.last_updated_ts;
+            }
+        """),
+    )
+    gb.configure_column(
+        "last_updated_ts",
+        hide=True, 
+    )
     gb.configure_selection("single", use_checkbox=False)
     gb.configure_pagination(paginationPageSize=PAGE_SIZE)
  
