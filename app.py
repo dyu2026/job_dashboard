@@ -976,7 +976,7 @@ with tab3:
     )
     gb.configure_column("Last Updated", flex=1,)
     gb.configure_selection("single", use_checkbox=False)
-    gb.configure_pagination(paginationPageSize=10)
+    gb.configure_pagination(paginationPageSize=20)
 
     grid = AgGrid(
         display_df,
