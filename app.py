@@ -367,6 +367,180 @@ SENIORITY_ORDER = [
 ]
 
 # -----------------------------------
+# Caching helper functions for tab3
+# -----------------------------------
+
+@st.cache_data
+def get_base64_logo(company_name):
+    """Cached logo loader — reads from disk once per session per company."""
+    file_path = f"logos/{company_name.lower()}.webp"
+    if os.path.exists(file_path):
+        with open(file_path, "rb") as f:
+            data = base64.b64encode(f.read()).decode()
+            return f"data:image/webp;base64,{data}"
+    return None
+ 
+ 
+@st.cache_data(ttl=300)
+def build_tab3_data(df_full):
+    """
+    All heavy data prep for tab3 — runs once then cached for 5 minutes.
+    ttl=300 ensures fresh data is picked up after each scraper run.
+    """
+    df = df_full.copy()
+    df["company"] = df["company"].str.strip()
+    df["first_seen_at"] = pd.to_datetime(df["first_seen_at"], errors="coerce", utc=True)
+    df["last_seen_at"]  = pd.to_datetime(df["last_seen_at"],  errors="coerce", utc=True)
+ 
+    # Role cache dict — keyed by company for O(1) lookup in the chart
+    role_cache = (
+        df.groupby(["company", "role"])
+        .size()
+        .reset_index(name="count")
+    )
+    role_cache_dict = {
+        company: group.drop(columns="company").reset_index(drop=True)
+        for company, group in role_cache.groupby("company")
+    }
+ 
+    # Company summary stats
+    company_stats = (
+        df.groupby("company")
+        .agg(
+            active_roles=("title", "count"),
+            last_updated=("first_seen_at", "max"),
+        )
+        .reset_index()
+    )
+ 
+    recent_new = df[
+        df["first_seen_at"] >= (pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7))
+    ]
+    recent_counts = (
+        recent_new.groupby("company")["title"]
+        .count()
+        .reset_index(name="new_roles_7d")
+    )
+ 
+    company_stats = company_stats.merge(recent_counts, on="company", how="left").fillna(0)
+    company_stats["growth_rate"] = (
+        company_stats["new_roles_7d"] / company_stats["active_roles"]
+    ) * 100
+    company_stats["last_updated"] = pd.to_datetime(
+        company_stats["last_updated"], utc=True, errors="coerce"
+    ).dt.tz_convert("Asia/Tokyo").dt.strftime("%b %d")
+    company_stats = company_stats.sort_values("active_roles", ascending=False)
+ 
+    # Add logos inside the cache so disk reads only happen once
+    company_stats["logo"] = company_stats["company"].apply(get_base64_logo)
+ 
+    return company_stats, role_cache_dict
+
+@st.fragment
+def render_composition(role_cache_dict):
+    """Renders the role composition bar chart. Reruns independently of the app."""
+    selected_company = st.session_state.get("selected_company_table")
+ 
+    if not selected_company:
+        st.info("Select a company to see role composition.")
+        return
+ 
+    role_df = role_cache_dict.get(
+        selected_company, pd.DataFrame(columns=["role", "count"])
+    )
+ 
+    if role_df.empty:
+        st.info(f"No role data for {selected_company}.")
+        return
+ 
+    role_df = role_df.sort_values("count", ascending=False)
+ 
+    # Top 5 + remainder grouped as "+ N more"
+    top5 = role_df.head(5)
+    rest = role_df.iloc[5:]
+    if not rest.empty:
+        other_row = pd.DataFrame([{
+            "role": f"+ {len(rest)} more",
+            "count": rest["count"].sum(),
+        }])
+        role_stats = pd.concat([top5, other_row], ignore_index=True)
+    else:
+        role_stats = top5.copy()
+ 
+    role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
+    role_stats["_y"] = "roles"
+    role_stats["sort_order"] = range(len(role_stats))
+    role_stats.loc[role_stats["role"].str.startswith("+"), "sort_order"] = 999
+    role_order = role_stats["role"].tolist()
+ 
+    # Midpoint for centred % labels
+    role_stats = role_stats.sort_values("sort_order").reset_index(drop=True)
+    role_stats["cumulative"] = role_stats["pct"].cumsum()
+    role_stats["midpoint"] = role_stats["cumulative"] - (role_stats["pct"] / 2)
+ 
+    base = alt.Chart(role_stats)
+ 
+    bars = base.mark_bar(
+        cornerRadiusTopLeft=12,
+        cornerRadiusBottomLeft=12,
+        cornerRadiusTopRight=12,
+        cornerRadiusBottomRight=12,
+    ).encode(
+        x=alt.X("pct:Q", stack="normalize", axis=None),
+        y=alt.Y("_y:N", axis=None),
+        color=alt.Color(
+            "role:N",
+            sort=role_order,
+            scale=alt.Scale(
+                domain=role_order,
+                range=["#1b4e6b", "#ff4d6b", "#f4ab33", "#c068a8", "#ec7176", "#5c63a2"],
+            ),
+            legend=alt.Legend(
+                orient="bottom",
+                direction="horizontal",
+                title=None,
+                columns=3,
+                symbolSize=100,
+                symbolType="circle",
+                labelFontSize=14,
+                columnPadding=20,
+                padding=0,
+            ),
+        ),
+        order=alt.Order("sort_order:Q", sort="ascending"),
+        tooltip=[
+            alt.Tooltip("role:N", title="Role"),
+            alt.Tooltip("count:Q", title="Roles"),
+            alt.Tooltip("pct:Q", title="Share", format=".0%"),
+        ],
+    )
+ 
+    labels = base.mark_text(
+        align="center",
+        baseline="middle",
+        fontSize=14,
+        fontWeight="bold",
+        color="white",
+    ).encode(
+        x=alt.X("midpoint:Q", axis=None),
+        y=alt.Y("_y:N", axis=None),
+        text=alt.condition(
+            alt.datum.pct >= 0.08,
+            alt.Text("pct:Q", format=".0%"),
+            alt.value(""),
+        ),
+        order=alt.Order("sort_order:Q", sort="ascending"),
+    )
+ 
+    st.caption(
+        f"**{selected_company}** — Role Composition · hover a segment for details"
+    )
+    st.altair_chart(
+        alt.layer(bars, labels).properties(height=240),
+        use_container_width=True,
+    )
+
+# -----------------------------------
 # Cleanup & Time Logic (centralized)
 # -----------------------------------
 
@@ -856,67 +1030,31 @@ with tab2:
 
 
 with tab3:
-
-# --- Data prep ---
-    df_company = df_full.copy()   # ← full dataset
-    df_company["company"] = df_company["company"].str.strip()
-    df_company["first_seen_at"] = pd.to_datetime(df_company["first_seen_at"], errors="coerce", utc=True)
-    df_company["last_seen_at"]  = pd.to_datetime(df_company["last_seen_at"],  errors="coerce", utc=True)
-    
-    role_cache = (
-        df_company.groupby(["company", "role"])
-        .size()
-        .reset_index(name="count")
-    )
-    role_cache_dict = {
-        company: group.drop(columns="company").reset_index(drop=True)
-        for company, group in role_cache.groupby("company")
-    }
-
-    # --- Company summary ---
-    company_stats = (
-        df_company.groupby("company")
-        .agg(active_roles=("title", "count"), last_updated=("first_seen_at", "max"),)
-        .reset_index()
-    )
-
-    recent_new = df_company[
-        df_company["first_seen_at"] >= (pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7))
-    ]
-    recent_counts = recent_new.groupby("company")["title"].count().reset_index(name="new_roles_7d")
-
-    company_stats = company_stats.merge(recent_counts, on="company", how="left").fillna(0)
-    company_stats["growth_rate"] = (company_stats["new_roles_7d"] / company_stats["active_roles"]) * 100
-    company_stats["last_updated"] = pd.to_datetime(
-        company_stats["last_updated"], utc=True, errors="coerce"
-    ).dt.tz_convert("Asia/Tokyo").dt.strftime("%b %d")
-    company_stats = company_stats.sort_values("active_roles", ascending=False)
-
+ 
+    # Single cached call — replaces all the data prep that was here before
+    company_stats, role_cache_dict = build_tab3_data(df_full)
+ 
+    # Initialise selection to the top company on first load
     if "selected_company_table" not in st.session_state:
         st.session_state.selected_company_table = company_stats.iloc[0]["company"]
-    
-    # Declare placeholder
-    
+ 
     st.subheader("Company Breakdown")
-    
-    composition_placeholder = st.empty()
-
+ 
+    # Composition chart renders here (above the table visually).
+    # Because it's a fragment it only reruns itself when session state changes —
+    # not the whole app.
+    render_composition(role_cache_dict)
+ 
     # -----------------------------------
-    # 🏢 Company Table — RENDER FIRST
-    # so selection is captured before chart draws
+    # Company table
     # -----------------------------------
     st.markdown("### Companies")
-    
     st.markdown("""
-    <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
-    Click on a company to see the role composition
-    </p>
+        <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
+        Click on a company to see the role composition
+        </p>
     """, unsafe_allow_html=True)
-
-    # --- Add logo to company_stats ---
-    company_stats["logo"] = company_stats["company"].apply(get_base64_logo)
-
-    # --- Rename and reorder columns ---
+ 
     display_df = company_stats.rename(columns={
         "company": "Company",
         "active_roles": "Active Roles",
@@ -924,12 +1062,11 @@ with tab3:
         "growth_rate": "Growth %",
         "last_updated": "Last Updated",
     })
-
+ 
     display_df = display_df[[
         "logo", "Company", "Active Roles", "7D New Roles", "Growth %", "Last Updated"
     ]]
-
-    # --- AgGrid config ---
+ 
     logo_renderer = JsCode("""
         class LogoRenderer {
             init(params) {
@@ -950,172 +1087,80 @@ with tab3:
             getGui() { return this.eGui; }
         }
     """)
-
-    gb = GridOptionsBuilder.from_dataframe(display_df)
-
-    # Left-align all columns by default
-    gb.configure_default_column(
-        cellStyle={"textAlign": "left", "fontSize": "15px", "paddingTop": "10px", "paddingBottom": "10px"},
-        headerClass="ag-left-aligned-header",
-    )
-
+ 
     PAGE_SIZE = 15
     ROW_HEIGHT = 42
     HEADER_HEIGHT = 42
     PAGINATION_HEIGHT = 40
-
     grid_height = (PAGE_SIZE * ROW_HEIGHT) + HEADER_HEIGHT + PAGINATION_HEIGHT
-
+ 
+    gb = GridOptionsBuilder.from_dataframe(display_df)
+ 
+    gb.configure_default_column(
+        cellStyle={
+            "textAlign": "left",
+            "fontSize": "15px",
+            "paddingTop": "10px",
+            "paddingBottom": "10px",
+        },
+        headerClass="ag-left-aligned-header",
+    )
     gb.configure_grid_options(
         rowHeight=ROW_HEIGHT,
         headerHeight=HEADER_HEIGHT,
-        suppressSizeToFit=True, 
+        suppressSizeToFit=True,
         suppressColumnVirtualisation=True,
-    ) 
-
-    gb.configure_column("logo", header_name="", cellRenderer=logo_renderer, 
+    )
+    gb.configure_column(
+        "logo", header_name="", cellRenderer=logo_renderer,
         width=50, minWidth=50, maxWidth=50,
         pinned="left", sortable=False, filter=False, suppressSizeToFit=True,
     )
-    gb.configure_column("Company", pinned="left", flex=1, )
-    gb.configure_column("Active Roles", cellStyle={"textAlign": "left"}, 
-        flex=1, headerClass="ag-left-aligned-header",
+    gb.configure_column("Company", pinned="left", flex=1)
+    gb.configure_column(
+        "Active Roles", flex=1,
+        cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",
     )
-    gb.configure_column("7D New Roles", cellStyle={"textAlign": "left"}, 
-        flex=1, headerClass="ag-left-aligned-header",
+    gb.configure_column(
+        "7D New Roles", flex=1,
+        cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",
     )
-    gb.configure_column("Growth %", valueFormatter="x.toFixed(1) + '%'", cellStyle={"textAlign": "left"}, 
-        flex=1, headerClass="ag-left-aligned-header",
+    gb.configure_column(
+        "Growth %", flex=1,
+        valueFormatter="x.toFixed(1) + '%'",
+        cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",
     )
-    gb.configure_column("Last Updated", flex=1,)
+    gb.configure_column("Last Updated", flex=1)
     gb.configure_selection("single", use_checkbox=False)
     gb.configure_pagination(paginationPageSize=PAGE_SIZE)
-
+ 
     grid = AgGrid(
         display_df,
         gridOptions=gb.build(),
         update_mode=GridUpdateMode.SELECTION_CHANGED,
         height=grid_height,
-        fit_columns_on_grid_load=False,   # False so our explicit widths are respected
-        allow_unsafe_jscode=True,         # required for JsCode renderer
+        fit_columns_on_grid_load=False,
+        allow_unsafe_jscode=True,
         custom_css={
             ".ag-header-cell-text": {"font-size": "13px !important"},
             ".ag-cell": {"font-size": "13px !important"},
-            ".ag-left-aligned-header .ag-header-cell-label": {"flex-direction": "row !important"},
-        }
+            ".ag-left-aligned-header .ag-header-cell-label": {
+                "flex-direction": "row !important"
+            },
+        },
     )
-
+ 
     selected_rows = grid.get("selected_rows")
     if selected_rows is None:
         selected_rows = []
     elif isinstance(selected_rows, pd.DataFrame):
         selected_rows = selected_rows.to_dict("records")
-
+ 
     if len(selected_rows) > 0:
         new_selection = selected_rows[0]["Company"]
         if new_selection != st.session_state.selected_company_table:
             st.session_state.selected_company_table = new_selection
-
-    # -----------------------------------
-    # 📊 Role Composition
-    # Fills the placeholder declared above — appears above the table visually
-    # -----------------------------------
-    selected_company = st.session_state.selected_company_table
-
-    with composition_placeholder.container():
-        if selected_company:
-            role_df = role_cache_dict.get(selected_company, pd.DataFrame(columns=["role", "count"]))
-
-            if role_df.empty:
-                st.info(f"No role data for {selected_company}.")
-            else:
-                role_df = role_df.sort_values("count", ascending=False)
-
-                top5 = role_df.head(5)
-                rest = role_df.iloc[5:]
-                if not rest.empty:
-                    other_row = pd.DataFrame([{
-                        "role": f"+ {len(rest)} more",
-                        "count": rest["count"].sum(),
-                    }])
-                    role_stats = pd.concat([top5, other_row], ignore_index=True)
-                else:
-                    role_stats = top5.copy()
-
-                role_stats["pct"] = role_stats["count"] / role_stats["count"].sum()
-                role_stats["_y"] = "roles"
-                role_stats["sort_order"] = range(len(role_stats))
-                role_stats.loc[role_stats["role"].str.startswith("+"), "sort_order"] = 999
-                role_order = role_stats["role"].tolist()
-
-                # Midpoint calculation for text labels
-                role_stats = role_stats.sort_values("sort_order").reset_index(drop=True)
-                role_stats["cumulative"] = role_stats["pct"].cumsum()
-                role_stats["midpoint"] = role_stats["cumulative"] - (role_stats["pct"] / 2)
-
-                base = alt.Chart(role_stats)
-
-                bars = base.mark_bar(
-                    cornerRadiusTopLeft=12,
-                    cornerRadiusBottomLeft=12,
-                    cornerRadiusTopRight=12,
-                    cornerRadiusBottomRight=12,
-                ).encode(
-                    x=alt.X("pct:Q", stack="normalize", axis=None),
-                    y=alt.Y("_y:N", axis=None),
-                    color=alt.Color(
-                        "role:N",
-                        sort=role_order,
-                        scale=alt.Scale(
-                            domain=role_order,
-                            range=["#1b4e6b", "#ff4d6b", "#f4ab33", "#c068a8", "#ec7176", "#5c63a2"],
-                        ),
-                        legend=alt.Legend(
-                            orient="bottom",
-                            direction="horizontal",
-                            title=None,
-                            columns=3,
-                            symbolSize=100,
-                            symbolType="circle",
-                            labelFontSize=14,
-                            columnPadding=20,
-                            padding=0,
-                        ),
-                    ),
-                    order=alt.Order("sort_order:Q", sort="ascending"),
-                    tooltip=[
-                        alt.Tooltip("role:N", title="Role"),
-                        alt.Tooltip("count:Q", title="Roles"),
-                        alt.Tooltip("pct:Q", title="Share", format=".0%"),
-                    ],
-                )
-
-                labels = base.mark_text(
-                    align="center",
-                    baseline="middle",
-                    fontSize=14,
-                    fontWeight="bold",
-                    color="white",
-                ).encode(
-                    x=alt.X("midpoint:Q", axis=None),
-                    y=alt.Y("_y:N", axis=None),
-                    text=alt.condition(
-                        alt.datum.pct >= 0.08,
-                        alt.Text("pct:Q", format=".0%"),
-                        alt.value(""),
-                    ),
-                    order=alt.Order("sort_order:Q", sort="ascending"),
-                )
-
-                chart = (
-                    alt.layer(bars, labels)
-                    .properties(height=240)
-                )
-
-                st.caption(f"**{selected_company}** — Role Composition · hover a segment for details")
-                st.altair_chart(chart, use_container_width=True)
-        else:
-            st.info("Select a company to see role composition.")
+            st.rerun(scope="fragment")   # only reruns render_composition, not the whole app
 
 # -----------------------------------
 # Role Insights Tab
