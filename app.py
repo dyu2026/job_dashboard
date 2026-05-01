@@ -545,6 +545,14 @@ col2.metric("🔥 New (24h)", int(df_filtered["is_new_24h"].sum()))
 col3.metric("✨ New Today (JST)", int(df_filtered["is_new_today"].sum()))
 col4.metric("Companies Tracked", df_filtered["company"].nunique())
 
+st.markdown("""
+<style>
+div[data-testid="stMetric"] {
+    margin-bottom: 20px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # -----------------------------------
 # Posting Trend Dataset
 # -----------------------------------
