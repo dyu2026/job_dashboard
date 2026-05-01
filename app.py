@@ -947,16 +947,30 @@ with tab3:
         headerClass="ag-left-aligned-header",
     )
 
-    gb.configure_grid_options(rowHeight=42, headerHeight=42,) 
+    gb.configure_grid_options(
+        rowHeight=42, 
+        headerHeight=42,
+        suppressSizeToFit=True, 
+        suppressColumnVirtualisation=True,
+    ) 
 
-    gb.configure_column("logo", header_name="", cellRenderer=logo_renderer, width=50, pinned="left", sortable=False, filter=False)
-    gb.configure_column("Company", pinned="left", width=160)
-    gb.configure_column("Active Roles", width=120, cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",)
-    gb.configure_column("7D New Roles", width=120, cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",)
-    gb.configure_column("Growth %", width=120, valueFormatter="x.toFixed(1) + '%'", 
-        cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",
+    gb.configure_column("logo", header_name="", cellRenderer=logo_renderer, 
+        width=50, minWidth=50, maxWidth=50,
+        pinned="left", sortable=False, filter=False, suppressSizeToFit=True,
     )
-    gb.configure_column("Last Updated", width=120)
+    gb.configure_column("Company", pinned="left", 
+        width=160, minWidth=160, suppressSizeToFit=True,
+    )
+    gb.configure_column("Active Roles", cellStyle={"textAlign": "left"}, 
+        width=120, minWidth=120, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
+    )
+    gb.configure_column("7D New Roles", cellStyle={"textAlign": "left"}, 
+        width=120, minWidth=120, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
+    )
+    gb.configure_column("Growth %", valueFormatter="x.toFixed(1) + '%'", cellStyle={"textAlign": "left"}, 
+        width=120, minWidth=120, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
+    )
+    gb.configure_column("Last Updated", width=120, minWidth=120, suppressSizeToFit=True,)
     gb.configure_selection("single", use_checkbox=False)
     gb.configure_pagination(paginationPageSize=10)
 
