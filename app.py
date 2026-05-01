@@ -1035,54 +1035,71 @@ with tab3:
                 role_stats.loc[role_stats["role"].str.startswith("+"), "sort_order"] = 999
                 role_order = role_stats["role"].tolist()
 
-                chart = (
-                    alt.Chart(role_stats)
-                    .mark_bar(
-                        cornerRadiusTopLeft=12,
-                        cornerRadiusBottomLeft=12,
-                        cornerRadiusTopRight=12,
-                        cornerRadiusBottomRight=12,
-                    )
-                    .encode(
-                        x=alt.X("pct:Q", stack="normalize", axis=None),
-                        y=alt.Y("_y:N", axis=None),
-                        color=alt.Color(
-                            "role:N",
-                            sort=role_order,
-                            scale=alt.Scale(
-                                domain=role_order,
-                                range=["#ff4d6b", "#1b4e6b", "#f4ab33", "#c068a8", "#ec7176", "#5c63a2"],
-                            ),
-                            legend=alt.Legend(
-                                orient="bottom",
-                                direction="horizontal",
-                                title=None,
-                                columns=3,
-                                symbolSize=100,
-                                symbolType="circle",
-                                labelFontSize=14,
-                                columnPadding=20,
-                                padding=0,
-                            ),
+                # Midpoint calculation for text labels
+                role_stats = role_stats.sort_values("sort_order").reset_index(drop=True)
+                role_stats["cumulative"] = role_stats["pct"].cumsum()
+                role_stats["midpoint"] = role_stats["cumulative"] - (role_stats["pct"] / 2)
+
+                base = alt.Chart(role_stats)
+
+                bars = base.mark_bar(
+                    cornerRadiusTopLeft=12,
+                    cornerRadiusBottomLeft=12,
+                    cornerRadiusTopRight=12,
+                    cornerRadiusBottomRight=12,
+                ).encode(
+                    x=alt.X("pct:Q", stack="normalize", axis=None),
+                    y=alt.Y("_y:N", axis=None),
+                    color=alt.Color(
+                        "role:N",
+                        sort=role_order,
+                        scale=alt.Scale(
+                            domain=role_order,
+                            range=["#1b4e6b", "#ff4d6b", "#f4ab33", "#c068a8", "#ec7176", "#5c63a2"],
                         ),
-                        order=alt.Order("sort_order:Q", sort="ascending"),
-                        tooltip=[
-                            alt.Tooltip("role:N", title="Role"),
-                            alt.Tooltip("count:Q", title="Roles"),
-                            alt.Tooltip("pct:Q", title="Share", format=".0%"),
-                        ],
-                    )
+                        legend=alt.Legend(
+                            orient="bottom",
+                            direction="horizontal",
+                            title=None,
+                            columns=3,
+                            symbolSize=100,
+                            symbolType="circle",
+                            labelFontSize=14,
+                            columnPadding=20,
+                            padding=0,
+                        ),
+                    ),
+                    order=alt.Order("sort_order:Q", sort="ascending"),
+                    tooltip=[
+                        alt.Tooltip("role:N", title="Role"),
+                        alt.Tooltip("count:Q", title="Roles"),
+                        alt.Tooltip("pct:Q", title="Share", format=".0%"),
+                    ],
+                )
+
+                labels = base.mark_text(
+                    align="center",
+                    baseline="middle",
+                    fontSize=12,
+                    fontWeight="bold",
+                    color="white",
+                ).encode(
+                    x=alt.X("midpoint:Q", axis=None),
+                    y=alt.Y("_y:N", axis=None),
+                    text=alt.condition(
+                        alt.datum.pct >= 0.08,
+                        alt.Text("pct:Q", format=".0%"),
+                        alt.value(""),
+                    ),
+                    order=alt.Order("sort_order:Q", sort="ascending"),
+                )
+
+                chart = (
+                    alt.layer(bars, labels)
                     .properties(height=240)
                 )
 
-                st.markdown(
-                    f"""
-                    <p style="font-size:18px; margin-top:10px;">
-                        <b>{selected_company}</b> — Role Composition · hover a segment for details
-                    </p>
-                    """,
-                    unsafe_allow_html=True
-                )
+                st.caption(f"**{selected_company}** — Role Composition · hover a segment for details")
                 st.altair_chart(chart, use_container_width=True)
         else:
             st.info("Select a company to see role composition.")
