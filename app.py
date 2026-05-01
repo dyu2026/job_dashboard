@@ -906,6 +906,12 @@ with tab3:
     # so selection is captured before chart draws
     # -----------------------------------
     st.markdown("### Companies")
+    
+    st.markdown("""
+    <p style="color: gray; margin-bottom: 30px; font-size: 14px;">
+    Click on a company to see the role composition
+    </p>
+    """, unsafe_allow_html=True)
 
     # --- Add logo to company_stats ---
     company_stats["logo"] = company_stats["company"].apply(get_base64_logo)
