@@ -958,19 +958,17 @@ with tab3:
         width=50, minWidth=50, maxWidth=50,
         pinned="left", sortable=False, filter=False, suppressSizeToFit=True,
     )
-    gb.configure_column("Company", pinned="left", 
-        width=160, minWidth=160, suppressSizeToFit=True,
-    )
+    gb.configure_column("Company", pinned="left", flex=1, )
     gb.configure_column("Active Roles", cellStyle={"textAlign": "left"}, 
-        width=160, minWidth=160, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
+        flex=1, headerClass="ag-left-aligned-header",
     )
     gb.configure_column("7D New Roles", cellStyle={"textAlign": "left"}, 
-        width=160, minWidth=160, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
+        flex=1, headerClass="ag-left-aligned-header",
     )
     gb.configure_column("Growth %", valueFormatter="x.toFixed(1) + '%'", cellStyle={"textAlign": "left"}, 
-        width=160, minWidth=160, suppressSizeToFit=True, headerClass="ag-left-aligned-header",
+        flex=1, headerClass="ag-left-aligned-header",
     )
-    gb.configure_column("Last Updated", width=160, minWidth=160, suppressSizeToFit=True,)
+    gb.configure_column("Last Updated", flex=1,)
     gb.configure_selection("single", use_checkbox=False)
     gb.configure_pagination(paginationPageSize=10)
 
