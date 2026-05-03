@@ -12,7 +12,50 @@ import uuid
 import re
 
 # Page setting
-st.set_page_config(page_title="Job Intelligence Dashboard", layout="wide")
+st.set_page_config(page_title="Japan Tech Jobs Dashboard | Real-Time Hiring Trends", layout="wide")
+
+st.markdown("""
+<head>
+<title>Japan Tech Jobs Dashboard | Real-Time Hiring Trends</title>
+<meta name="description" content="Track Japan and remote tech jobs across 60+ companies. Real-time hiring insights, role trends, and workforce analytics updated daily.">
+<meta name="keywords" content="Japan tech jobs, Tokyo jobs, remote tech jobs, software engineer Japan, hiring trends, job dashboard">
+<meta name="robots" content="index, follow">
+</head>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Japan Tech Jobs Dashboard",
+  "url": "https://your-app-url.streamlit.app",
+  "description": "Track Japan and remote tech jobs across 60+ companies with real-time hiring insights, role trends, and workforce analytics.",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "creator": {
+    "@type": "Person",
+    "name": "Derek Yu",
+    "url": "https://www.linkedin.com/in/derekhyyu/"
+  },
+  "keywords": [
+    "Japan tech jobs",
+    "Tokyo jobs",
+    "remote engineering jobs",
+    "software engineer Japan",
+    "job trends dashboard",
+    "hiring analytics"
+  ]
+}
+</script>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div style="display:none;">
+Japan Tech Jobs Dashboard tracking hiring trends across 60+ global companies. 
+Explore real-time software engineering, product, and data roles in Japan and remote.
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
@@ -101,9 +144,9 @@ with st.sidebar:
 # Page Config
 # -----------------------------------
 
-#st.title("Job Intelligence Dashboard")
+#st.title("Job Tech Jobs Dashboard")
 st.markdown("""
-<h1 style="margin-bottom: 0;">Job Intelligence Dashboard</h1>
+<h1 style="margin-bottom: 0;">Job Tech Jobs Dashboard</h1>
 <p style="color: gray; margin-top: -5px; margin-bottom: 40px;">
 Track Japan & remote tech jobs with real-time hiring insights
 </p>
