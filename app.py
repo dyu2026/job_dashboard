@@ -146,7 +146,7 @@ with st.sidebar:
 
 #st.title("Japan Tech Jobs Dashboard")
 st.markdown("""
-<h1 style="margin-bottom: 0;">Jappan Tech Jobs Dashboard</h1>
+<h1 style="margin-bottom: 0;">Japan Tech Jobs Dashboard</h1>
 <p style="color: gray; margin-top: -5px; margin-bottom: 40px;">
 Track Japan & remote tech jobs with real-time hiring insights
 </p>
