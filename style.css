@@ -1,3 +1,7 @@
+html, body, [class*="css"] {
+    font-family: 'Hanken Grotesk', sans-serif;
+}
+
 /* Adjust main content */
 
 [data-testid="stMarkdown"] hr {
@@ -120,10 +124,4 @@ section[data-testid="stSidebar"] div[data-testid="stTextInput"] label {
 /* Remove extra spacing wrapper */
 section[data-testid="stSidebar"] div[data-testid="stTextInput"] > div {
     margin-top: 0 !important;
-}
-
-/* Company tab */
-
-.ag-header-cell-text {
-    font-size: 15px;
 }
