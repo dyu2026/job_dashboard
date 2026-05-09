@@ -15,6 +15,12 @@ import re
 st.set_page_config(page_title="Japan Tech Jobs Dashboard | Real-Time Hiring Trends", layout="wide")
 
 st.markdown("""
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+""", unsafe_allow_html=True)
+
+st.markdown("""
 <head>
 <title>Japan Tech Jobs Dashboard | Real-Time Hiring Trends</title>
 <meta name="description" content="Track Japan and remote tech jobs across 60+ companies. Real-time hiring insights, role trends, and workforce analytics updated daily.">
