@@ -492,14 +492,31 @@ def render_composition(role_cache_dict):
 # Priority Tagging
 # -----------------------------------
 
+EXEC_PATTERNS = [
+    r"\bdirector\b",
+    r"\bhead\b",
+    r"\bvp\b",
+    r"\bcto\b",
+    r"\bchief\b",
+    r"\bceo\b",
+    r"\bpresident\b",
+    r"\bgeneral manager\b",
+    r"\bmanaging director\b"
+    r"\bcountry manager\b"
+    r"\bcountry head\b"
+    r"\bregional director\b"
+]
+
 def tag_priority(title):
     title = str(title).lower()
-    if any(x in title for x in ["director", "head", "vp", "cto", "chief", "ceo", "president", "general manager"]):
+
+    if any(re.search(pattern, title) for pattern in EXEC_PATTERNS):
         return "👑 Exec"
+
     elif "senior" in title:
         return "😎 Senior"
-    else:
-        return ""
+
+    return ""
 
 df["Priority"] = df["title"].apply(tag_priority)
 
