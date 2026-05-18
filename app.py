@@ -315,12 +315,14 @@ def prepare_jobs_dataframe(df):
 # Helper function to convert local images to Base64
 @st.cache_data
 def get_base64_logo(company_name):
-    """Cached logo loader — reads from disk once per session per company."""
-    file_path = f"logos/{company_name.lower()}.webp"
+    normalized = re.sub(r"[^a-z0-9]", "", company_name.lower())
+    file_path = f"logos/{normalized}.webp"
+
     if os.path.exists(file_path):
         with open(file_path, "rb") as f:
             data = base64.b64encode(f.read()).decode()
             return f"data:image/webp;base64,{data}"
+
     return None
  
 
