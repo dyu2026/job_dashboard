@@ -200,7 +200,8 @@ if not data:
     st.warning("No jobs found in database.")
     st.stop()
 
-df = pd.DataFrame(data)
+# RAW immutable dataset
+df_raw = pd.DataFrame(data)
 
 # Safety fallback
 for col, default in {
@@ -209,13 +210,32 @@ for col, default in {
     "is_japan": False,
     "remote_scope": "unknown"
 }.items():
-    if col not in df.columns:
-        df[col] = default
+    if col not in df_raw.columns:
+        df_raw[col] = default
 
 # Normalize
-df["remote_scope"] = df["remote_scope"].astype(str).str.lower().fillna("unknown")
-df["region"] = df["region"].astype(str).str.lower().fillna("unknown")
-df["last_seen_at"] = pd.to_datetime(df["last_seen_at"], errors="coerce", utc=True)
+# -------------------------------------------------
+df_raw["remote_scope"] = (
+    df_raw["remote_scope"]
+    .astype(str)
+    .str.lower()
+    .fillna("unknown")
+)
+
+
+df_raw["region"] = (
+    df_raw["region"]
+    .astype(str)
+    .str.lower()
+    .fillna("unknown")
+)
+
+
+df_raw["last_seen_at"] = pd.to_datetime(
+    df_raw["last_seen_at"],
+    errors="coerce",
+    utc=True
+)
 
 def classify_location(row):
     location = str(row.get("location", "")).lower()
@@ -249,13 +269,24 @@ def classify_location(row):
 
     return "unknown"
     
-df["location_class"] = df.apply(classify_location, axis=1)
+# -------------------------------------------------
+# Location Classification
+# -------------------------------------------------
 
-df_full = df.copy()
+df_raw["location_class"] = df_raw.apply(classify_location, axis=1)
 
-df = df[
-    df["location_class"].isin(["japan", "remote_allowed"])
-]
+# Full unfiltered dataset
+# -------------------------------------------------
+df_full = df_raw.copy()
+
+# Main Japan + allowed remote dataset
+# -------------------------------------------------
+df_location = df_raw[
+    df_raw["location_class"].isin(["japan", "remote_allowed"])
+].copy()
+
+st.write("SUPABASE ACTIVE:", len(df_raw))
+st.write("AFTER LOCATION FILTER:", len(df_location))
 
 def prepare_jobs_dataframe(df):
     now_utc = pd.Timestamp.now(tz="UTC")
@@ -327,7 +358,7 @@ def get_base64_logo(company_name):
  
 
 # Apply the logo mapping to the main dataframe
-df["logo"] = df["company"].apply(get_base64_logo)
+df_location["logo"] = df_location["company"].apply(get_base64_logo)
 
 @st.cache_data(ttl=300)
 def build_tab3_data(df_full):
@@ -520,7 +551,7 @@ def tag_priority(title):
 
     return ""
 
-df["Priority"] = df["title"].apply(tag_priority)
+df_location["Priority"] = df_location["title"].apply(tag_priority)
 
 ROLE_LABEL_MAP = {
     "product management": "Product",
@@ -546,8 +577,8 @@ ROLE_LABEL_MAP = {
     "other": "Other"
 }
 
-df["role_short"] = (
-    df["role"]
+df_location["role_short"] = (
+    df_location["role"]
     .str.lower()
     .map(ROLE_LABEL_MAP)
     .fillna("Other")
@@ -577,7 +608,7 @@ def extract_seniority(title):
     else:
         return "Other"
 
-df["seniority"] = df["title"].apply(extract_seniority)
+df_location["seniority"] = df_location["title"].apply(extract_seniority)
 
 SENIORITY_ORDER = [
     "C-Level",
@@ -595,7 +626,7 @@ SENIORITY_ORDER = [
 # Cleanup & Time Logic (centralized)
 # -----------------------------------
 
-df = prepare_jobs_dataframe(df)
+df_location = prepare_jobs_dataframe(df_location)
 
 now_utc = pd.Timestamp.now(tz="UTC")
 now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
@@ -609,7 +640,7 @@ last_24_utc = now_utc - pd.Timedelta(hours=24)
 # Roles and level filter
 st.sidebar.markdown('<h3 style="color:#ff4d6b;">Role & Level</h3>', unsafe_allow_html=True)
 # Get unique roles from dataset
-role_options = sorted(df["role_short"].dropna().unique())
+role_options = sorted(df_location["role_short"].dropna().unique())
 
 # Roles
 selected_roles = st.sidebar.multiselect(
@@ -619,7 +650,7 @@ selected_roles = st.sidebar.multiselect(
 )
 
 # Seniority
-available_levels = df["seniority"].dropna().unique()
+available_levels = df_location["seniority"].dropna().unique()
 seniority_options = [
     level for level in SENIORITY_ORDER if level in available_levels
 ]
@@ -631,7 +662,7 @@ selected_seniority = st.sidebar.multiselect(
 
 # Company Filter
 st.sidebar.markdown('<h3 style="color:#ff4d6b;">Company</h3>', unsafe_allow_html=True)
-companies = sorted(df["company"].dropna().unique())
+companies = sorted(df_location["company"].dropna().unique())
 selected_companies = st.sidebar.multiselect(
     "", 
     companies,
@@ -721,25 +752,37 @@ if not df.empty and "last_seen_at" in df.columns:
 # Apply Filters
 # -----------------------------------
 
+df_sidebar = df_location.copy()
+
 if selected_roles:
-    df = df[df["role_short"].isin(selected_roles)]
+    df_sidebar = df_sidebar[
+        df_sidebar["role_short"].isin(selected_roles)
+    ]
 
 if selected_seniority:
-    df = df[df["seniority"].isin(selected_seniority)]
+    df_sidebar = df_sidebar[
+        df_sidebar["seniority"].isin(selected_seniority)
+    ]
 
 if selected_companies:
-    df = df[df["company"].isin(selected_companies)]
-
-if st.session_state.search:
-    df = df[
-        df["title"].str.contains(st.session_state.search, case=False, na=False)
-        | df["company"].str.contains(st.session_state.search, case=False, na=False)
-        | df["location"].str.contains(st.session_state.search, case=False, na=False)
+    df_sidebar = df_sidebar[
+        df_sidebar["company"].isin(selected_companies)
     ]
+
+search_term = str(st.session_state.search).strip()
+
+if search_term:
+    df_sidebar = df_sidebar[
+        df_sidebar["title"].str.contains(search_term, case=False, na=False)
+        | df_sidebar["company"].str.contains(search_term, case=False, na=False)
+        | df_sidebar["location"].str.contains(search_term, case=False, na=False)
+    ]
+
+st.write("AFTER SIDEBAR FILTERS:", len(df_sidebar))
 
 # Apply Recency Filter (GLOBAL)
 
-df_filtered = df.copy()
+df_filtered = df_sidebar.copy()
 
 if selected_recency != "All":
     days = TIME_FILTERS[selected_recency]
@@ -754,12 +797,14 @@ if selected_recency != "All":
 if df_filtered.empty:
     st.warning("No jobs match filters.")
     st.stop()
+    
+st.write("FINAL DISPLAY:", len(df_filtered))
 
 # -----------------------------------
 # Metrics Row
 # -----------------------------------
 
-total_companies = df["company"].nunique()
+total_companies = df_filtered["company"].nunique()
 
 col1, col2, col3, col4 = st.columns(4)
 
