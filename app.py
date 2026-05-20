@@ -242,30 +242,43 @@ def classify_location(row):
     region = str(row.get("region", "")).lower()
     remote_scope = str(row.get("remote_scope", "")).lower()
 
-    # --- Explicit exclusions ---
+    # --- 1. Strong Japan signals (FIRST — wins over any exclusion) ---
+    # Must come before exclusions to prevent false positives like
+    # "uk" substring matching inside "fukuoka".
     if any(x in location for x in [
-        "bogota", "colombia",
-        "brazil", "argentina", "mexico",
-        "africa", "nigeria", "kenya",
-        "europe", "germany", "france", "spain", "uk",
-        "canada", "united states", "usa"
+        "japan", "tokyo", "osaka", "yokohama", "kanagawa",
+        "fukuoka", "nagoya", "sapporo", "kyoto", "kobe",
+        "hiroshima", "sendai", "chiba", "saitama"
     ]):
-        return "exclude"
-
-    # --- Strong Japan signals ---
-    if any(x in location for x in ["japan", "tokyo", "osaka", "yokohama", "kanagawa"]):
         return "japan"
 
     if region == "japan":
         return "japan"
 
-    # --- Remote allowed ---
+    # --- 2. Remote APAC/Asia allowed (BEFORE western exclusions) ---
+    # Catches strings like "Remote Europe | Remote Asia" or
+    # "Remote, APAC; Remote, Canada; ..." that would otherwise be
+    # killed by "europe" or "canada" before "asia"/"apac" is reached.
     if row.get("is_remote"):
         if remote_scope in ["global", "apac"]:
             return "remote_allowed"
-
         if any(x in location for x in ["apac", "asia"]):
             return "remote_allowed"
+
+    # --- 3. Explicit exclusions ---
+    # "uk" uses a word-boundary regex (\buk\b) instead of a plain
+    # substring check, as a second safety net against "fukuoka".
+    if any(x in location for x in [
+        "bogota", "colombia",
+        "brazil", "argentina", "mexico",
+        "africa", "nigeria", "kenya",
+        "europe", "germany", "france", "spain",
+        "canada", "united states", "usa"
+    ]):
+        return "exclude"
+
+    if re.search(r"\buk\b", location):
+        return "exclude"
 
     return "unknown"
     
