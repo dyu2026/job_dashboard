@@ -607,6 +607,11 @@ now_utc = pd.Timestamp.now(tz="UTC")
 now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
 last_24_utc = now_utc - pd.Timedelta(hours=24)
 
+#debug_active
+st.write("selected_roles:", selected_roles)
+st.write("selected_seniority:", selected_seniority)
+st.write("selected_companies:", selected_companies)
+st.write("search:", repr(st.session_state.search))
 
 # -----------------------------------
 # Sidebar Filters
