@@ -705,50 +705,6 @@ with col2:
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # -----------------------------------
-# Last Updated (JST)
-# -----------------------------------
-
-# Get the most recent timestamp from the records
-if not df_filtered.empty and "last_seen_at" in df_filtered.columns:
-    # 1. Get latest timestamp (UTC)
-    latest_utc = df_filtered["last_seen_at"].max().to_pydatetime()
-
-    # 2. Current time (UTC)
-    now_utc = datetime.now(timezone.utc)
-
-    # 3. Time difference
-    diff = now_utc - latest_utc
-    seconds = int(diff.total_seconds())
-
-    # 4. Format relative time
-    if seconds < 60:
-        val = seconds
-        unit = "sec" if val == 1 else "secs"
-    elif seconds < 3600:
-        val = seconds // 60
-        unit = "min" if val == 1 else "mins"
-    elif seconds < 86400:
-        val = seconds // 3600
-        unit = "hr" if val == 1 else "hrs"
-    else:
-        val = seconds // 86400
-        unit = "day" if val == 1 else "days"
-
-    rel = f"{val} {unit} ago"
-
-    # 5. Convert to JST
-    jst_timezone = timezone(timedelta(hours=9))
-    last_updated_jst = latest_utc.astimezone(jst_timezone)
-
-    # 6. Format absolute time
-    absolute = last_updated_jst.strftime("%b %d, %H:%M JST")
-
-    # 7. Display
-    st.sidebar.markdown("---")
-    st.sidebar.caption(f"Updated: {rel} ({absolute})")
-    st.sidebar.caption("Made in :streamlit: by [Derek Yu](https://www.linkedin.com/in/derekhyyu/)")
-
-# -----------------------------------
 # Apply Filters
 # -----------------------------------
 
@@ -797,7 +753,51 @@ if selected_recency != "All":
 if df_filtered.empty:
     st.warning("No jobs match filters.")
     st.stop()
-    
+
+# -----------------------------------
+# Last Updated (JST)
+# -----------------------------------
+
+# Get the most recent timestamp from the records
+if not df_filtered.empty and "last_seen_at" in df_filtered.columns:
+    # 1. Get latest timestamp (UTC)
+    latest_utc = df_filtered["last_seen_at"].max().to_pydatetime()
+
+    # 2. Current time (UTC)
+    now_utc = datetime.now(timezone.utc)
+
+    # 3. Time difference
+    diff = now_utc - latest_utc
+    seconds = int(diff.total_seconds())
+
+    # 4. Format relative time
+    if seconds < 60:
+        val = seconds
+        unit = "sec" if val == 1 else "secs"
+    elif seconds < 3600:
+        val = seconds // 60
+        unit = "min" if val == 1 else "mins"
+    elif seconds < 86400:
+        val = seconds // 3600
+        unit = "hr" if val == 1 else "hrs"
+    else:
+        val = seconds // 86400
+        unit = "day" if val == 1 else "days"
+
+    rel = f"{val} {unit} ago"
+
+    # 5. Convert to JST
+    jst_timezone = timezone(timedelta(hours=9))
+    last_updated_jst = latest_utc.astimezone(jst_timezone)
+
+    # 6. Format absolute time
+    absolute = last_updated_jst.strftime("%b %d, %H:%M JST")
+
+    # 7. Display
+    st.sidebar.markdown("---")
+    st.sidebar.caption(f"Updated: {rel} ({absolute})")
+    st.sidebar.caption("Made in :streamlit: by [Derek Yu](https://www.linkedin.com/in/derekhyyu/)")
+
 st.write("FINAL DISPLAY:", len(df_filtered))
 
 # -----------------------------------
