@@ -257,8 +257,6 @@ df = df[
     df["location_class"].isin(["japan", "remote_allowed"])
 ]
 
-st.write(df["location_class"].value_counts(dropna=False))
-
 def prepare_jobs_dataframe(df):
     now_utc = pd.Timestamp.now(tz="UTC")
     now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
