@@ -251,17 +251,17 @@ def classify_location(row):
     
 df["location_class"] = df.apply(classify_location, axis=1)
 
-df_full = df.copy()
-
-df = df[
-    df["location_class"].isin(["japan", "remote_allowed"])
-]
-
 debug = df[df["location_class"] == "unknown"][
     ["company", "title", "location", "region", "remote_scope"]
 ]
 
 st.write(debug.head(50))
+
+df_full = df.copy()
+
+df = df[
+    df["location_class"].isin(["japan", "remote_allowed"])
+]
 
 def prepare_jobs_dataframe(df):
     now_utc = pd.Timestamp.now(tz="UTC")
