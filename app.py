@@ -709,9 +709,9 @@ st.sidebar.markdown('</div>', unsafe_allow_html=True)
 # -----------------------------------
 
 # Get the most recent timestamp from the records
-if not df.empty and "last_seen_at" in df.columns:
+if not df_filtered.empty and "last_seen_at" in df_filtered.columns:
     # 1. Get latest timestamp (UTC)
-    latest_utc = df["last_seen_at"].max().to_pydatetime()
+    latest_utc = df_filtered["last_seen_at"].max().to_pydatetime()
 
     # 2. Current time (UTC)
     now_utc = datetime.now(timezone.utc)
