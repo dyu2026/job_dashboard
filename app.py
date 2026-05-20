@@ -937,7 +937,9 @@ df_filtered["is_new_company"] = (
 )
 
 df_filtered["company_display"] = df_filtered["company"]
-df_filtered.loc[df_filtered["is_new_company"], "company_display"] += " 🌟"
+df_filtered.loc[df_filtered["is_new_company"], "company_display"] = (
+    "🌟 " + df_filtered.loc[df_filtered["is_new_company"], "company_display"]
+)
 
 
 # -----------------------------------
