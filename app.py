@@ -584,7 +584,7 @@ df_location["role_short"] = (
     .fillna("Other")
 )
 
-df_for_trends = df.copy()  # keep full dataset for trends if needed
+df_for_trends = df_location.copy()  # keep full dataset for trends if needed
 
 def extract_seniority(title):
     title = str(title).lower()
