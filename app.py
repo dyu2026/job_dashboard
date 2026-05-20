@@ -1365,7 +1365,7 @@ with tab4:
     <div style="font-family: sans-serif;">
     {html}
     </div>
-    """, height=650, scrolling=True)
+    """, height=700, scrolling=True)
 
 # -----------------------------------
 # Posting Trends Tab
