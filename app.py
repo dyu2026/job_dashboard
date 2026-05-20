@@ -1142,7 +1142,7 @@ with tab2:
         },
         use_container_width=True,
         hide_index=True,
-        height=700,
+        height=600,
     )
 
 # -----------------------------------
