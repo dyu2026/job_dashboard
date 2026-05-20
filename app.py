@@ -202,9 +202,6 @@ if not data:
 
 df = pd.DataFrame(data)
 
-#debug_active
-st.write("SUPABASE ACTIVE:", len(df))
-
 # Safety fallback
 for col, default in {
     "region": "unknown",
@@ -253,9 +250,6 @@ def classify_location(row):
     return "unknown"
     
 df["location_class"] = df.apply(classify_location, axis=1)
-
-#debug_active
-st.write("AFTER LOCATION FILTER:", len(df))
 
 df_full = df.copy()
 
@@ -660,9 +654,6 @@ selected_recency = st.sidebar.selectbox(
     ["All"] + list(TIME_FILTERS.keys())
 )
 
-#debug_active
-st.write("AFTER SIDEBAR FILTERS:", len(df))
-
 # -----------------------------------
 # Search + Reset
 # -----------------------------------
@@ -726,14 +717,6 @@ if not df.empty and "last_seen_at" in df.columns:
     st.sidebar.caption(f"Updated: {rel} ({absolute})")
     st.sidebar.caption("Made in :streamlit: by [Derek Yu](https://www.linkedin.com/in/derekhyyu/)")
 
-
-#debug_active
-st.write("selected_roles:", selected_roles)
-st.write("selected_seniority:", selected_seniority)
-st.write("selected_companies:", selected_companies)
-st.write("search:", repr(st.session_state.search))
-
-
 # -----------------------------------
 # Apply Filters
 # -----------------------------------
@@ -771,9 +754,6 @@ if selected_recency != "All":
 if df_filtered.empty:
     st.warning("No jobs match filters.")
     st.stop()
-
-#debug_active
-st.write("FINAL DISPLAY:", len(df_filtered))
 
 # -----------------------------------
 # Metrics Row
