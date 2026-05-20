@@ -503,10 +503,10 @@ EXEC_PATTERNS = [
     r"\bceo\b",
     r"\bpresident\b",
     r"\bgeneral manager\b",
-    r"\bmanaging director\b"
-    r"\bcountry manager\b"
-    r"\bcountry head\b"
-    r"\bregional director\b"
+    r"\bmanaging director\b",
+    r"\bcountry manager\b",
+    r"\bcountry head\b",
+    r"\bregional director\b",
 ]
 
 def tag_priority(title):
