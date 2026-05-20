@@ -202,6 +202,9 @@ if not data:
 
 df = pd.DataFrame(data)
 
+#debug_active
+st.write("SUPABASE ACTIVE:", len(df))
+
 # Safety fallback
 for col, default in {
     "region": "unknown",
@@ -251,11 +254,8 @@ def classify_location(row):
     
 df["location_class"] = df.apply(classify_location, axis=1)
 
-debug = df[df["location_class"] == "unknown"][
-    ["company", "title", "location", "region", "remote_scope"]
-]
-
-st.write(debug.head(50))
+#debug_active
+st.write("AFTER LOCATION FILTER:", len(df))
 
 df_full = df.copy()
 
@@ -660,6 +660,8 @@ selected_recency = st.sidebar.selectbox(
     ["All"] + list(TIME_FILTERS.keys())
 )
 
+#debug_active
+st.write("AFTER SIDEBAR FILTERS:", len(df))
 
 # -----------------------------------
 # Search + Reset
@@ -762,6 +764,8 @@ if df_filtered.empty:
     st.warning("No jobs match filters.")
     st.stop()
 
+#debug_active
+st.write("FINAL DISPLAY:", len(df_filtered))
 
 # -----------------------------------
 # Metrics Row
