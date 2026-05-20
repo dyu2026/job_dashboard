@@ -891,7 +891,7 @@ heatmap_data = (
 # -----------------------------------
 
 company_first_seen = (
-    df.groupby("company")["first_seen_at"]
+    df_location.groupby("company")["first_seen_at"]
     .min()
     .reset_index()
     .rename(columns={"first_seen_at": "company_first_seen_at"})
