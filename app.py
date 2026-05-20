@@ -187,14 +187,25 @@ if "page_logged" not in st.session_state:
 # Fetch Data
 # -----------------------------------
 
-response = (
-    supabase.table("jobs")
-    .select("*")
-    .eq("is_active", True)
-    .execute()
-)
+# Supabase/PostgREST caps responses at 1000 rows by default.
+# Paginate until the batch is smaller than PAGE_SIZE, meaning we have all rows.
+PAGE_SIZE = 1000
+data = []
+start = 0
 
-data = response.data
+while True:
+    response = (
+        supabase.table("jobs")
+        .select("*")
+        .eq("is_active", True)
+        .range(start, start + PAGE_SIZE - 1)
+        .execute()
+    )
+    batch = response.data or []
+    data.extend(batch)
+    if len(batch) < PAGE_SIZE:
+        break
+    start += PAGE_SIZE
 
 if not data:
     st.warning("No jobs found in database.")
