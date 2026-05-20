@@ -309,8 +309,8 @@ df_location = df_raw[
     df_raw["location_class"].isin(["japan", "remote_allowed"])
 ].copy()
 
-st.write("SUPABASE ACTIVE:", len(df_raw))
-st.write("AFTER LOCATION FILTER:", len(df_location))
+#DEBUG st.write("SUPABASE ACTIVE:", len(df_raw))
+#DEBUG st.write("AFTER LOCATION FILTER:", len(df_location))
 
 def prepare_jobs_dataframe(df):
     now_utc = pd.Timestamp.now(tz="UTC")
@@ -758,7 +758,7 @@ if search_term:
         | df_sidebar["location"].str.contains(search_term, case=False, na=False)
     ]
 
-st.write("AFTER SIDEBAR FILTERS:", len(df_sidebar))
+#DEBUG st.write("AFTER SIDEBAR FILTERS:", len(df_sidebar))
 
 # Apply Recency Filter (GLOBAL)
 
@@ -822,7 +822,7 @@ if not df_filtered.empty and "last_seen_at" in df_filtered.columns:
     st.sidebar.caption(f"Updated: {rel} ({absolute})")
     st.sidebar.caption("Made in :streamlit: by [Derek Yu](https://www.linkedin.com/in/derekhyyu/)")
 
-st.write("FINAL DISPLAY:", len(df_filtered))
+#DEBUG st.write("FINAL DISPLAY:", len(df_filtered))
 
 # -----------------------------------
 # Metrics Row
