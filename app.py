@@ -257,6 +257,12 @@ df = df[
     df["location_class"].isin(["japan", "remote_allowed"])
 ]
 
+debug = df[df["location_class"] == "unknown"][
+    ["company", "title", "location", "region", "remote_scope"]
+]
+
+st.write(debug.head(50))
+
 def prepare_jobs_dataframe(df):
     now_utc = pd.Timestamp.now(tz="UTC")
     now_jst = pd.Timestamp.now(tz="Asia/Tokyo")
