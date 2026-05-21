@@ -833,8 +833,8 @@ total_companies = df_filtered["company"].nunique()
 col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Total Jobs", len(df_filtered))
-col2.metric("🔥 New (24h)", int(df_filtered["is_new_24h"].sum()))
-col3.metric("✨ New Today (JST)", int(df_filtered["is_new_today"].sum()))
+col2.metric("New (24h)", int(df_filtered["is_new_24h"].sum()))
+col3.metric("New Today (JST)", int(df_filtered["is_new_today"].sum()))
 col4.metric("Companies Tracked", df_filtered["company"].nunique())
 
 # -----------------------------------
