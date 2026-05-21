@@ -1,4 +1,6 @@
-/* Adjust main content */
+/* ================================
+   Adjust main content
+   ================================ */
 
 [data-testid="stMarkdown"] hr {
     margin-top: 0px !important;
@@ -43,7 +45,7 @@ div[data-testid="metric-container"] > div {
 [data-testid="stMetricValue"] {
     display: flex;
     justify-content: center;
-    font-size: 35px;
+    font-size: 3rem;
     font-weight: 700;
     color: #ff4d6b;
 }
