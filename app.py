@@ -424,6 +424,26 @@ def build_tab3_data(df_full):
         .count()
         .reset_index(name="new_roles_7d")
     )
+    
+    removed_7d_resp = supabase.table("jobs") \
+    .select("company") \
+    .eq("is_active", False) \
+    .gte("last_seen_at", (pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7)).isoformat()) \
+    .execute()
+
+    removed_7d_df = pd.DataFrame(removed_7d_resp.data or [])
+
+    if not removed_7d_df.empty:
+        removed_counts = (
+            removed_7d_df.groupby("company")["company"]
+            .count()
+            .reset_index(name="removed_7d")
+        )
+        company_stats = company_stats.merge(removed_counts, on="company", how="left")
+    else:
+        company_stats["removed_7d"] = 0
+
+    company_stats["removed_7d"] = company_stats["removed_7d"].fillna(0).astype(int)
  
     company_stats = company_stats.merge(recent_counts, on="company", how="left").fillna(0)
     company_stats["growth_rate"] = (
@@ -1171,11 +1191,12 @@ with tab3:
         "active_roles": "Active Roles",
         "new_roles_7d": "7D New Roles",
         "growth_rate": "Growth %",
+        "removed_7d": "7D Removed",
         "last_updated": "Last Updated",
     })
  
     display_df = display_df[[
-        "logo", "Company", "Active Roles", "7D New Roles", "Growth %", "Last Updated", "last_updated_ts"
+        "logo", "Company", "Active Roles", "7D New Roles", "Growth %", "7D Removed", "Last Updated", "last_updated_ts"
     ]]
  
     logo_renderer = JsCode("""
@@ -1239,6 +1260,10 @@ with tab3:
     gb.configure_column(
         "Growth %", flex=1,
         valueFormatter="x.toFixed(1) + '%'",
+        cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",
+    )
+    gb.configure_column(
+        "7D Removed", flex=1,
         cellStyle={"textAlign": "left"}, headerClass="ag-left-aligned-header",
     )
     gb.configure_column(
