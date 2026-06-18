@@ -16,7 +16,7 @@ st.set_page_config(page_title="Japan Tech Jobs Dashboard | Real-Time Hiring Tren
 
 st.markdown("""
 <head>
-<title>Japan Tech Jobs Dashboard | Real-Time Hiring Trends</title>
+<title>Japan Tech Jobs | Tech Careers in Japan</title>
 <meta name="description" content="Track Japan and remote tech jobs across 60+ companies. Real-time hiring insights, role trends, and workforce analytics updated daily.">
 <meta name="keywords" content="Japan tech jobs, Tokyo jobs, remote tech jobs, software engineer Japan, hiring trends, job dashboard">
 <meta name="robots" content="index, follow">
@@ -144,11 +144,11 @@ with st.sidebar:
 # Page Config
 # -----------------------------------
 
-#st.title("Japan Tech Jobs Dashboard")
+#st.title("Japan Tech Jobs")
 st.markdown("""
-<h1 style="margin-bottom: 0;">Japan Tech Jobs Dashboard</h1>
+<h1 style="margin-bottom: 0;">Japan Tech Jobs</h1>
 <p style="color: gray; margin-top: -5px; margin-bottom: 40px;">
-Track Japan & remote tech jobs with real-time hiring insights
+Find tech jobs from global companies hiring in Japan
 </p>
 """, unsafe_allow_html=True)
 
